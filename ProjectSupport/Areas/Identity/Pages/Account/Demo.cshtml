@@ -15,7 +15,7 @@
     </div>
     <ul>
         <li>
-            <input asp-for="@Model.Input1.IsSelected" type="checkbox" id="cb1" />
+            <input asp-for="@Model.Input1.IsSelected" type="checkbox" id="cb1" class="cb" onchange="cbChange(this)" />
             <label class="form-check-label" asp-for="@Model.Input1.IsSelected" for="cb1">
                 <img src="~/img/2.png" />
             </label>
@@ -23,7 +23,7 @@
         </li>
 
         <li>
-            <input asp-for="@Model.Input2.IsSelected" type="checkbox" id="cb2" />
+            <input asp-for="@Model.Input2.IsSelected" type="checkbox" id="cb2" class="cb" onchange="cbChange(this)" />
             <label class="form-check-label" asp-for="@Model.Input2.IsSelected" for="cb2">
                 <img src="~/img/1.png" />
             </label>
@@ -31,7 +31,7 @@
         </li>
 
         <li>
-            <input asp-for="@Model.Input3.IsSelected" type="checkbox" id="cb3" />
+            <input asp-for="@Model.Input3.IsSelected" type="checkbox" id="cb3" class="cb" onchange="cbChange(this)" />
             <label class="form-check-label" asp-for="@Model.Input3.IsSelected" for="cb3">
                 <img src="~/img/3.png" />
             </label>
@@ -48,3 +48,7 @@
         <h6>Have an account? <a type="text/asp" href='/Identity/Account/Login'>Sign In</a></h6>
     </div>
 </form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
