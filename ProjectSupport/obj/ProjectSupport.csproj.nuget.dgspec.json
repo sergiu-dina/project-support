@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "E:\\Facultate\\Licenta\\ProjectSupport\\ProjectSupport\\ProjectSupport.csproj": {}
+    "E:\\Facultate\\Licenta\\project-support\\ProjectSupport\\ProjectSupport.csproj": {}
   },
   "projects": {
-    "E:\\Facultate\\Licenta\\ProjectSupport\\ProjectSupport\\ProjectSupport.csproj": {
+    "E:\\Facultate\\Licenta\\project-support\\ProjectSupport\\ProjectSupport.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\Facultate\\Licenta\\ProjectSupport\\ProjectSupport\\ProjectSupport.csproj",
+        "projectUniqueName": "E:\\Facultate\\Licenta\\project-support\\ProjectSupport\\ProjectSupport.csproj",
         "projectName": "ProjectSupport",
-        "projectPath": "E:\\Facultate\\Licenta\\ProjectSupport\\ProjectSupport\\ProjectSupport.csproj",
+        "projectPath": "E:\\Facultate\\Licenta\\project-support\\ProjectSupport\\ProjectSupport.csproj",
         "packagesPath": "C:\\Users\\Gigabyte\\.nuget\\packages\\",
-        "outputPath": "E:\\Facultate\\Licenta\\ProjectSupport\\ProjectSupport\\obj\\",
+        "outputPath": "E:\\Facultate\\Licenta\\project-support\\ProjectSupport\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Gigabyte\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -57,6 +57,12 @@
               "suppressParent": "All",
               "target": "Package",
               "version": "[3.1.10, )"
+            },
+            "Microsoft.TypeScript.MSBuild": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[4.1.2, )"
             },
             "Microsoft.VisualStudio.Web.CodeGeneration.Design": {
               "target": "Package",
