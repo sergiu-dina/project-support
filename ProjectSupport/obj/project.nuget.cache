@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "Himio/DrXvycUzknRISacqGvBRk4vYnU8ZkY5iAyqFcJpqIVBj0tsueYlytdQMRNp+5KYz/poduUSl7UhP+mWg==",
+  "dgSpecHash": "JKxrlAAqzdsyGt2MPq5CYmqTJJ9onwIjMePRtahtVIik94t93RDBWHRQ9H2l2guu6X1csWLNhFjWEXHhjWiFvg==",
   "success": true,
   "projectFilePath": "E:\\Facultate\\Licenta\\project-support\\ProjectSupport\\ProjectSupport.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\Gigabyte\\.nuget\\packages\\microsoft.aspnetcore.authentication.facebook\\3.1.10\\microsoft.aspnetcore.authentication.facebook.3.1.10.nupkg.sha512",
     "C:\\Users\\Gigabyte\\.nuget\\packages\\microsoft.aspnetcore.authentication.google\\3.1.10\\microsoft.aspnetcore.authentication.google.3.1.10.nupkg.sha512",
     "C:\\Users\\Gigabyte\\.nuget\\packages\\microsoft.aspnetcore.cryptography.internal\\3.1.10\\microsoft.aspnetcore.cryptography.internal.3.1.10.nupkg.sha512",
     "C:\\Users\\Gigabyte\\.nuget\\packages\\microsoft.aspnetcore.cryptography.keyderivation\\3.1.10\\microsoft.aspnetcore.cryptography.keyderivation.3.1.10.nupkg.sha512",

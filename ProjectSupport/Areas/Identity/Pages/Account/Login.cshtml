@@ -34,40 +34,49 @@
             <div class="form-group">
                 <button type="submit" class="btn btn-primary btn-block">Log in</button>
             </div>
-            <div class="row">
-                &nbsp
+            <div class="text-center">
+                <p>Forgot your <a type="text/asp" href='/Identity/Account/Demo'>Password?</a></p>
             </div>
             <div class="text-center">
                 <h6>Sign in with a <a type="text/asp" href='/Identity/Account/Demo'>Demo Account</a></h6>
             </div>
+            <hr />
         </form>
         <div class="text-center">
-            <p>Or Sign in using</p>
-            <hr />
-            @{
-                if ((Model.ExternalLogins?.Count ?? 0) == 0)
-                {
-                    <div>
-                        <p>
-                            There are no external authentication services configured. See <a href="https://go.microsoft.com/fwlink/?LinkID=532715">this article</a>
-                            for details on setting up this ASP.NET application to support logging in via external services.
-                        </p>
-                    </div>
-                }
-                else
-                {
-                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
-                        <div>
-                            <p>
-                                @foreach (var provider in Model.ExternalLogins)
+            <h6>Or Sign in using</h6>
+            <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
+                <div>
+                    <p>
+                        <div class="row">
+                            @foreach (var provider in Model.ExternalLogins)
+                            {
+
+                                if (provider.Name == "Google")
                                 {
-                                    <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
+                                    <div class="col-md-6">
+                                        <button type="submit" class="btn btn-block btn-google" value="@provider.Name"
+                                                title="Log in using your @provider.DisplayName account" name="provider">
+
+                                            <i class="fab fa-google-plus fa-align-left social-icon" style=""></i>
+                                        </button>
+                                    </div>
                                 }
-                            </p>
+                                else if (provider.Name == "Facebook")
+                                {
+                                    <div class="col-md-6">
+                                        <button class="btn-block btn btn-facebook" type="submit" value="@provider.Name"
+                                                title="Log in using your @provider.DisplayName account" name="provider">
+
+                                            <i class="fab fa-facebook fa-align-left social-icon"></i>
+                                        </button>
+                                    </div>
+                                }
+
+                             }
                         </div>
-                    </form>
-                }
-            }
+                    </p>
+                </div>
+            </form>
         </div>
     </section>
 </div>

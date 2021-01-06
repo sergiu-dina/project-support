@@ -36,7 +36,12 @@ namespace ProjectSupport.Areas.Identity
                     {
                         o.ClientId = context.Configuration["Google:ClientId"];
                         o.ClientSecret = context.Configuration["Google:ClientSecret"];
-                    });
+                    })
+                    .AddFacebook(o =>
+                     {
+                         o.AppId = context.Configuration["Facebook:AppId"];
+                         o.AppSecret = context.Configuration["Facebook:AppSecret"];
+                     });
 
                 services.AddMvc();
             });

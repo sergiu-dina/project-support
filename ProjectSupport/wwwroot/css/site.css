@@ -183,3 +183,24 @@ label {
     width: 75%;
     margin: 0 auto;
 }
+
+
+.btn-google:hover {
+    background: #b22222;
+    color: #fff;
+}
+
+.btn-facebook:hover {
+    background: #2b4db1;
+    color: #fff;
+}
+
+.btn-facebook {
+    background: #305c99;
+    color: #fff;
+}
+
+.btn-google {
+    background: #d24228;
+    color: #fff;
+}
