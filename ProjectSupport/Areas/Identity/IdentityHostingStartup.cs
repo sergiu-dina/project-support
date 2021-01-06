@@ -20,14 +20,25 @@ namespace ProjectSupport.Areas.Identity
                     options.UseSqlServer(
                         context.Configuration.GetConnectionString("AppDbContextConnection")));
 
-                services.AddDefaultIdentity<AppUser>(options =>
+                services.AddIdentity<AppUser, IdentityRole>(options =>
                 {
                     options.SignIn.RequireConfirmedAccount = false;
                     options.Password.RequireLowercase = false;
                     options.Password.RequireUppercase = false;
                     options.Password.RequireNonAlphanumeric = false;
                 })
-                    .AddEntityFrameworkStores<AppDbContext>();
+                    .AddEntityFrameworkStores<AppDbContext>()
+                    .AddDefaultUI()
+                    .AddDefaultTokenProviders();
+
+                services.AddAuthentication()
+                    .AddGoogle(o =>
+                    {
+                        o.ClientId = context.Configuration["Google:ClientId"];
+                        o.ClientSecret = context.Configuration["Google:ClientSecret"];
+                    });
+
+                services.AddMvc();
             });
         }
     }
