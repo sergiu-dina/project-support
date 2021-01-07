@@ -338,3 +338,9 @@ E:\Facultate\Licenta\project-support\ProjectSupport\bin\Debug\netcoreapp3.1\tsco
 E:\Facultate\Licenta\project-support\ProjectSupport\obj\Debug\netcoreapp3.1\Razor\Areas\Identity\Pages\Account\Demo.cshtml.g.cs
 E:\Facultate\Licenta\project-support\ProjectSupport\bin\Debug\netcoreapp3.1\Microsoft.AspNetCore.Authentication.Google.dll
 E:\Facultate\Licenta\project-support\ProjectSupport\bin\Debug\netcoreapp3.1\Microsoft.AspNetCore.Authentication.Facebook.dll
+E:\Facultate\Licenta\project-support\ProjectSupport\bin\Debug\netcoreapp3.1\SendGrid.dll
+E:\Facultate\Licenta\project-support\ProjectSupport\bin\Debug\netcoreapp3.1\StarkbankEcdsa.dll
+E:\Facultate\Licenta\project-support\ProjectSupport\obj\Debug\netcoreapp3.1\Razor\Areas\Identity\Pages\Account\ForgotPassword.cshtml.g.cs
+E:\Facultate\Licenta\project-support\ProjectSupport\obj\Debug\netcoreapp3.1\Razor\Areas\Identity\Pages\Account\ForgotPasswordConfirmation.cshtml.g.cs
+E:\Facultate\Licenta\project-support\ProjectSupport\obj\Debug\netcoreapp3.1\Razor\Areas\Identity\Pages\Account\ResetPassword.cshtml.g.cs
+E:\Facultate\Licenta\project-support\ProjectSupport\obj\Debug\netcoreapp3.1\Razor\Areas\Identity\Pages\Account\ResetPasswordConfirmation.cshtml.g.cs
