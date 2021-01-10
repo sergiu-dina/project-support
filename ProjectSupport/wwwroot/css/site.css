@@ -214,8 +214,10 @@ label {
     left: 0;
     overflow-x: hidden;
     overflow-y: auto;
-    background: #1a1a1a;
-    color: #fff;
+    background: white;
+    color: black;
+    border-right: 1px solid #e5e5e5;
+    box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
 }
 
 .content-container {
@@ -223,7 +225,7 @@ label {
 }
 
 .sidebar-logo {
-    padding: 18px 15px 10px 30px;
+    padding: 18px 15px 15px 40px;
     font-size: 20px;
 }
 
@@ -245,7 +247,7 @@ label {
         .sidebar-navigation li a {
             padding: 10px 15px 10px 30px;
             display: block;
-            color: #fff;
+            color: black;
         }
 
         .sidebar-navigation li .fa {
@@ -260,7 +262,7 @@ label {
         }
 
         .sidebar-navigation li::before {
-            background-color: #2574A9;
+            background-color: #0275d8;
             position: absolute;
             content: '';
             height: 100%;
@@ -277,9 +279,10 @@ label {
         }
 
     .sidebar-navigation .header {
-        font-size: 12px;
+        font-size: 15px;
         text-transform: uppercase;
-        background-color: #151515;
+        background-color: white;
+        color:black;
         padding: 10px 15px 10px 30px;
     }
 
