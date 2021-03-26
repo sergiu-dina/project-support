@@ -214,10 +214,8 @@ label {
     left: 0;
     overflow-x: hidden;
     overflow-y: auto;
-    background: white;
+    background: #3F0E40;
     color: black;
-    border-right: 1px solid #e5e5e5;
-    box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
 }
 
 .content-container {
@@ -225,8 +223,11 @@ label {
 }
 
 .sidebar-logo {
-    padding: 18px 15px 15px 40px;
+    padding: 12.5px 15px 15px 40px;
     font-size: 20px;
+    border-bottom: 1px solid #6c757d;
+    border-right: 1px solid #6c757d;
+    color: white;
 }
 
 .sidebar-navigation {
@@ -247,7 +248,7 @@ label {
         .sidebar-navigation li a {
             padding: 10px 15px 10px 30px;
             display: block;
-            color: black;
+            color: white;
         }
 
         .sidebar-navigation li .fa {
@@ -263,7 +264,7 @@ label {
         }
 
         .sidebar-navigation li::before {
-            background-color: #0275d8;
+            background-color: #1164A3;
             position: absolute;
             content: '';
             height: 100%;
@@ -282,8 +283,8 @@ label {
     .sidebar-navigation .header {
         font-size: 15px;
         text-transform: uppercase;
-        background-color: white;
-        color:black;
+        background-color: #350d36;
+        color: white;
         padding: 10px 15px 10px 30px;
     }
 
@@ -293,4 +294,24 @@ label {
 
 .content-container {
     padding-left: 220px;
+}
+
+.sidebar-custom {
+    background-color: #350d36;
+}
+
+/* background */
+
+.background {
+    background: url(/img/bg-01.jpg) no-repeat center center fixed;
+    background-size: cover;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* navbar */
+
+.navbar-custom {
+    background-color: #350d36;
+    padding-left: 40px;
 }
