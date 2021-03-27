@@ -223,10 +223,8 @@ label {
 }
 
 .sidebar-logo {
-    padding: 12.5px 15px 15px 40px;
+    padding: 25px 15px 15px 40px;
     font-size: 20px;
-    border-bottom: 1px solid #6c757d;
-    border-right: 1px solid #6c757d;
     color: white;
 }
 
@@ -314,4 +312,10 @@ label {
 .navbar-custom {
     background-color: #350d36;
     padding-left: 40px;
+}
+
+/* card */
+
+.card-custom {
+    background-color: #350d36;
 }
