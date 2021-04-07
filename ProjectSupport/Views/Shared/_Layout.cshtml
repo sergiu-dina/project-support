@@ -18,13 +18,15 @@
 </head>
 <body class='@(SignInManager.IsSignedIn(User)?"":"background")'>
     <partial name="_LoginPartial.cshtml" />
-    <div class="container child">
+    <div class='@(SignInManager.IsSignedIn(User)?"":"container child")'>
         <main role="main" class="pb-3">
             @if (SignInManager.IsSignedIn(User))
             {
-                <div class="content-container">
-                    <div class="container-fluid">
-                        @RenderBody()
+                <div class="container child2">
+                    <div class="content-container">
+                        <div class="container-fluid">
+                            @RenderBody()
+                        </div>
                     </div>
                 </div>
             }
