@@ -4,38 +4,56 @@
     ViewBag.Title = "Create New Role";
 }
 
-<h1>Create New Role</h1>
+<div class="container child2">
+    <div class="content-container">
+        <div class="container-fluid">
+            <div class="card">
+                <div class="card-header">
+                    <h1>Create New Role</h1>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <div asp-validation-summary="All" class="text-danger"></div>
+                        <div class="input-group">
+                            <input asp-for="RoleName" class="form-control w-25" />
+                            <span asp-validation-for="RoleName" class="text-danger"></span>
+                            <button type="submit" class="btn btn-primary" style="margin-left:20px">Add New Role</button>
+                        </div>
+                    </form>
 
 
-<form method="post">
-    <div asp-validation-summary="All" class="text-danger"></div>
-    <div class="input-group">
-        <input asp-for="RoleName" class="form-control w-25" />
-        <span asp-validation-for="RoleName" class="text-danger"></span>
-        <button type="submit" class="btn btn-primary">Add New Role</button>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Role</th>
+                                <th>Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var role in Model.Roles)
+                            {
+                            <tr>
+                                <td>@role.Id</td>
+                                <td>@role.Name</td>
+                                <td style="padding-left: 15px">
+                                    <a class="btn" 
+                                       asp-action="DeleteRole" asp-controller="Admin" asp-route-id="@role.Id">
+                                        <i class="fa fa-trash-o" style="font-size:24px;color:red"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer">
+                    <a class="btn btn-primary"
+                       asp-action="Index" asp-controller="Admin">
+                        Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
-</form>
-
-
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Id</th>
-            <th>Role</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var role in Model.Roles)
-        {
-            <tr>
-                <td>@role.Id</td>
-                <td>@role.Name</td>
-            </tr>
-        }
-    </tbody>
-</table>
-
-<a class="btn btn-primary"
-   asp-action="Index" asp-controller="Admin">
-    Back to List
-</a>
+</div>

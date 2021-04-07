@@ -10,23 +10,30 @@
 }
 
 
-<h2>Manage your account</h2>
+<div class="container child">
+    <div class="content-container">
+        <div class="container-fluid">
 
-<div>
-    <h4>Change your account settings</h4>
-    <hr />
-    <div class="card">
-        <div class="card-header">
-            <ul class="nav nav-tabs card-header-tabs">
-                <partial name="_ManageNav" />  
-            </ul>
-        </div>
-        <div class="card-body">
-            @RenderBody()
+            <h2>Manage your account</h2>
+
+            <div>
+                <h4>Change your account settings</h4>
+                <hr />
+                <div class="card">
+                    <div class="card-header">
+                        <ul class="nav nav-tabs card-header-tabs">
+                            <partial name="_ManageNav" />
+                        </ul>
+                    </div>
+                    <div class="card-body">
+                        @RenderBody()
+                    </div>
+                </div>
+            </div>
+
+            @section Scripts {
+                @RenderSection("Scripts", required: false)
+            }
         </div>
     </div>
 </div>
-
-@section Scripts {
-    @RenderSection("Scripts", required: false)
-}

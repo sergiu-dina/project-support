@@ -55,5 +55,38 @@ namespace ProjectSupport.Controllers
             model.Roles= roleManager.Roles.OrderBy(r => r.Name);
             return View(model);
         }
+
+        [HttpGet]
+        public IActionResult DeleteRole(string id)
+        {
+            var model = new DeleteRoleViewModel();
+            model.Role =roleManager.Roles.FirstOrDefault(r=>r.Id==id);
+
+            if (model == null)
+            {
+                return View("NotFound");
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteRole(IdentityRole role)
+        {
+            var ro = roleManager.Roles.FirstOrDefault(r => r.Id == role.Id);
+            var result = await roleManager.DeleteAsync(ro);
+
+            if (result.Succeeded)
+            {
+                return RedirectToAction("CreateRole");
+            }
+
+            foreach (IdentityError error in result.Errors)
+            {
+                ModelState.AddModelError("", error.Description);
+            }
+
+            return View("Index");
+        }
     }
 }

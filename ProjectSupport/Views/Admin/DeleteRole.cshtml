@@ -1,0 +1,36 @@
+﻿@model ProjectSupport.ViewModels.DeleteRoleViewModel
+
+@{
+    ViewBag.Title = "Delete";
+}
+
+<div class="container child">
+    <div class="content-container">
+        <div class="container-fluid">
+            <h2>Delete</h2>
+            <hr />
+            <div class="card">
+                <div class="card-header">
+                    <h3>Are you sure you want to delete this role?</h3>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">
+                        <h4 class="card-title">@Model.Role.Name</h4>
+                    </p>
+                </div>
+                <div class="card-footer">
+                    @using (Html.BeginForm())
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <input type="submit" value="DeleteRole" class="btn btn-primary" />
+                        <a class="btn btn-primary"
+                           asp-action="CreateRole" asp-controller="Admin">
+                            Back to List
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

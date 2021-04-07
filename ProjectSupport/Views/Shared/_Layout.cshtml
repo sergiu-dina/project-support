@@ -22,13 +22,9 @@
         <main role="main" class="pb-3">
             @if (SignInManager.IsSignedIn(User))
             {
-                <div class="container child2">
-                    <div class="content-container">
-                        <div class="container-fluid">
+                
                             @RenderBody()
-                        </div>
-                    </div>
-                </div>
+                        
             }
             else
             {
