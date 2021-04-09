@@ -118,6 +118,13 @@ div.login-form-icon {
     padding: 50px;
 }
 
+.child3 {
+    position: absolute;
+    top: 100px;
+    left: 200px;
+    padding: 50px;
+}
+
 /* demo loggin*/
 ul {
     list-style-type: none;

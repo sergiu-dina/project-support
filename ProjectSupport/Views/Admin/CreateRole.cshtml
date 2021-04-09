@@ -16,7 +16,6 @@
                         <div asp-validation-summary="All" class="text-danger"></div>
                         <div class="input-group">
                             <input asp-for="RoleName" class="form-control w-25" />
-                            <span asp-validation-for="RoleName" class="text-danger"></span>
                             <button type="submit" class="btn btn-primary" style="margin-left:20px">Add New Role</button>
                         </div>
                     </form>
@@ -50,7 +49,7 @@
                 <div class="card-footer">
                     <a class="btn btn-primary"
                        asp-action="Index" asp-controller="Admin">
-                        Back to List
+                        Back to Dashboard
                     </a>
                 </div>
             </div>

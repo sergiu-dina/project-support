@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ProjectSupport.Areas.Identity.Data;
 using ProjectSupport.ViewModels;
 using System;
@@ -87,6 +88,85 @@ namespace ProjectSupport.Controllers
             }
 
             return View("Index");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditUsers()
+        {
+            var users = await userManager.Users.ToListAsync();
+            var userRolesViewModel = new List<UserRolesViewModel>();
+            foreach(AppUser user in users)
+            {
+                var temp = new UserRolesViewModel();
+                temp.UserId = user.Id;
+                temp.FirstName = user.FirstName;
+                temp.LastName = user.LastName;
+                temp.Email = user.Email;
+                temp.Roles = await GetUserRoles(user);
+                userRolesViewModel.Add(temp);
+            }
+            return View(userRolesViewModel);
+        }
+
+        private async Task<List<string>> GetUserRoles(AppUser user)
+        {
+            return new List<string>(await userManager.GetRolesAsync(user));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> AddRole (string userId)
+        {
+            ViewBag.userId = userId;
+            var user = await userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                ViewBag.ErrorMessage = $"User with Id = {userId} cannot be found";
+                return View("NotFound");
+            }
+            ViewBag.UserName = user.UserName;
+            var model = new List<AddRoleViewModel>();
+            foreach (var role in roleManager.Roles)
+            {
+                var userRolesViewModel = new AddRoleViewModel
+                {
+                    RoleId = role.Id,
+                    RoleName = role.Name
+                };
+                if (await userManager.IsInRoleAsync(user, role.Name))
+                {
+                    userRolesViewModel.Selected = true;
+                }
+                else
+                {
+                    userRolesViewModel.Selected = false;
+                }
+                model.Add(userRolesViewModel);
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddRole(List<AddRoleViewModel> model, string userId)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return View();
+            }
+            var roles = await userManager.GetRolesAsync(user);
+            var result = await userManager.RemoveFromRolesAsync(user, roles);
+            if (!result.Succeeded)
+            {
+                ModelState.AddModelError("", "Cannot remove user existing roles");
+                return View(model);
+            }
+            result = await userManager.AddToRolesAsync(user, model.Where(x => x.Selected).Select(y => y.RoleName));
+            if (!result.Succeeded)
+            {
+                ModelState.AddModelError("", "Cannot add selected roles to user");
+                return View(model);
+            }
+            return RedirectToAction("EditUsers");
         }
     }
 }
