@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProjectSupport.Areas.Identity.Data;
+using ProjectSupport.Data;
 using ProjectSupport.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -14,11 +15,13 @@ namespace ProjectSupport.Controllers
     {
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly UserManager<AppUser> userManager;
+        private readonly AppDbContext db;
 
-        public AdminController(RoleManager<IdentityRole> roleManager, UserManager<AppUser> userManager)
+        public AdminController(RoleManager<IdentityRole> roleManager, UserManager<AppUser> userManager, AppDbContext db)
         {
             this.roleManager = roleManager;
             this.userManager = userManager;
+            this.db = db;
         }
         public IActionResult Index()
         {
@@ -91,9 +94,27 @@ namespace ProjectSupport.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> EditUsers()
+        public async Task<IActionResult> EditUsers(string sortOrder)
         {
-            var users = await userManager.Users.ToListAsync();
+            ViewBag.EmailSortParm = String.IsNullOrEmpty(sortOrder) ? "email_desc" : "";
+            ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+
+            var users = from u in db.Users
+                         select u;
+
+            switch(sortOrder)
+            {
+                case "email_desc":
+                    users = users.OrderByDescending(u => u.Email);
+                    break;
+                case "name_desc":
+                    users = users.OrderByDescending(s => s.LastName);
+                    break;
+                default:
+                    users = users.OrderBy(u => u.LastName);
+                    break;
+            }
+
             var userRolesViewModel = new List<UserRolesViewModel>();
             foreach(AppUser user in users)
             {
@@ -167,6 +188,33 @@ namespace ProjectSupport.Controllers
                 return View(model);
             }
             return RedirectToAction("EditUsers");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> DeleteUser(string id)
+        {
+            var model = await userManager.FindByIdAsync(id);
+            if(model==null)
+            {
+                return View("NotFound");
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteUser(AppUser user)
+        {
+            var model = await userManager.FindByIdAsync(user.Id);
+            var result = await userManager.DeleteAsync(model);
+            if(result.Succeeded)
+            {
+                return RedirectToAction("EditUsers");
+            }
+            foreach(var error in result.Errors)
+            {
+                ModelState.AddModelError("", error.Description);
+            }
+            return View("Index");
         }
     }
 }

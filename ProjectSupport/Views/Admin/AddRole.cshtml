@@ -8,25 +8,54 @@
         <div class="container-fluid">
             <form method="post">
                 <div class="card">
-                    <div class="card-header">
-                        <h2>Manage User Roles</h2>
-                        Add/Remove Roles for User / @ViewBag.UserName.
+                    <div class="card-header text-center">
+                        <h2>Manage User Role</h2>
+                        Add or Remove Role for User: @ViewBag.UserName
                     </div>
-                    <div class="card-body">
-                        @for (int i = 0; i < Model.Count; i++)
-                        {
-                            <div class="form-check m-1">
-                                <input type="hidden" asp-for="@Model[i].RoleId" />
-                                <input type="hidden" asp-for="@Model[i].RoleName" />
-                                <input asp-for="@Model[i].Selected" class="form-check-input" />
-                                <label class="form-check-label" asp-for="@Model[i].Selected">
-                                    @Model[i].RoleName
-                                </label>
-                            </div>
-                        }
-                        <div asp-validation-summary="All" class="text-danger"></div>
-                    </div>
-                    <div class="card-footer">
+                    <div class="card-body text-center">
+                        <ul>
+                            @for (int i = 0; i < Model.Count; i++)
+                            {
+                            <li>
+                                @if (Model[i].RoleName == "Admin")
+                                {
+                                    <input type="hidden" asp-for="@Model[i].RoleId" />
+                                    <input type="hidden" asp-for="@Model[i].RoleName" />
+                                    <input asp-for="@Model[i].Selected" type="checkbox" id="cb1" class="cb" onchange="cbChange(this)" />
+                                    <label class="form-check-label" asp-for="@Model[i].Selected" for="cb1">
+                                        <img src="~/img/2.png" />
+                                    </label>
+                                    <h5 class="text-center">Admin</h5>
+
+                                }
+                                @if (Model[i].RoleName == "Manager")
+                                {
+                                    <input type="hidden" asp-for="@Model[i].RoleId" />
+                                    <input type="hidden" asp-for="@Model[i].RoleName" />
+                                    <input asp-for="@Model[i].Selected" type="checkbox" id="cb2" class="cb" onchange="cbChange(this)" />
+                                    <label class="form-check-label" asp-for="@Model[i].Selected" for="cb2">
+                                        <img src="~/img/1.png" />
+                                    </label>
+                                    <h5 class="text-center">Manager</h5>
+
+                                }
+                                @if (Model[i].RoleName == "Developer")
+                                {
+                                    <input type="hidden" asp-for="@Model[i].RoleId" />
+                                    <input type="hidden" asp-for="@Model[i].RoleName" />
+                                    <input asp-for="@Model[i].Selected" type="checkbox" id="cb3" class="cb" onchange="cbChange(this)" />
+                                    <label class="form-check-label" asp-for="@Model[i].Selected" for="cb3">
+                                        <img src="~/img/3.png" />
+                                    </label>
+                                    <h5 class="text-center">Developer</h5>
+
+                                }
+                            </li>
+                            }
+                        </ul>
+                            <div asp-validation-summary="All" class="text-danger"></div>
+                        </div>
+                    <div class="card-footer text-center">
                         <input type="submit" value="Update" class="btn btn-primary"
                                style="width:auto" />
                         <a asp-action="EditUsers" asp-route-id="@ViewBag.userId"

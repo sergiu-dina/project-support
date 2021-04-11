@@ -9,5 +9,6 @@ namespace ProjectSupport.Areas.Identity.Data
     {
         IEnumerable<AppUser> GetAll();
         AppUser Get(string email);
+        void Delete(string id);
     }
 }

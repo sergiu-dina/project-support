@@ -15,6 +15,13 @@ namespace ProjectSupport.Areas.Identity.Data
             this.db = db;
         }
 
+        public void Delete(string id)
+        {
+            var user = db.Users.Find(id);
+            db.Users.Remove(user);
+            db.SaveChanges();
+        }
+
         public AppUser Get(string email)
         {
             return db.Users.FirstOrDefault(e => e.Email == email);
