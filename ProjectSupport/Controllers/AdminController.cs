@@ -8,9 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using PagedList;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ProjectSupport.Controllers
 {
+    [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
         private readonly RoleManager<IdentityRole> roleManager;
@@ -93,16 +96,33 @@ namespace ProjectSupport.Controllers
             return View("Index");
         }
 
-        [HttpGet]
-        public async Task<IActionResult> EditUsers(string sortOrder)
+        public async Task<ViewResult> EditUsers(string sortOrder, string currentFilter, string searchString, int? page)
         {
+            ViewBag.CurrentSort = sortOrder;
             ViewBag.EmailSortParm = String.IsNullOrEmpty(sortOrder) ? "email_desc" : "";
             ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+
+            if (searchString != null)
+            {
+                page = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+
+            ViewBag.CurrentFilter = searchString;
 
             var users = from u in db.Users
                          select u;
 
-            switch(sortOrder)
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                users = users.Where(s => s.LastName.Contains(searchString)
+                                       || s.Email.Contains(searchString));
+            }
+
+            switch (sortOrder)
             {
                 case "email_desc":
                     users = users.OrderByDescending(u => u.Email);
@@ -126,7 +146,9 @@ namespace ProjectSupport.Controllers
                 temp.Roles = await GetUserRoles(user);
                 userRolesViewModel.Add(temp);
             }
-            return View(userRolesViewModel);
+            int pageSize = 6;
+            int pageNumber = (page ?? 1);
+            return View(userRolesViewModel.ToPagedList(pageNumber,pageSize));
         }
 
         private async Task<List<string>> GetUserRoles(AppUser user)

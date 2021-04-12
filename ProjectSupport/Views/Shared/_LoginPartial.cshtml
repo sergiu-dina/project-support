@@ -17,11 +17,14 @@
                     <i class="fa fa-home" aria-hidden="true"></i> Homepage
                 </a>
             </li>
-            <li>
-                <a asp-area="" asp-controller="Admin" asp-action="Index">
-                    <i class="fa fa-tachometer" aria-hidden="true"></i> Dashboard
-                </a>
-            </li>
+            @if (SignInManager.IsSignedIn(User) && User.IsInRole("Admin"))
+            {
+                <li>
+                    <a asp-area="" asp-controller="Admin" asp-action="Index">
+                        <i class="fa fa-tachometer" aria-hidden="true"></i> Dashboard
+                    </a>
+                </li>
+            }
             <li class="header">Another Menu</li>
             <li>
                 <a href="#">
@@ -38,7 +41,7 @@
                     <i class="fa fa-info-circle" aria-hidden="true"></i> Information
                 </a>
             </li>
-        </ul>
+            </ul>
     </div>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark navbar-custom border-bottom box-shadow mb-3 fixed-top">

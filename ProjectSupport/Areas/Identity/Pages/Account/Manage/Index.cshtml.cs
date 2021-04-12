@@ -47,6 +47,8 @@ namespace ProjectSupport.Areas.Identity.Pages.Account.Manage
 
             [Display(Name = "Profile Picture")]
             public byte[] ProfilePicture { get; set; }
+
+            public string? Role { get; set; }
         }
 
         private async Task LoadAsync(AppUser user)
@@ -58,12 +60,20 @@ namespace ProjectSupport.Areas.Identity.Pages.Account.Manage
             var profilePicture = user.ProfilePicture;
             Username = userName;
 
+            string role = null;
+            var roles = await _userManager.GetRolesAsync(user);
+            if (roles.Count>0)
+            {
+                role = roles[0];
+            }
+
             Input = new InputModel
             {
                 PhoneNumber = phoneNumber,
                 FirstName = firstName,
                 LastName = lastName,
-                ProfilePicture = profilePicture
+                ProfilePicture = profilePicture,
+                Role=role
             };
         }
 

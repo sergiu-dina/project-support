@@ -1,8 +1,13 @@
-﻿@model List<ProjectSupport.ViewModels.UserRolesViewModel>
+﻿@model PagedList.IPagedList<ProjectSupport.ViewModels.UserRolesViewModel>
+@using PagedList.Mvc;
+
+
+<link href="~/css/PagedList.css" rel="stylesheet" type="text/css" />
 
 @{
     ViewBag.Title = "Edit User's Roles";
 }
+
 <div class="container child2">
     <div class="content-container">
         <div class="container-fluid">
@@ -11,15 +16,22 @@
                     <h1>Edit Users</h1>
                 </div>
                 <div class="card-body">
+                    @using (Html.BeginForm("EditUsers", "Admin", FormMethod.Get))
+                    {
+                        <p>
+                            Find by name: @Html.TextBox("SearchString", ViewBag.CurrentFilter as string)
+                            <input type="submit" value="Search" />
+                        </p>
+                    }
                     <table class="table table-striped">
                         <thead>
                             <tr>
                                 <th>
-                                    @Html.ActionLink("Last Name", "EditUsers", new { sortOrder = ViewBag.NameSortParm })
+                                    @Html.ActionLink("Last Name", "EditUsers", new { sortOrder = ViewBag.NameSortParm, currentFilter = ViewBag.CurrentFilter })
                                 </th>
                                 <th>First Name</th>
                                 <th>
-                                    @Html.ActionLink("Email", "EditUsers", new { sortOrder = ViewBag.EmailSortParm })
+                                    @Html.ActionLink("Email", "EditUsers", new { sortOrder = ViewBag.EmailSortParm, currentFilter = ViewBag.CurrentFilter })
                                 </th>
                                 <th>Roles</th>
                                 <th>Add Role</th>
@@ -29,41 +41,45 @@
                         <tbody>
                             @foreach (var user in Model)
                             {
-                            <tr>
-                                <td>@user.LastName</td>
-                                <td>@user.FirstName</td>
-                                <td>@user.Email</td>
-                                @if (user.Roles.Count > 0)
-                                {
-                                    <td>@string.Join(" , ", user.Roles.ToList())</td>
-                                }
-                                else
-                                {
-                                    <td>None</td>
-                                }
-                                <td style="padding-left: 20px">
-                                    <a class="btn"
-                                       asp-action="AddRole" asp-controller="Admin" asp-route-userId="@user.UserId">
-                                        <i class="fas fa-plus" style="font-size:24px;color:blue"></i>
-                                    </a>
-                                </td>
-                                <td style="padding-left: 30px">
-                                    <a class="btn"
-                                       asp-action="DeleteUser" asp-controller="Admin" asp-route-Id="@user.UserId">
-                                        <i class="fa fa-trash-o" style="font-size:24px;color:red"></i>
-                                    </a>
-                                </td>
-                            </tr>
+                                <tr>
+                                    <td>@user.LastName</td>
+                                    <td>@user.FirstName</td>
+                                    <td>@user.Email</td>
+                                    @if (user.Roles.Count > 0)
+                                    {
+                                        <td>@string.Join(" , ", user.Roles.ToList())</td>
+                                    }
+                                    else
+                                    {
+                                        <td>None</td>
+                                    }
+                                    <td style="padding-left: 20px">
+                                        <a class="btn"
+                                           asp-action="AddRole" asp-controller="Admin" asp-route-userId="@user.UserId">
+                                            <i class="fas fa-plus" style="font-size:24px;color:blue"></i>
+                                        </a>
+                                    </td>
+                                    <td style="padding-left: 30px">
+                                        <a class="btn"
+                                           asp-action="DeleteUser" asp-controller="Admin" asp-route-Id="@user.UserId">
+                                            <i class="fa fa-trash-o" style="font-size:24px;color:red"></i>
+                                        </a>
+                                    </td>
+                                </tr>
                             }
                         </tbody>
                     </table>
-                    </div>
-                    <div class="card-footer">
-                        <a class="btn btn-primary"
-                           asp-action="Index" asp-controller="Admin">
-                            Back to Dashboard
-                        </a>
-                    </div>
+                    <br />
+                    Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+
+                    
+                </div>
+                <div class="card-footer">
+                    <a class="btn btn-primary"
+                       asp-action="Index" asp-controller="Admin">
+                        Back to Dashboard
+                    </a>
+                </div>
             </div>
         </div>
     </div>
