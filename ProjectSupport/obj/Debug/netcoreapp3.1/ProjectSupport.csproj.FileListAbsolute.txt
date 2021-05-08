@@ -364,3 +364,5 @@ E:\Facultate\Licenta\project-support\ProjectSupport\bin\Debug\netcoreapp3.1\Syst
 E:\Facultate\Licenta\project-support\ProjectSupport\bin\Debug\netcoreapp3.1\System.Web.WebPages.dll
 E:\Facultate\Licenta\project-support\ProjectSupport\bin\Debug\netcoreapp3.1\Microsoft.Web.Infrastructure.dll
 E:\Facultate\Licenta\project-support\ProjectSupport\bin\Debug\netcoreapp3.1\PagedList.Mvc.dll
+E:\Facultate\Licenta\project-support\ProjectSupport\obj\Debug\netcoreapp3.1\Razor\Views\Gantt\Gantt.cshtml.g.cs
+E:\Facultate\Licenta\project-support\ProjectSupport\obj\Debug\netcoreapp3.1\Razor\Views\Gantt\Index.cshtml.g.cs
