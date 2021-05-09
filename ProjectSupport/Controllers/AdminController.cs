@@ -10,6 +10,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using PagedList;
 using Microsoft.AspNetCore.Authorization;
+using ProjectSupport.Models;
+using ProjectSupport.Models.Services;
 
 namespace ProjectSupport.Controllers
 {
@@ -19,12 +21,14 @@ namespace ProjectSupport.Controllers
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly UserManager<AppUser> userManager;
         private readonly AppDbContext db;
+        private readonly IProjectData projectData;
 
-        public AdminController(RoleManager<IdentityRole> roleManager, UserManager<AppUser> userManager, AppDbContext db)
+        public AdminController(RoleManager<IdentityRole> roleManager, UserManager<AppUser> userManager, AppDbContext db, IProjectData projectData)
         {
             this.roleManager = roleManager;
             this.userManager = userManager;
             this.db = db;
+            this.projectData = projectData;
         }
         public IActionResult Index()
         {
@@ -237,6 +241,24 @@ namespace ProjectSupport.Controllers
                 ModelState.AddModelError("", error.Description);
             }
             return View("Index");
+        }
+
+        [HttpGet]
+        public IActionResult CreateProject()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult CreateProject(Project project)
+        {
+            if (ModelState.IsValid)
+            {
+                projectData.Add(project);
+                return RedirectToAction("Index");
+            }
+            return View();
         }
     }
 }

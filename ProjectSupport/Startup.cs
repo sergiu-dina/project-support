@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ProjectSupport.Areas.Identity.Data;
+using ProjectSupport.Models.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +26,7 @@ namespace ProjectSupport
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddScoped<IUserData, SqlUserData>();
+            services.AddScoped<IProjectData, SqlProjectData>();
             services.AddControllersWithViews();
             services.AddRazorPages();
         }

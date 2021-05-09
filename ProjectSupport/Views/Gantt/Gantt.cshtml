@@ -3,7 +3,7 @@
 }
 
 
-<div id="ganttContainer" style="width: 80%; height: 100%; z-index:-1; position:absolute; top:100px; left:300px"></div>
+<div id="ganttContainer" style="width: 80%; height: 100%; z-index:100; position:absolute; top:100px; left:300px"></div>
 
 
 
@@ -12,11 +12,11 @@
     <script>
         (function () {
             // add month scale
-            gantt.config.scale_unit = "week";
+            gantt.config.scale_unit = "month";
             gantt.config.step = 1;
             gantt.templates.date_scale = function (date) {
                 var dateToStr = gantt.date.date_to_str("%d %M");
-                var endDate = gantt.date.add(gantt.date.add(date, 1, "week"), -1, "day");
+                var endDate = gantt.date.add(gantt.date.add(date, 1, "month"), -1, "day");
                 return dateToStr(date) + " - " + dateToStr(endDate);
             };
             gantt.config.subscales = [

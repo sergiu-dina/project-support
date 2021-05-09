@@ -6,11 +6,15 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using ProjectSupport.Areas.Identity.Data;
+using ProjectSupport.Models;
 
 namespace ProjectSupport.Data
 {
     public class AppDbContext : IdentityDbContext<AppUser>
     {
+        public DbSet<Project> Projects { get; set; }
+        public DbSet<GanttTask> GanttTasks { get; set; }
+        public DbSet<Link> Links { get; set; }
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
         {
