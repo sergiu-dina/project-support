@@ -244,14 +244,14 @@ namespace ProjectSupport.Controllers
         }
 
         [HttpGet]
-        public IActionResult CreateProject()
+        public IActionResult EditProject()
         {
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult CreateProject(Project project)
+        public IActionResult EditProject(Project project)
         {
             if (ModelState.IsValid)
             {
@@ -259,6 +259,168 @@ namespace ProjectSupport.Controllers
                 return RedirectToAction("Index");
             }
             return View();
+        }
+
+        [HttpGet]
+        public IActionResult CreateProject()
+        {
+            var model = new CreateProjectViewModel();
+            model.Projects = projectData.GetAll().OrderBy(p=>p.Name);
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult CreateProject(CreateProjectViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var project = new Project();
+                project.Name = model.ProjectName;
+
+                projectData.Add(project);
+            }
+            model.Projects = projectData.GetAll().OrderBy(p => p.Name);
+            return View(model);
+        }
+
+        [HttpGet]
+        public IActionResult DeleteProject(int id)
+        {
+            var model = projectData.Get(id);
+
+            if (model == null)
+            {
+                return View("NotFound");
+            }
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult DeleteProject(Project project)
+        {
+            var model = projectData.Get(project.Id);
+            projectData.Delete(model.Id);
+
+            return RedirectToAction("CreateProject");
+        }
+
+        [HttpGet]
+        public IActionResult AddManager(string sortOrder, string searchString, string currentFilter, int? page)
+        {
+            ViewBag.CurrentSort = sortOrder;
+            ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+
+            if (searchString != null)
+            {
+                page = 1;
+            }
+            else
+            {
+                searchString = currentFilter;
+            }
+
+            ViewBag.CurrentFilter = searchString;
+
+            var projects = from s in projectData.GetAll()
+                           select s;
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                projects = projects.Where(p => p.Name.Contains(searchString));
+            }
+            switch (sortOrder)
+            {
+                case "name_desc":
+                    projects = projects.OrderByDescending(s => s.Name);
+                    break;
+                default:
+                    projects = projects.OrderBy(s => s.Name);
+                    break;
+            }
+
+            int pageSize = 3;
+            int pageNumber = (page ?? 1);
+
+            return View(projects.ToPagedList(pageNumber,pageSize));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> SelectManager(int id)
+        {
+            var project = projectData.Get(id);
+            if (project == null)
+            {
+                ViewBag.ErrorMessage = $"Role with Id= {id} cannot be found";
+                return View("NotFound");
+            }
+
+            var managerRole = await roleManager.FindByNameAsync("Manager");
+            var users = new List<AppUser>();
+            foreach (var user in userManager.Users)
+            {
+                if (await userManager.IsInRoleAsync(user, role: managerRole.Name))
+                {
+                    users.Add(user);
+                }
+            }
+
+            var model = new List<UserProjectViewModel>();
+            foreach (var user in users)
+            {
+                var userProjectViewModel = new UserProjectViewModel
+                {
+                    ProjectId = project.Id,
+                    UserId = user.Id,
+                    UserName = user.UserName
+                };
+                foreach (var existingUser in project.Users)
+                    if (user.Id == existingUser.Id)
+                    {
+                        userProjectViewModel.IsSelected = true;
+                    }
+                    else
+                    {
+                        userProjectViewModel.IsSelected = false;
+                    }
+                model.Add(userProjectViewModel);
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SelectManager(List<UserProjectViewModel> model)
+        {
+            var project = projectData.Get(model[0].ProjectId);
+            if (project == null)
+            {
+                ViewBag.ErrorMessage = $"Role with Id= {model[0].ProjectId} cannot be found";
+                return View("NotFound");
+            }
+            for (int i = 0; i < model.Count; i++)
+            {
+                var user = await userManager.FindByIdAsync(model[i].UserId);
+                if (model[i].IsSelected && !(projectData.HasUser(project, model[i].UserId)))
+                {
+                    project.Users.Add(user);
+                    db.SaveChanges();
+                }
+                else if (!model[i].IsSelected)
+                {
+                    project.Users.Remove(user);
+                    db.SaveChanges();
+                }
+                else
+                {
+                    continue;
+                }
+
+                if (i < (model.Count - 1))
+                    continue;
+                else
+                    return RedirectToAction("AddManager");
+
+            }
+            return RedirectToAction("AddManager");
         }
     }
 }

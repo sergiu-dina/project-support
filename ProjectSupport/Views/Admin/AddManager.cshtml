@@ -1,0 +1,64 @@
+﻿@model PagedList.IPagedList<Project>
+@using PagedList.Mvc;
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
+
+@{
+    ViewBag.Title = "Add Manager";
+}
+
+<div class="container child2">
+    <div class="content-container">
+        <div class="container-fluid">
+            <div class="card">
+                <div class="card-header">
+                    <h1>Add a Manager to a Project</h1>
+                </div>
+                <div class="card-body">
+                    @using (Html.BeginForm("AddManager", "Admin", FormMethod.Get))
+                    {
+                        <p>
+                            Find by name: @Html.TextBox("SearchString", ViewBag.CurrentFilter as string)
+                            <input type="submit" value="Search" />
+                        </p>
+                    }
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>
+                                    @Html.ActionLink("Last Name", "AddManager", new { sortOrder = ViewBag.NameSortParm, currentFilter = ViewBag.CurrentFilter })
+                                </th>
+                                <th>Description</th>
+                                <th>Add Manager</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var project in Model)
+                            {
+                                <tr>
+                                    <td>@project.Name</td>
+                                    <td>@project.Description</td>
+                                    <td style="padding-left: 40px">
+                                        <a class="btn"
+                                           asp-action="SelectManager" asp-controller="Admin" asp-route-id="@project.Id">
+                                            <i class="fas fa-plus" style="font-size:24px;color:blue"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    <br />
+                    Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+
+                    
+                </div>
+                <div class="card-footer">
+                    <a class="btn btn-primary"
+                       asp-action="Index" asp-controller="Admin">
+                        Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

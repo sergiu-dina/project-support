@@ -25,6 +25,7 @@
             overflow: hidden;
         }
     </style>
+    @RenderSection("Styles", required: false)
 </head>
 <body class='@(SignInManager.IsSignedIn(User)?"":"background")'>
     <partial name="_LoginPartial.cshtml" />

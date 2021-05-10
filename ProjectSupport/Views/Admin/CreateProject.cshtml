@@ -1,55 +1,60 @@
-﻿@model Project
+﻿@model ProjectSupport.ViewModels.CreateProjectViewModel
 
 @{
-    ViewBag.Title = "Create";
+    ViewBag.Title = "Create New Project";
 }
 
 <div class="container child2">
     <div class="content-container">
         <div class="container-fluid">
-
-            @using (Html.BeginForm())
-            {
-                @Html.AntiForgeryToken()
-            }
-
-            @using (Html.BeginForm())
-            {
-                @Html.AntiForgeryToken()
-
-                <form method="post">
-                    <div class="card mb-3">
-                        <div class="card-header">
-                            <h2>Create Project</h2>
+            <div class="card">
+                <div class="card-header">
+                    <h1>Create New Project</h1>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        <div asp-validation-summary="All" class="text-danger"></div>
+                        <div class="input-group">
+                            <input asp-for="ProjectName" class="form-control w-25" />
+                            <button type="submit" class="btn btn-primary" style="margin-left:20px">Add New Project</button>
                         </div>
-                        <div class="card-body">
-                            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-                            <div class="form-group">
-                                @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2" })
-                                <div class="col-md-10">
-                                    @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control" } })
-                                    @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
-                                </div>
-                            </div>
+                    </form>
 
-                            <div class="form-group">
-                                @Html.LabelFor(model => model.Description, htmlAttributes: new { @class = "control-label col-md-2" })
-                                <div class="col-md-10">
-                                    @Html.EditorFor(model => model.Description, new { htmlAttributes = new { @class = "form-control" } })
-                                    @Html.ValidationMessageFor(model => model.Description, "", new { @class = "text-danger" })
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <input type="submit" value="Create" class="btn btn-primary" />
-                            <a class="btn btn-primary"
-                               asp-action="Index" asp-controller="Admin">
-                                Back to List
-                            </a>
-                        </div>
-                    </div>
-                </form>
-            }
+
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var project in Model.Projects)
+                            {
+                                <tr>
+                                    <td>@project.Name</td>
+                                    <td>@project.Description</td>
+                                    <td style="padding-left: 15px">
+                                        <a class="btn"
+                                           asp-action="DeleteProject" asp-controller="Admin" asp-route-id="@project.Id">
+                                            <i class="fa fa-trash-o" style="font-size:24px;color:red"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer">
+                    <a class="btn btn-primary"
+                       asp-action="Index" asp-controller="Admin">
+                        Back to Dashboard
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+

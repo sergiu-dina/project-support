@@ -1,5 +1,6 @@
-﻿@model PagedList.IPagedList<ProjectSupport.ViewModels.UserRolesViewModel>
-@using PagedList.Mvc;
+﻿@using PagedList.Mvc;
+@using PagedList;
+@model PagedList.IPagedList<ProjectSupport.ViewModels.UserRolesViewModel>
 
 
 <link href="~/css/PagedList.css" rel="stylesheet" type="text/css" />
@@ -71,8 +72,8 @@
                     </table>
                     <br />
                     Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
-
                     
+
                 </div>
                 <div class="card-footer">
                     <a class="btn btn-primary"
