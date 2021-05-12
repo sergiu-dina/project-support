@@ -27,6 +27,7 @@ namespace ProjectSupport
         {
             services.AddScoped<IUserData, SqlUserData>();
             services.AddScoped<IProjectData, SqlProjectData>();
+            services.AddScoped<IProjectUserData, SqlProjectUserData>();
             services.AddControllersWithViews();
             services.AddRazorPages();
         }

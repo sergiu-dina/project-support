@@ -1,0 +1,52 @@
+﻿@model IEnumerable<Project>
+
+@{
+    ViewBag.Title = "Projects";
+}
+
+<div class="container child2">
+    <div class="content-container">
+        <div class="container-fluid">
+
+            <div class="card">
+                <div class="card-header">
+                    <h1>Projects</h1>
+                </div>
+                <div class="card-body">
+
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Edit Project</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var project in Model)
+                            {
+                                <tr>
+                                    <td>@project.Name</td>
+                                    <td>@project.Description</td>
+                                    <td style="padding-left: 30px">
+                                        <a class="btn"
+                                           asp-action="EditProject" asp-controller="Manager" asp-route-id="@project.Id">
+                                            <i class="fas fa-edit" style="font-size:24px;color:blue"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer">
+                    <a class="btn btn-primary"
+                       asp-action="Index" asp-controller="Manager">
+                        Back to Dashboard
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

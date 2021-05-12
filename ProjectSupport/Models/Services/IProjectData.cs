@@ -13,6 +13,5 @@ namespace ProjectSupport.Models.Services
         void Add(Project project);
         void Update(Project project);
         void Delete(int id);
-        bool HasUser(Project project, string id);
     }
 }

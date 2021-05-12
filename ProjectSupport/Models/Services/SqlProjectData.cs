@@ -43,18 +43,7 @@ namespace ProjectSupport.Models.Services
         {
             return db.Projects.FirstOrDefault(p => p.Name == name);
         }
-
-        public bool HasUser(Project project, string id)
-        {
-            var result = false;
-            foreach (var user in project.Users)
-            {
-                if (user.Id == id)
-                    result = true;
-            }
-            return result;
-        }
-
+        
         public void Update(Project project)
         {
             var entry = db.Entry(project);

@@ -22,13 +22,15 @@ namespace ProjectSupport.Controllers
         private readonly UserManager<AppUser> userManager;
         private readonly AppDbContext db;
         private readonly IProjectData projectData;
+        private readonly IProjectUserData projectUserData;
 
-        public AdminController(RoleManager<IdentityRole> roleManager, UserManager<AppUser> userManager, AppDbContext db, IProjectData projectData)
+        public AdminController(RoleManager<IdentityRole> roleManager, UserManager<AppUser> userManager, AppDbContext db, IProjectData projectData, IProjectUserData projectUserData)
         {
             this.roleManager = roleManager;
             this.userManager = userManager;
             this.db = db;
             this.projectData = projectData;
+            this.projectUserData = projectUserData;
         }
         public IActionResult Index()
         {
@@ -244,24 +246,6 @@ namespace ProjectSupport.Controllers
         }
 
         [HttpGet]
-        public IActionResult EditProject()
-        {
-            return View();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult EditProject(Project project)
-        {
-            if (ModelState.IsValid)
-            {
-                projectData.Add(project);
-                return RedirectToAction("Index");
-            }
-            return View();
-        }
-
-        [HttpGet]
         public IActionResult CreateProject()
         {
             var model = new CreateProjectViewModel();
@@ -343,11 +327,12 @@ namespace ProjectSupport.Controllers
 
             return View(projects.ToPagedList(pageNumber,pageSize));
         }
-
+        
         [HttpGet]
-        public async Task<IActionResult> SelectManager(int id)
+        public async Task<IActionResult> SelectManager(int id, string searchString)
         {
             var project = projectData.Get(id);
+            var projectUser = projectUserData.GetAll();
             if (project == null)
             {
                 ViewBag.ErrorMessage = $"Role with Id= {id} cannot be found";
@@ -373,10 +358,11 @@ namespace ProjectSupport.Controllers
                     UserId = user.Id,
                     UserName = user.UserName
                 };
-                foreach (var existingUser in project.Users)
-                    if (user.Id == existingUser.Id)
+                foreach (var existingUser in projectUser)
+                    if (user.Id == existingUser.UserId && project.Id == existingUser.ProjectId)
                     {
                         userProjectViewModel.IsSelected = true;
+                        break;
                     }
                     else
                     {
@@ -384,9 +370,15 @@ namespace ProjectSupport.Controllers
                     }
                 model.Add(userProjectViewModel);
             }
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                model = model.Where(m=>m.UserName.Contains(searchString)).ToList();
+            }
+
             return View(model);
         }
-
+        
         [HttpPost]
         public async Task<IActionResult> SelectManager(List<UserProjectViewModel> model)
         {
@@ -399,14 +391,17 @@ namespace ProjectSupport.Controllers
             for (int i = 0; i < model.Count; i++)
             {
                 var user = await userManager.FindByIdAsync(model[i].UserId);
-                if (model[i].IsSelected && !(projectData.HasUser(project, model[i].UserId)))
+                if (model[i].IsSelected && !(projectUserData.HasUser(project.Id, user.Id)))
                 {
-                    project.Users.Add(user);
+                    var temp = new ProjectUser();
+                    temp.ProjectId = project.Id;
+                    temp.UserId = model[i].UserId;
+                    projectUserData.Add(temp);
                     db.SaveChanges();
                 }
-                else if (!model[i].IsSelected)
+                else if (!model[i].IsSelected && projectUserData.HasUser(project.Id, user.Id))
                 {
-                    project.Users.Remove(user);
+                    projectUserData.Delete(user.Id, project.Id);
                     db.SaveChanges();
                 }
                 else
@@ -422,5 +417,6 @@ namespace ProjectSupport.Controllers
             }
             return RedirectToAction("AddManager");
         }
+        
     }
 }

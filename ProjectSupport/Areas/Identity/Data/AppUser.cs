@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using ProjectSupport.Models;
 
 namespace ProjectSupport.Areas.Identity.Data
 {
@@ -19,5 +20,6 @@ namespace ProjectSupport.Areas.Identity.Data
         public string LastName { get; set; }
 
         public byte[] ProfilePicture { get; set; }
+        public List<ProjectUser> ProjectUsers { get; set; } = new List<ProjectUser>();
     }
 }

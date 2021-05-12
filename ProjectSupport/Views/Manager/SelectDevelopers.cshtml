@@ -7,10 +7,10 @@
 <div class="container child2">
     <div class="content-container">
         <div class="container-fluid">
-            
+
             <div class="card">
                 <div class="card-header">
-                    <h2>Add or remove a Manager from this project</h2>
+                    <h2>Add or remove Developers from this project</h2>
                 </div>
                 <br />
                 <div style="margin-left: 25px">
@@ -32,7 +32,7 @@
                                 <input type="hidden" asp-for="@Model[i].ProjectId" />
                                 <input type="hidden" asp-for="@Model[i].UserId" />
                                 <input type="hidden" asp-for="@Model[i].UserName" />
-                                <input asp-for="@Model[i].IsSelected" class="form-check-input" onclick="MutExChkList(this);" />
+                                <input asp-for="@Model[i].IsSelected" class="form-check-input" />
                                 <label class="form-check-label" asp-for="@Model[i].IsSelected">
                                     @Model[i].UserName
                                 </label>
@@ -41,7 +41,7 @@
                     </div>
                     <div class="card-footer">
                         <input type="submit" value="Update" class="btn btn-primary" style="width:auto" />
-                        <a asp-action="AddManager" class="btn btn-primary" style="width:auto">Cancel</a>
+                        <a asp-action="AddDevelopers" class="btn btn-primary" style="width:auto">Cancel</a>
                     </div>
                 </form>
             </div>
@@ -49,15 +49,3 @@
         </div>
     </div>
 </div>
-
-<script type="text/javascript">
-    function MutExChkList(chk) {
-        var chkList = chk.parentNode.parentNode.parentNode;
-        var chks = chkList.getElementsByTagName("input");
-        for (var i = 0; i < chks.length; i++) {
-            if (chks[i] != chk && chk.checked) {
-                chks[i].checked = false;
-            }
-        }
-    }
-</script>

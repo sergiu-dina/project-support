@@ -1,0 +1,53 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using ProjectSupport.Areas.Identity.Data
+
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+
+@{
+    ViewBag.Title = "Dashboard";
+}
+
+<div class="container child">
+    <div class="content-container">
+        <div class="container-fluid">
+
+            @if (SignInManager.IsSignedIn(User) && User.IsInRole("Manager"))
+            {
+                <h2>Manager Actions</h2>
+                <h4>Edit Projects and add Users to Projects</h4>
+                <hr />
+
+                <div class="card-group text-center">
+                    <div class="card">
+                        <img class="card-img-top h-50" src="~/img/admin1.jpg" alt="Card image cap">
+                        <div class="card-body">
+                            <h5 class="card-title">Edit Project</h5>
+                            <p class="card-text">A Manager can use this page to edit a project and add a description.</p>
+                        </div>
+                        <div class="card-footer">
+                            <a class="btn btn-primary"
+                               asp-action="SeeProjects" asp-controller="Manager">
+                                Edit Project
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <img class="card-img-top h-50" src="~/img/admin3.jpg" alt="Card image cap">
+                        <div class="card-body">
+                            <h5 class="card-title">Add Developers</h5>
+                            <p class="card-text">A Manager can use this page to add or remove Developers to one of the projects.</p>
+                        </div>
+                        <div class="card-footer">
+                            <a class="btn btn-primary"
+                               asp-action="AddDevelopers" asp-controller="Manager">
+                                Add Developers
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>

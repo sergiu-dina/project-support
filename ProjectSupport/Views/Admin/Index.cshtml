@@ -1,69 +1,77 @@
-﻿@{
-    ViewBag.Title = "Admin";
+﻿@using Microsoft.AspNetCore.Identity
+@using ProjectSupport.Areas.Identity.Data
+
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+
+@{
+    ViewBag.Title = "Dashboard";
 }
 
 <div class="container child">
     <div class="content-container">
         <div class="container-fluid">
+            @if (SignInManager.IsSignedIn(User) && User.IsInRole("Admin"))
+            {
+                <h2>Admin Actions</h2>
+                <h4>Edit Roles and add Users to Roles</h4>
+                <hr />
 
-            <h2>Admin Actions</h2>
-            <h4>Edit Roles and add Users to Roles</h4>
-            <hr />
-
-            <div class="card-group text-center">
-                <div class="card">
-                    <img class="card-img-top h-25" src="~/img/admin1.jpg" alt="Card image cap">
-                    <div class="card-body">
-                        <h5 class="card-title">Add Role</h5>
-                        <p class="card-text">This page is only visible to the Admin and he can use it to create or delete a role.</p>
+                <div class="card-group text-center">
+                    <div class="card">
+                        <img class="card-img-top h-25" src="~/img/admin1.jpg" alt="Card image cap">
+                        <div class="card-body">
+                            <h5 class="card-title">Add Role</h5>
+                            <p class="card-text">This page is only visible to the Admin and he can use it to create or delete a role.</p>
+                        </div>
+                        <div class="card-footer">
+                            <a class="btn btn-primary"
+                               asp-action="CreateRole" asp-controller="Admin">
+                                Add Role
+                            </a>
+                        </div>
                     </div>
-                    <div class="card-footer">
-                        <a class="btn btn-primary"
-                           asp-action="CreateRole" asp-controller="Admin">
-                            Add Role
-                        </a>
+                    <div class="card">
+                        <img class="card-img-top h-25" src="~/img/admin3.jpg" alt="Card image cap">
+                        <div class="card-body">
+                            <h5 class="card-title">Add Manager</h5>
+                            <p class="card-text">The Admin can use this page to add or remove an User with the role of Manager to one of the projects. The Manager of a project can perform certain tasks inside that project.</p>
+                        </div>
+                        <div class="card-footer">
+                            <a class="btn btn-primary"
+                               asp-action="AddManager" asp-controller="Admin">
+                                Add Manager
+                            </a>
+                        </div>
                     </div>
-                </div>
-                <div class="card">
-                    <img class="card-img-top h-25" src="~/img/admin3.jpg" alt="Card image cap">
-                    <div class="card-body">
-                        <h5 class="card-title">Add Manager</h5>
-                        <p class="card-text">The Admin can use this page to add or remove an User with the role of Manager to one of the projects. The Manager of a project can perform certain tasks inside that project.</p>
+                    <div class="card">
+                        <img class="card-img-top h-25" src="~/img/admin2.jpg" alt="Card image cap">
+                        <div class="card-body">
+                            <h5 class="card-title">Edit Users</h5>
+                            <p class="card-text">This page is only visible to the Admin and he can use it to add or remove an User from a Role or to delete the User's account. </p>
+                        </div>
+                        <div class="card-footer">
+                            <a class="btn btn-primary"
+                               asp-action="EditUsers" asp-controller="Admin">
+                                Edit Users
+                            </a>
+                        </div>
                     </div>
-                    <div class="card-footer">
-                        <a class="btn btn-primary"
-                           asp-action="AddManager" asp-controller="Admin">
-                            Add Manager
-                        </a>
-                    </div>
-                </div>
-                <div class="card">
-                    <img class="card-img-top h-25" src="~/img/admin2.jpg" alt="Card image cap">
-                    <div class="card-body">
-                        <h5 class="card-title">Edit Users</h5>
-                        <p class="card-text">This page is only visible to the Admin and he can use it to add or remove an User from a Role or to delete the User's account. </p>
-                    </div>
-                    <div class="card-footer">
-                        <a class="btn btn-primary"
-                           asp-action="EditUsers" asp-controller="Admin">
-                            Edit Users
-                        </a>
-                    </div>
-                </div>
-                <div class="card">
-                    <img class="card-img-top h-25" src="~/img/admin1.jpg" alt="Card image cap">
-                    <div class="card-body">
-                        <h5 class="card-title">Create Project</h5>
-                        <p class="card-text">The Admin can use this page to create a project where managers and users can perform certain tasks.</p>
-                    </div>
-                    <div class="card-footer">
-                        <a class="btn btn-primary"
-                           asp-action="CreateProject" asp-controller="Admin">
-                            Create Project
-                        </a>
+                    <div class="card">
+                        <img class="card-img-top h-25" src="~/img/admin1.jpg" alt="Card image cap">
+                        <div class="card-body">
+                            <h5 class="card-title">Create Project</h5>
+                            <p class="card-text">The Admin can use this page to create a project where managers and users can perform certain tasks or delete it.</p>
+                        </div>
+                        <div class="card-footer">
+                            <a class="btn btn-primary"
+                               asp-action="CreateProject" asp-controller="Admin">
+                                Create Project
+                            </a>
+                        </div>
                     </div>
                 </div>
-            </div>
+            }
         </div>
     </div>
 </div>

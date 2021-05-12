@@ -1,29 +1,28 @@
 ﻿@model Project
 
 @{
-    ViewBag.Title = "Create";
+    ViewBag.Title = "Edit";
 }
 
 <div class="container child2">
     <div class="content-container">
         <div class="container-fluid">
 
-            @using (Html.BeginForm())
-            {
-                @Html.AntiForgeryToken()
-            }
+            <h2>Edit</h2>
 
             @using (Html.BeginForm())
             {
                 @Html.AntiForgeryToken()
 
-                <form method="post">
-                    <div class="card mb-3">
+                <div class="form-horizontal">
+                    <div class="card">
                         <div class="card-header">
-                            <h2>Create Project</h2>
+                            <h4>Edit Project</h4>
                         </div>
                         <div class="card-body">
                             @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                            @Html.HiddenFor(model => model.Id)
+
                             <div class="form-group">
                                 @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2" })
                                 <div class="col-md-10">
@@ -41,14 +40,14 @@
                             </div>
                         </div>
                         <div class="card-footer">
-                            <input type="submit" value="Create" class="btn btn-primary" />
+                            <input type="submit" value="Save" class="btn btn-primary" />
                             <a class="btn btn-primary"
-                               asp-action="Index" asp-controller="Admin">
+                               asp-action="SeeProjects" asp-controller="Manager">
                                 Back to List
                             </a>
                         </div>
                     </div>
-                </form>
+                </div>
             }
         </div>
     </div>

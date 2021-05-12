@@ -25,6 +25,14 @@
                     </a>
                 </li>
             }
+            else if (SignInManager.IsSignedIn(User) && User.IsInRole("Manager"))
+            {
+                <li>
+                    <a asp-area="" asp-controller="Manager" asp-action="Index">
+                        <i class="fa fa-tachometer" aria-hidden="true"></i> Dashboard
+                    </a>
+                </li>
+            }
             <li class="header">Another Menu</li>
             <li>
                 <a asp-area="" asp-controller="Gantt" asp-action="Gantt">
@@ -41,7 +49,7 @@
                     <i class="fa fa-info-circle" aria-hidden="true"></i> Information
                 </a>
             </li>
-            </ul>
+        </ul>
     </div>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark navbar-custom border-bottom box-shadow mb-3 fixed-top">

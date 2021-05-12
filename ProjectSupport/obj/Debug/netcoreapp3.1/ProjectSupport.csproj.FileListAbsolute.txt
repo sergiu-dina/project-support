@@ -367,8 +367,12 @@ E:\Facultate\Licenta\project-support\ProjectSupport\bin\Debug\netcoreapp3.1\Page
 E:\Facultate\Licenta\project-support\ProjectSupport\obj\Debug\netcoreapp3.1\Razor\Views\Gantt\Gantt.cshtml.g.cs
 E:\Facultate\Licenta\project-support\ProjectSupport\obj\Debug\netcoreapp3.1\Razor\Views\Gantt\Index.cshtml.g.cs
 E:\Facultate\Licenta\project-support\ProjectSupport\obj\Debug\netcoreapp3.1\Razor\Views\Admin\CreateProject.cshtml.g.cs
-E:\Facultate\Licenta\project-support\ProjectSupport\obj\Debug\netcoreapp3.1\Razor\Views\Admin\EditProject.cshtml.g.cs
 E:\Facultate\Licenta\project-support\ProjectSupport\obj\Debug\netcoreapp3.1\Razor\Views\Admin\DeleteProject.cshtml.g.cs
 E:\Facultate\Licenta\project-support\ProjectSupport\obj\Debug\netcoreapp3.1\Razor\Views\Admin\AddManager.cshtml.g.cs
 E:\Facultate\Licenta\project-support\ProjectSupport\obj\Debug\netcoreapp3.1\Razor\Views\Admin\SelectManager.cshtml.g.cs
 E:\Facultate\Licenta\project-support\ProjectSupport\obj\Debug\netcoreapp3.1\Razor\Views\Shared\NotFound.cshtml.g.cs
+E:\Facultate\Licenta\project-support\ProjectSupport\obj\Debug\netcoreapp3.1\Razor\Views\Manager\Index.cshtml.g.cs
+E:\Facultate\Licenta\project-support\ProjectSupport\obj\Debug\netcoreapp3.1\Razor\Views\Manager\EditProject.cshtml.g.cs
+E:\Facultate\Licenta\project-support\ProjectSupport\obj\Debug\netcoreapp3.1\Razor\Views\Manager\SeeProjects.cshtml.g.cs
+E:\Facultate\Licenta\project-support\ProjectSupport\obj\Debug\netcoreapp3.1\Razor\Views\Manager\AddDevelopers.cshtml.g.cs
+E:\Facultate\Licenta\project-support\ProjectSupport\obj\Debug\netcoreapp3.1\Razor\Views\Manager\SelectDevelopers.cshtml.g.cs
