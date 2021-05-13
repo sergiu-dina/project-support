@@ -25,7 +25,6 @@ namespace ProjectSupport.Models.Services
         {
             var projectUser = db.ProjectUsers.Find(userId, projectId);
             db.ProjectUsers.Remove(projectUser);
-            db.SaveChanges();
         }
 
         public ProjectUser Get(int projectId, string userId)

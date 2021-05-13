@@ -102,47 +102,54 @@ namespace ProjectSupport.Controllers
             return View("Index");
         }
 
-        public async Task<ViewResult> EditUsers(string sortOrder, string currentFilter, string searchString, int? page)
+        public async Task<ViewResult> EditUsers(string sortOrder, string searchString, int pg = 1)
         {
             ViewBag.CurrentSort = sortOrder;
             ViewBag.EmailSortParm = String.IsNullOrEmpty(sortOrder) ? "email_desc" : "";
             ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
-
-            if (searchString != null)
-            {
-                page = 1;
-            }
-            else
-            {
-                searchString = currentFilter;
-            }
 
             ViewBag.CurrentFilter = searchString;
 
             var users = from u in db.Users
                          select u;
 
+            const int pageSize = 5;
+            if (pg < 1)
+            {
+                pg = 1;
+            }
+
+            int recsCount = users.Count();
+
+            var pager = new Pager(recsCount, pg, pageSize);
+
+            int recSkip = (pg - 1) * pageSize;
+
+            var data = users.Skip(recSkip).Take(pager.PageSize).ToList();
+
+            this.ViewBag.Pager = pager;
+
             if (!String.IsNullOrEmpty(searchString))
             {
-                users = users.Where(s => s.LastName.Contains(searchString)
-                                       || s.Email.Contains(searchString));
+                data = data.Where(s => s.LastName.Contains(searchString)
+                                       || s.Email.Contains(searchString)).ToList();
             }
 
             switch (sortOrder)
             {
                 case "email_desc":
-                    users = users.OrderByDescending(u => u.Email);
+                    data = data.OrderByDescending(u => u.Email).ToList();
                     break;
                 case "name_desc":
-                    users = users.OrderByDescending(s => s.LastName);
+                    data = data.OrderByDescending(s => s.LastName).ToList();
                     break;
                 default:
-                    users = users.OrderBy(u => u.LastName);
+                    data = data.OrderBy(u => u.LastName).ToList();
                     break;
             }
 
             var userRolesViewModel = new List<UserRolesViewModel>();
-            foreach(AppUser user in users)
+            foreach(AppUser user in data)
             {
                 var temp = new UserRolesViewModel();
                 temp.UserId = user.Id;
@@ -152,9 +159,8 @@ namespace ProjectSupport.Controllers
                 temp.Roles = await GetUserRoles(user);
                 userRolesViewModel.Add(temp);
             }
-            int pageSize = 6;
-            int pageNumber = (page ?? 1);
-            return View(userRolesViewModel.ToPagedList(pageNumber,pageSize));
+
+            return View(userRolesViewModel.ToList());
         }
 
         private async Task<List<string>> GetUserRoles(AppUser user)
@@ -202,6 +208,7 @@ namespace ProjectSupport.Controllers
             {
                 return View();
             }
+            
             var roles = await userManager.GetRolesAsync(user);
             var result = await userManager.RemoveFromRolesAsync(user, roles);
             if (!result.Succeeded)
@@ -209,12 +216,30 @@ namespace ProjectSupport.Controllers
                 ModelState.AddModelError("", "Cannot remove user existing roles");
                 return View(model);
             }
+            else
+            {
+                var role = model.Where(x => x.Selected).Select(y => y.RoleName).First();
+                if (roles[0] != role)
+                {
+                    var projects = projectData.GetAll();
+                    var projectUsers = projectUserData.GetAll();
+                    foreach (var project in projects)
+                    {
+                        if (projectUserData.HasUser(project.Id, user.Id))
+                        {
+                            projectUserData.Delete(user.Id, project.Id);
+
+                        }
+                    }
+                }
+            }
             result = await userManager.AddToRolesAsync(user, model.Where(x => x.Selected).Select(y => y.RoleName));
             if (!result.Succeeded)
             {
                 ModelState.AddModelError("", "Cannot add selected roles to user");
                 return View(model);
             }
+            db.SaveChanges();
             return RedirectToAction("EditUsers");
         }
 
