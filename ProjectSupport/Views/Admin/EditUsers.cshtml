@@ -22,13 +22,15 @@
                     <h1>Edit Users</h1>
                 </div>
                 <div class="card-body">
-                    @using (Html.BeginForm("EditUsers", "Admin", FormMethod.Get))
-                    {
-                        <p>
-                            Find by name: @Html.TextBox("SearchString", ViewBag.CurrentFilter as string)
-                            <input type="submit" value="Search" />
-                        </p>
-                    }
+                    <div class="col-4 p-0 justify-content-end">
+                        <form asp-controller="Admin" asp-action="EditUsers" method="get">
+                            <span class="btn-group">
+                                <input class="form-control" type="text" name="SearchText" placeholder="Search Name">
+                                <input class="p-1 ml-2 btn btn-sm btn-primary" type="submit" value="Search" />
+                            </span>
+                        </form>
+                    </div>
+                    <br />
                     <table class="table table-striped">
                         <thead>
                             <tr>
@@ -79,7 +81,7 @@
                     <div class="container">
                         @if(pager.TotalPages > 0)
                         {
-                        <ul class="pagination justify-content-end">
+                        <ul class="pagination">
                             @if (pager.CurrentPage > 1)
                             {
                                 <li class="page-item">

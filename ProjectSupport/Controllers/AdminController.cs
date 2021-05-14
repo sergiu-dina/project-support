@@ -102,16 +102,25 @@ namespace ProjectSupport.Controllers
             return View("Index");
         }
 
-        public async Task<ViewResult> EditUsers(string sortOrder, string searchString, int pg = 1)
+        public async Task<ViewResult> EditUsers(string sortOrder, string searchString, int pg = 1, string SearchText = "")
         {
             ViewBag.CurrentSort = sortOrder;
             ViewBag.EmailSortParm = String.IsNullOrEmpty(sortOrder) ? "email_desc" : "";
             ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
 
-            ViewBag.CurrentFilter = searchString;
-
-            var users = from u in db.Users
+            var query = from u in db.Users
                          select u;
+
+            List<AppUser> users; 
+
+            if (SearchText != "" && SearchText != null)
+            {
+                users = query.OrderBy(p => p.UserName).Where(m => m.UserName.Contains(SearchText)).ToList();
+            }
+            else
+            {
+                users = query.OrderBy(p => p.UserName).ToList();
+            }
 
             const int pageSize = 5;
             if (pg < 1)
@@ -179,6 +188,9 @@ namespace ProjectSupport.Controllers
                 return View("NotFound");
             }
             ViewBag.UserName = user.UserName;
+
+            var existingRole = false;
+
             var model = new List<AddRoleViewModel>();
             foreach (var role in roleManager.Roles)
             {
@@ -190,6 +202,7 @@ namespace ProjectSupport.Controllers
                 if (await userManager.IsInRoleAsync(user, role.Name))
                 {
                     userRolesViewModel.Selected = true;
+                    existingRole = true;
                 }
                 else
                 {
@@ -197,6 +210,9 @@ namespace ProjectSupport.Controllers
                 }
                 model.Add(userRolesViewModel);
             }
+
+            ViewBag.ExistingRole = existingRole;
+
             return View(model);
         }
 
@@ -218,17 +234,22 @@ namespace ProjectSupport.Controllers
             }
             else
             {
-                var role = model.Where(x => x.Selected).Select(y => y.RoleName).First();
-                if (roles[0] != role)
-                {
-                    var projects = projectData.GetAll();
-                    var projectUsers = projectUserData.GetAll();
-                    foreach (var project in projects)
-                    {
-                        if (projectUserData.HasUser(project.Id, user.Id))
-                        {
-                            projectUserData.Delete(user.Id, project.Id);
+                var role = model.Where(x => x.Selected).Select(y => y.RoleName).FirstOrDefault();
 
+
+                if (roles.Count > 0)
+                {
+                    if (roles[0] != role)
+                    {
+                        var projects = projectData.GetAll();
+                        var projectUsers = projectUserData.GetAll();
+                        foreach (var project in projects)
+                        {
+                            if (projectUserData.HasUser(project.Id, user.Id))
+                            {
+                                projectUserData.Delete(user.Id, project.Id);
+
+                            }
                         }
                     }
                 }
@@ -271,15 +292,34 @@ namespace ProjectSupport.Controllers
         }
 
         [HttpGet]
-        public IActionResult CreateProject()
+        public IActionResult CreateProject(int pg = 1)
         {
             var model = new CreateProjectViewModel();
-            model.Projects = projectData.GetAll().OrderBy(p=>p.Name);
+            var projects = projectData.GetAll().OrderBy(p => p.Name);
+
+            const int pageSize = 5;
+            if (pg < 1)
+            {
+                pg = 1;
+            }
+
+            int recsCount = projects.Count();
+
+            var pager = new Pager(recsCount, pg, pageSize);
+
+            int recSkip = (pg - 1) * pageSize;
+
+            var data = projects.Skip(recSkip).Take(pager.PageSize).ToList();
+
+            this.ViewBag.Pager = pager;
+
+            model.Projects = data;
+
             return View(model);
         }
 
         [HttpPost]
-        public IActionResult CreateProject(CreateProjectViewModel model)
+        public IActionResult CreateProject(CreateProjectViewModel model, int pg=1)
         {
             if (ModelState.IsValid)
             {
@@ -288,7 +328,27 @@ namespace ProjectSupport.Controllers
 
                 projectData.Add(project);
             }
-            model.Projects = projectData.GetAll().OrderBy(p => p.Name);
+
+            var projects = projectData.GetAll().OrderBy(p => p.Name);
+
+            const int pageSize = 5;
+            if (pg < 1)
+            {
+                pg = 1;
+            }
+
+            int recsCount = projects.Count();
+
+            var pager = new Pager(recsCount, pg, pageSize);
+
+            int recSkip = (pg - 1) * pageSize;
+
+            var data = projects.Skip(recSkip).Take(pager.PageSize).ToList();
+
+            this.ViewBag.Pager = pager;
+
+            model.Projects = data;
+
             return View(model);
         }
 
@@ -315,46 +375,54 @@ namespace ProjectSupport.Controllers
         }
 
         [HttpGet]
-        public IActionResult AddManager(string sortOrder, string searchString, string currentFilter, int? page)
+        public IActionResult AddManager(string sortOrder, int pg=1, string SearchText = "")
         {
             ViewBag.CurrentSort = sortOrder;
             ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
 
-            if (searchString != null)
+            var projects = from s in projectData.GetAll()
+                           select s;
+
+            if (SearchText != "" && SearchText != null)
             {
-                page = 1;
+                projects = projects.OrderBy(p => p.Name).Where(m => m.Name.Contains(SearchText)).ToList();
             }
             else
             {
-                searchString = currentFilter;
+                projects = projects.OrderBy(p => p.Name).ToList();
             }
 
-            ViewBag.CurrentFilter = searchString;
-
-            var projects = from s in projectData.GetAll()
-                           select s;
-            if (!String.IsNullOrEmpty(searchString))
+            const int pageSize = 5;
+            if (pg < 1)
             {
-                projects = projects.Where(p => p.Name.Contains(searchString));
+                pg = 1;
             }
+
+            int recsCount = projects.Count();
+
+            var pager = new Pager(recsCount, pg, pageSize);
+
+            int recSkip = (pg - 1) * pageSize;
+
+            var data = projects.Skip(recSkip).Take(pager.PageSize).ToList();
+
+            this.ViewBag.Pager = pager;
+
             switch (sortOrder)
             {
                 case "name_desc":
-                    projects = projects.OrderByDescending(s => s.Name);
+                    data = data.OrderByDescending(s => s.Name).ToList();
                     break;
                 default:
-                    projects = projects.OrderBy(s => s.Name);
+                    data = data.OrderBy(s => s.Name).ToList();
                     break;
             }
 
-            int pageSize = 3;
-            int pageNumber = (page ?? 1);
-
-            return View(projects.ToPagedList(pageNumber,pageSize));
+            return View(data);
         }
-        
+
         [HttpGet]
-        public async Task<IActionResult> SelectManager(int id, string searchString)
+        public async Task<IActionResult> SelectManager(int id, int pg = 1, string SearchText = "")
         {
             var project = projectData.Get(id);
             var projectUser = projectUserData.GetAll();
@@ -374,8 +442,24 @@ namespace ProjectSupport.Controllers
                 }
             }
 
+            const int pageSize = 10;
+            if (pg < 1)
+            {
+                pg = 1;
+            }
+
+            int recsCount = users.Count();
+
+            var pager = new Pager(recsCount, pg, pageSize);
+
+            int recSkip = (pg - 1) * pageSize;
+
+            var data = users.Skip(recSkip).Take(pager.PageSize).ToList();
+
+            this.ViewBag.Pager = pager;
+
             var model = new List<UserProjectViewModel>();
-            foreach (var user in users)
+            foreach (var user in data)
             {
                 var userProjectViewModel = new UserProjectViewModel
                 {
@@ -396,9 +480,13 @@ namespace ProjectSupport.Controllers
                 model.Add(userProjectViewModel);
             }
 
-            if (!String.IsNullOrEmpty(searchString))
+            if (SearchText != "" && SearchText != null)
             {
-                model = model.Where(m=>m.UserName.Contains(searchString)).ToList();
+                model = model.OrderBy(p => p.UserName).Where(m => m.UserName.Contains(SearchText)).ToList();
+            }
+            else
+            {
+                model = model.OrderBy(p => p.UserName).ToList();
             }
 
             return View(model);
