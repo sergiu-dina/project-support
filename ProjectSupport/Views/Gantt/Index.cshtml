@@ -1,5 +1,105 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model IEnumerable<Project>
+
 @{
+    ViewBag.Title = "Projects";
+
+    Pager pager = new Pager();
+
+    int pageNo = 0;
+
+    if (ViewBag.Pager != null)
+    {
+        pager = ViewBag.Pager;
+        pageNo = pager.CurrentPage;
+    }
 }
+
+<div class="container child2">
+    <div class="content-container">
+        <div class="container-fluid">
+            <div class="card">
+                <div class="card-header">
+                    <h1>Projects</h1>
+                </div>
+                <div class="card-body">
+                    <div class="col-4 p-0 justify-content-end">
+                        <form asp-controller="Gantt" asp-action="Index" method="get">
+                            <span class="btn-group">
+                                <input class="form-control" type="text" name="SearchText" placeholder="Search Name">
+                                <input class="p-1 ml-2 btn btn-sm btn-primary" type="submit" value="Search" />
+                            </span>
+                        </form>
+                    </div>
+                    <br />
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>
+                                    @Html.ActionLink("Last Name", "Index", new { sortOrder = ViewBag.NameSortParm, currentFilter = ViewBag.CurrentFilter })
+                                </th>
+                                <th>Description</th>
+                                <th>Gantt Diagram</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var project in Model)
+                            {
+                                <tr>
+                                    <td>@project.Name</td>
+                                    <td>@project.Description</td>
+                                    <td style="padding-left: 35px">
+                                        <a class="btn"
+                                           asp-action="Gantt" asp-controller="Gantt" asp-route-id="@project.Id">
+                                            <i class="fas fa-project-diagram" style="font-size:24px;color:blue"></i>
+                                        </a>
+                                    </td>
+                                    <td style="padding-left: 20px">
+                                        <a class="btn"
+                                           asp-action="Details" asp-controller="Gantt" asp-route-id="@project.Id">
+                                            <i class="fas fa-info" style="font-size:24px;color:blue"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    <br />
+                    <div class="container">
+                        @if (pager.TotalPages > 0)
+                        {
+                            <ul class="pagination">
+                                @if (pager.CurrentPage > 1)
+                                {
+                                    <li class="page-item">
+                                        <a class="page-link" asp-controller="Gantt" asp-action="Index" asp-route-pg="1">First</a>
+                                    </li>
+                                    <li>
+                                        <a class="page-link" asp-controller="Gantt" asp-action="Index" asp-route-pg="@(pager.CurrentPage -1)">Previous</a>
+                                    </li>
+                                }
+
+                                @for (var pge = pager.StartPage; pge <= pager.EndPage; pge++)
+                                {
+                                    <li class="page-item @(pge == pager.CurrentPage ? "active" : "")">
+                                        <a class="page-link" asp-controller="Gantt" asp-action="Index" asp-route-pg="@pge"> @pge </a>
+                                    </li>
+                                }
+
+                                @if (pager.CurrentPage < pager.TotalPages)
+                                {
+                                    <li class="page-item">
+                                        <a class="page-link" asp-controller="Gantt" asp-action="Index" asp-route-pg="@(pager.CurrentPage + 1)">Next</a>
+                                    </li>
+                                    <li>
+                                        <a class="page-link" asp-controller="Gantt" asp-action="Index" asp-route-pg="@(pager.TotalPages)">Last</a>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

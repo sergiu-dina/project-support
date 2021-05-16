@@ -1,0 +1,147 @@
+﻿@model ProjectSupport.ViewModels.ProjectUsersViewModel
+
+@{
+    ViewBag.Title = "Details";
+
+    Pager pager = new Pager();
+
+    int pageNo = 0;
+
+    if (ViewBag.Pager != null)
+    {
+        pager = ViewBag.Pager;
+        pageNo = pager.CurrentPage;
+    }
+}
+
+<div class="container child3">
+    <div class="content-container">
+        <div class="container-fluid">
+
+            <div class="card">
+                <div class="card-header">
+                    <h4>Details for @Html.DisplayFor(model => model.Project.Name)</h4>
+                </div>
+                <div class="card-body">
+                    <dl class="dl-horizontal">
+                        <dt>
+                            Project Name
+                        </dt>
+                        <dd>
+                            @Html.DisplayFor(model => model.Project.Name)
+                        </dd>
+
+                        <dt>
+                            Details
+                        </dt>
+                        <dd>
+                            @Html.DisplayFor(model => model.Project.Description)
+                        </dd>
+
+                        <dt>
+                            Developers
+                        </dt>
+                        <dd>
+                            @Model.Developers.Count
+                        </dd>
+                    </dl>
+
+                    @if (Model.Manager.Email != null)
+                    {
+                        <h5>Manager</h5>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Email</th>
+                                    <th scope="col">First Name</th>
+                                    <th scope="col">Last Name</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>@Model.Manager.Email</td>
+                                    <td>@Model.Manager.FirstName</td>
+                                    <td>@Model.Manager.LastName</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <h5>This project has no Manager</h5>
+                        <hr />
+                    }
+
+                    @if (Model.Developers.Count > 0)
+                    {
+                        <h5>Developers</h5>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">
+                                        @Html.ActionLink("Email", "Details", new { sortOrder = ViewBag.NameSortParm, currentFilter = ViewBag.CurrentFilter })
+                                    </th>
+                                    <th scope="col">First Name</th>
+                                    <th scope="col">Last Name</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Developers)
+                                {
+                                    <tr>
+                                        <td>@item.Email</td>
+                                        <td>@item.FirstName</td>
+                                        <td>@item.LastName</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                        <div class="container">
+                            @if (pager.TotalPages > 0)
+                            {
+                                <ul class="pagination">
+                                    @if (pager.CurrentPage > 1)
+                                    {
+                                        <li class="page-item">
+                                            <a class="page-link" asp-controller="Gantt" asp-action="Details" asp-route-pg="1">First</a>
+                                        </li>
+                                        <li>
+                                            <a class="page-link" asp-controller="Gantt" asp-action="Details" asp-route-pg="@(pager.CurrentPage -1)">Previous</a>
+                                        </li>
+                                    }
+
+                                    @for (var pge = pager.StartPage; pge <= pager.EndPage; pge++)
+                                    {
+                                        <li class="page-item @(pge == pager.CurrentPage ? "active" : "")">
+                                            <a class="page-link" asp-controller="Gantt" asp-action="Details" asp-route-pg="@pge"> @pge </a>
+                                        </li>
+                                    }
+
+                                    @if (pager.CurrentPage < pager.TotalPages)
+                                    {
+                                        <li class="page-item">
+                                            <a class="page-link" asp-controller="Gantt" asp-action="Details" asp-route-pg="@(pager.CurrentPage + 1)">Next</a>
+                                        </li>
+                                        <li>
+                                            <a class="page-link" asp-controller="Gantt" asp-action="Details" asp-route-pg="@(pager.TotalPages)">Last</a>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                        </div>
+                    }
+
+                </div>
+                <div class="card-footer">
+                    <p>
+                        <a class="btn btn-primary"
+                           asp-action="Index" asp-controller="Gantt">
+                            Back to List
+                        </a>
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
