@@ -10,8 +10,8 @@ using ProjectSupport.Data;
 namespace ProjectSupport.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20210509074307_ProjectsTasks")]
-    partial class ProjectsTasks
+    [Migration("20210517085507_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -203,9 +203,6 @@ namespace ProjectSupport.Migrations
                     b.Property<byte[]>("ProfilePicture")
                         .HasColumnType("varbinary(max)");
 
-                    b.Property<int?>("ProjectId")
-                        .HasColumnType("int");
-
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
@@ -226,8 +223,6 @@ namespace ProjectSupport.Migrations
                         .HasName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
-                    b.HasIndex("ProjectId");
-
                     b.ToTable("AspNetUsers");
                 });
 
@@ -238,11 +233,17 @@ namespace ProjectSupport.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("Dependency")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Duration")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ParentId")
-                        .HasColumnType("int");
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Progress")
                         .HasColumnType("decimal(18,2)");
@@ -250,44 +251,14 @@ namespace ProjectSupport.Migrations
                     b.Property<int>("ProjectId")
                         .HasColumnType("int");
 
-                    b.Property<int>("SortOrder")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("Text")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Type")
-                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ProjectId");
 
                     b.ToTable("GanttTasks");
-                });
-
-            modelBuilder.Entity("ProjectSupport.Models.Link", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<int>("SourceTaskId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TargetTaskId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Type")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Links");
                 });
 
             modelBuilder.Entity("ProjectSupport.Models.Project", b =>
@@ -298,11 +269,30 @@ namespace ProjectSupport.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Description")
+                        .HasColumnType("nvarchar(255)")
+                        .HasMaxLength(255);
+
+                    b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.ToTable("Projects");
+                });
+
+            modelBuilder.Entity("ProjectSupport.Models.ProjectUser", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("ProjectId")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserId", "ProjectId");
+
+                    b.HasIndex("ProjectId");
+
+                    b.ToTable("ProjectUsers");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -356,18 +346,26 @@ namespace ProjectSupport.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ProjectSupport.Areas.Identity.Data.AppUser", b =>
-                {
-                    b.HasOne("ProjectSupport.Models.Project", null)
-                        .WithMany("Users")
-                        .HasForeignKey("ProjectId");
-                });
-
             modelBuilder.Entity("ProjectSupport.Models.GanttTask", b =>
                 {
                     b.HasOne("ProjectSupport.Models.Project", "Project")
-                        .WithMany("Tickets")
+                        .WithMany("Tasks")
                         .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ProjectSupport.Models.ProjectUser", b =>
+                {
+                    b.HasOne("ProjectSupport.Models.Project", "Project")
+                        .WithMany("ProjectUsers")
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProjectSupport.Areas.Identity.Data.AppUser", "User")
+                        .WithMany("ProjectUsers")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

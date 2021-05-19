@@ -1,4 +1,4 @@
-﻿@model ProjectSupport.Areas.Identity.Data.AppUser
+﻿@model GanttTask
 
 @{
     ViewBag.Title = "Delete User";
@@ -10,21 +10,21 @@
             <img class="text-center" src="~/img/Remove.svg" style="padding-left:50px">
             <div class="card text-center">
                 <div class="card-header">
-                    <h3>Are you sure you want to delete this user?</h3>
+                    <h3>Are you sure you want to delete this task?</h3>
                 </div>
                 <div class="card-body">
                     <p class="card-text">
-                        <h4 class="card-title">@Model.Email</h4>
+                        <h4 class="card-title">@Model.Name</h4>
                     </p>
                 </div>
                 <div class="card-footer">
                     @using (Html.BeginForm())
                     {
                         @Html.AntiForgeryToken()
-
-                        <input type="submit" value="DeleteUser" class="btn btn-primary" />
+                        @Html.HiddenFor(model => model.ProjectId)
+                        <input type="submit" value="Delete Task" class="btn btn-primary" />
                         <a class="btn btn-primary"
-                           asp-action="EditUsers" asp-controller="Admin">
+                           asp-action="SeeTasks" asp-controller="Gantt" asp-route-id="@Model.ProjectId">
                             Back to List
                         </a>
                     }

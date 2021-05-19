@@ -14,7 +14,7 @@ namespace ProjectSupport.Models
 
         [MaxLength(255)]
         public string Description { get; set; }
-        public List<GanttTask> Tickets { get; set; } = new List<GanttTask>();
+        public List<GanttTask> Tasks { get; set; } = new List<GanttTask>();
         public List<ProjectUser> ProjectUsers { get; set; } = new List<ProjectUser>();
     }
 }

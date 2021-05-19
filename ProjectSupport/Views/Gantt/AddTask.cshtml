@@ -1,0 +1,81 @@
+﻿@model ProjectSupport.ViewModels.TaskProjectViewModel
+
+@{
+    ViewBag.Title = "Add Task";
+}
+
+<div class="container child">
+    <div class="content-container">
+        <div class="container-fluid">
+            @using (Html.BeginForm())
+            {
+                <img class="text-center" src="~/img/AddTask.svg" style="padding-left:30px">
+                <form method="post">
+                    <div asp-validation-summary="All" class="text-danger"></div>
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <h2>Create Task</h2>
+                        </div>
+                        <div class="card-body">
+                            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                            @Html.HiddenFor(model => model.ProjectId)
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.Task.Name, htmlAttributes: new { @class = "control-label col-md-2" })
+                                <div class="col-md-10">
+                                    @Html.EditorFor(model => model.Task.Name, new { htmlAttributes = new { @class = "form-control" } })
+                                    @Html.ValidationMessageFor(model => model.Task.Name, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-sm">
+                                        @Html.LabelFor(model => model.Task.StartDate, htmlAttributes: new { @class = "control-label col-sm" })
+                                    </div>
+                                    <div class="col-sm">
+                                        @Html.LabelFor(model => model.Task.EndDate, htmlAttributes: new { @class = "control-label col-sm" })
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm">
+                                        <div class="form-group">
+                                            <div class="col-md-10">
+                                                @Html.EditorFor(model => model.Task.StartDate, new { htmlAttributes = new { @class = "form-control" } })
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm">
+                                        <div class="form-group">
+                                            <div class="col-md-10">
+                                                @Html.EditorFor(model => model.Task.EndDate, new { htmlAttributes = new { @class = "form-control" } })
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                @Html.LabelFor(model => model.Selected, htmlAttributes: new { @class = "control-label col-md-2" })
+                                <div class="col-md-10">
+                                    @Html.DropDownListFor(s => s.Selected, Model.Tasks, "Select a Task", new { @class = "form-control" })
+
+                                    @Html.ValidationMessageFor(model => model.Selected, "", new { @class = "text-danger" })
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <input type="submit" value="Create" class="btn btn-primary" />
+                            <a class="btn btn-primary"
+                               asp-action="Actions" asp-controller="Gantt" asp-route-id="@Model.Task.ProjectId">
+                                Back to Actions
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            }
+
+        </div>
+    </div>
+</div>

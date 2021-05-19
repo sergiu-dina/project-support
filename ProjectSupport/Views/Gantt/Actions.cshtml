@@ -1,0 +1,65 @@
+﻿@model int 
+
+<div class="container child">
+    <div class="content-container">
+        <div class="container-fluid">
+            <img class="text-center" src="~/img/ProjectActions.svg">
+
+            <div class="card-group text-center" style="padding-left:100px">
+                <div class="card">
+                    <img class="card-img-top h-25" src="~/img/admin1.jpg" alt="Card image cap">
+                    <div class="card-body">
+                        <h5 class="card-title">Add Task</h5>
+                        <p class="card-text">This page is only visible to the Manager and he can use it to create a Task in the current Project.</p>
+                    </div>
+                    <div class="card-footer">
+                        <a class="btn btn-primary"
+                           asp-action="AddTask" asp-controller="Gantt" asp-route-id="@Model">
+                            Add Task
+                        </a>
+                    </div>
+                </div>
+                <div class="card">
+                    <img class="card-img-top h-25" src="~/img/admin3.jpg" alt="Card image cap">
+                    <div class="card-body">
+                        <h5 class="card-title">Edit Task</h5>
+                        <p class="card-text">The Manager can use this page to remove a Task or edit the name, start date or end date of a Task.</p>
+                    </div>
+                    <div class="card-footer">
+                        <a class="btn btn-primary"
+                           asp-action="SeeTasks" asp-controller="Gantt" asp-route-id="@Model">
+                            Edit Task
+                        </a>
+                    </div>
+                </div>
+                <div class="card">
+                    <img class="card-img-top h-25" src="~/img/admin2.jpg" alt="Card image cap">
+                    <div class="card-body">
+                        <h5 class="card-title">Remove Task</h5>
+                        <p class="card-text">This page is only visible to the Admin and he can use it to remove a Task from a Project. </p>
+                    </div>
+                    <div class="card-footer">
+                        <a class="btn btn-primary"
+                           asp-action="RemoveTask" asp-controller="Gantt" asp-route-id="@Model">
+                            Remove Task
+                        </a>
+                    </div>
+                </div>
+                <div class="card">
+                    <img class="card-img-top h-25" src="~/img/admin1.jpg" alt="Card image cap">
+                    <div class="card-body">
+                        <h5 class="card-title">Create Project</h5>
+                        <p class="card-text">The Admin can use this page to create a project where managers and users can perform certain tasks or delete it.</p>
+                    </div>
+                    <div class="card-footer">
+                        <a class="btn btn-primary"
+                           asp-action="CreateProject" asp-controller="Admin">
+                            Create Project
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

@@ -14,11 +14,13 @@
 
             @if (SignInManager.IsSignedIn(User) && User.IsInRole("Manager"))
             {
-                <h2>Manager Actions</h2>
-                <h4>Edit Projects and add Users to Projects</h4>
-                <hr />
-
-                <div class="card-group text-center">
+                <div class="text-center">
+                    <img class="text-center" src="~/img/Dashboard.svg">
+                </div>
+                <div>
+                    <br />
+                </div>
+                <div class="card-group text-center" style="padding-left:90px">
                     <div class="card">
                         <img class="card-img-top h-50" src="~/img/admin1.jpg" alt="Card image cap">
                         <div class="card-body">

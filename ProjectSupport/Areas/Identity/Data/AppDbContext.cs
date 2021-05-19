@@ -14,7 +14,6 @@ namespace ProjectSupport.Data
     {
         public DbSet<Project> Projects { get; set; }
         public DbSet<GanttTask> GanttTasks { get; set; }
-        public DbSet<Link> Links { get; set; }
         public DbSet<ProjectUser> ProjectUsers { get; set; }
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
