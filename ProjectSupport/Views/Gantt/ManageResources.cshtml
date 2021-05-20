@@ -24,7 +24,7 @@
                 </div>
                 <div class="card-body">
                     <div class="col-4 p-0 justify-content-end">
-                        <form asp-controller="Gantt" asp-action="SeeTasks" method="get">
+                        <form asp-controller="Gantt" asp-action="ManageResources" method="get">
                             <span class="btn-group">
                                 <input class="form-control" type="text" name="SearchText" placeholder="Search Task">
                                 <input class="p-1 ml-2 btn btn-sm btn-primary" type="submit" value="Search" />
@@ -37,33 +37,26 @@
                             <tr>
                                 <th>Name</th>
                                 <th>
-                                    @Html.ActionLink("Start Date", "SeeTasks", new { sortOrder = ViewBag.DateSortParm, currentFilter = ViewBag.CurrentFilter })
+                                    @Html.ActionLink("Start Date", "ManageResources", new { sortOrder = ViewBag.DateSortParm, currentFilter = ViewBag.CurrentFilter })
                                 </th>
                                 <th>End Date</th>
-                                <th>Edit Task</th>
-                                <th>Remove Task</th>
+                                <th>Edit Resources</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var task in Model)
                             {
-                            <tr>
-                                <td>@task.Name</td>
-                                <td>@task.StartDate.ToString("dd/MM/yyyy")</td>
-                                <td>@task.EndDate.Date.ToString("dd/MM/yyyy")</td>
-                                <td style="padding-left: 20px">
-                                    <a class="btn"
-                                       asp-action="EditTask" asp-controller="Gantt" asp-route-id="@task.Id">
-                                        <i class="fas fa-edit" style="font-size:24px;color:blue"></i>
-                                    </a>
-                                </td>
-                                <td style="padding-left: 35px">
-                                    <a class="btn"
-                                       asp-action="RemoveTask" asp-controller="Gantt" asp-route-Id="@task.Id">
-                                        <i class="fa fa-trash-o" style="font-size:24px;color:red"></i>
-                                    </a>
-                                </td>
-                            </tr>
+                                <tr>
+                                    <td>@task.Name</td>
+                                    <td>@task.StartDate.ToString("dd/MM/yyyy")</td>
+                                    <td>@task.EndDate.Date.ToString("dd/MM/yyyy")</td>
+                                    <td style="padding-left: 45px">
+                                        <a class="btn"
+                                           asp-action="EditResources" asp-controller="Gantt" asp-route-id="@task.Id">
+                                            <i class="fas fa-edit" style="font-size:24px;color:blue"></i>
+                                        </a>
+                                    </td>
+                                </tr>
                             }
                         </tbody>
                     </table>
@@ -75,27 +68,27 @@
                                 @if (pager.CurrentPage > 1)
                                 {
                                     <li class="page-item">
-                                        <a class="page-link" asp-controller="Gantt" asp-action="SeeTasks" asp-route-pg="1">First</a>
+                                        <a class="page-link" asp-controller="Gantt" asp-action="ManageResources" asp-route-pg="1">First</a>
                                     </li>
                                     <li>
-                                        <a class="page-link" asp-controller="Gantt" asp-action="SeeTasks" asp-route-pg="@(pager.CurrentPage -1)">Previous</a>
+                                        <a class="page-link" asp-controller="Gantt" asp-action="ManageResources" asp-route-pg="@(pager.CurrentPage -1)">Previous</a>
                                     </li>
                                 }
 
                                 @for (var pge = pager.StartPage; pge <= pager.EndPage; pge++)
                                 {
                                     <li class="page-item @(pge == pager.CurrentPage ? "active" : "")">
-                                        <a class="page-link" asp-controller="Gantt" asp-action="SeeTasks" asp-route-pg="@pge"> @pge </a>
+                                        <a class="page-link" asp-controller="Gantt" asp-action="ManageResources" asp-route-pg="@pge"> @pge </a>
                                     </li>
                                 }
 
                                 @if (pager.CurrentPage < pager.TotalPages)
                                 {
                                     <li class="page-item">
-                                        <a class="page-link" asp-controller="Gantt" asp-action="SeeTasks" asp-route-pg="@(pager.CurrentPage + 1)">Next</a>
+                                        <a class="page-link" asp-controller="Gantt" asp-action="ManageResources" asp-route-pg="@(pager.CurrentPage + 1)">Next</a>
                                     </li>
                                     <li>
-                                        <a class="page-link" asp-controller="Gantt" asp-action="SeeTasks" asp-route-pg="@(pager.TotalPages)">Last</a>
+                                        <a class="page-link" asp-controller="Gantt" asp-action="ManageResources" asp-route-pg="@(pager.TotalPages)">Last</a>
                                     </li>
                                 }
                             </ul>

@@ -15,6 +15,7 @@ namespace ProjectSupport.Data
         public DbSet<Project> Projects { get; set; }
         public DbSet<GanttTask> GanttTasks { get; set; }
         public DbSet<ProjectUser> ProjectUsers { get; set; }
+        public DbSet<Resources> Resources { get; set; }
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
         {
@@ -32,6 +33,17 @@ namespace ProjectSupport.Data
                 .HasOne(pu => pu.Project)
                 .WithMany(p => p.ProjectUsers)
                 .HasForeignKey(pu => pu.ProjectId);
+
+            builder.Entity<Resources>()
+                .HasKey(r => new { r.UserId, r.TaskId });
+            builder.Entity<Resources>()
+                .HasOne(r => r.User)
+                .WithMany(u => u.Resources)
+                .HasForeignKey(r => r.UserId);
+            builder.Entity<Resources>()
+                .HasOne(r => r.Task)
+                .WithMany(t => t.Resources)
+                .HasForeignKey(r => r.TaskId);
 
             base.OnModelCreating(builder);
         }

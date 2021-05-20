@@ -27,5 +27,6 @@ namespace ProjectSupport.Models
         public string Dependency { get; set; }
         public int ProjectId { get; set; }
         public Project Project { get; set; }
+        public List<Resources> Resources { get; set; } = new List<Resources>();
     }
 }

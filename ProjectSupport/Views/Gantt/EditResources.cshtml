@@ -1,0 +1,115 @@
+﻿@model List<ProjectSupport.ViewModels.ResourcesViewModel>
+
+@{
+    var projectId = ViewBag.Id;
+
+    Pager pager = new Pager();
+
+    int pageNo = 0;
+
+    if (ViewBag.Pager != null)
+    {
+        pager = ViewBag.Pager;
+        pageNo = pager.CurrentPage;
+    }
+}
+
+<div class="container child2">
+    <div class="content-container">
+        <div class="container-fluid">
+
+            <div class="card">
+                <div class="card-header">
+                    <h2>Add or remove Developers from this project</h2>
+                </div>
+                <br />
+                <div style="margin-left: 25px">
+                    <div class="col-4 p-0 justify-content-end">
+                        <form asp-controller="Gantt" asp-action="EditResources" method="get">
+                            <span class="btn-group">
+                                <input class="form-control" type="text" name="SearchText" placeholder="Search Name">
+                                <input class="p-1 ml-2 btn btn-sm btn-primary" type="submit" value="Search" />
+                            </span>
+                        </form>
+                    </div>
+                    <br />
+                </div>
+                <hr />
+                <form method="post">
+                    <div class="card-body ">
+
+                        @if (Model.Count > 0)
+                        {
+                            @for (int i = 0; i < Model.Count; i++)
+                            {
+                                <div class="form-check m-1">
+                                    <input type="hidden" asp-for="@Model[i].TaskId" />
+                                    <input type="hidden" asp-for="@Model[i].UserId" />
+                                    <input type="hidden" asp-for="@Model[i].UserName" />
+                                    <input asp-for="@Model[i].IsSelected" class="form-check-input" />
+                                    <label class="form-check-label" asp-for="@Model[i].IsSelected">
+                                        @Model[i].UserName
+                                    </label>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="text-center">
+                                <img src="~/img/warning.svg">
+                                <h3 class="text-danger">WARNING!</h3>
+                                <div class="text-danger">There are no Developers assigned to this Project.</div>
+                                <div class="text-danger">If you want to assign Resources to this Task, please add Developers.</div>
+                                <br/>
+                                <a class="btn btn-danger"
+                                   asp-action="AddDevelopers" asp-controller="Manager">
+                                    Add Developers
+                                </a>
+                            </div>
+                        }
+                    </div>
+                    <br />
+                    <div class="container">
+                        @if (pager.TotalPages > 0)
+                        {
+                            <ul class="pagination">
+                                @if (pager.CurrentPage > 1)
+                                {
+                                    <li class="page-item">
+                                        <a class="page-link" asp-controller="Gantt" asp-action="EditResources" asp-route-pg="1">First</a>
+                                    </li>
+                                    <li>
+                                        <a class="page-link" asp-controller="Gantt" asp-action="EditResources" asp-route-pg="@(pager.CurrentPage -1)">Previous</a>
+                                    </li>
+                                }
+
+                                @for (var pge = pager.StartPage; pge <= pager.EndPage; pge++)
+                                {
+                                    <li class="page-item @(pge == pager.CurrentPage ? "active" : "")">
+                                        <a class="page-link" asp-controller="Gantt" asp-action="EditResources" asp-route-pg="@pge"> @pge </a>
+                                    </li>
+                                }
+
+                                @if (pager.CurrentPage < pager.TotalPages)
+                                {
+                                    <li class="page-item">
+                                        <a class="page-link" asp-controller="Gantt" asp-action="EditResources" asp-route-pg="@(pager.CurrentPage + 1)">Next</a>
+                                    </li>
+                                    <li>
+                                        <a class="page-link" asp-controller="Gantt" asp-action="EditResources" asp-route-pg="@(pager.TotalPages)">Last</a>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                    </div>
+
+                    <div class="card-footer">
+                        <input type="submit" value="Update" class="btn btn-primary" style="width:auto" />
+                        <a asp-action="ManageResources" asp-route-id=@ViewBag.id class="btn btn-primary" style="width:auto">Cancel</a>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>

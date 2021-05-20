@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using ProjectSupport.Models;
+using ProjectSupport.Models.Services;
 
 namespace ProjectSupport.Areas.Identity.Data
 {
@@ -21,5 +22,7 @@ namespace ProjectSupport.Areas.Identity.Data
 
         public byte[] ProfilePicture { get; set; }
         public List<ProjectUser> ProjectUsers { get; set; } = new List<ProjectUser>();
+
+        public List<Resources> Resources { get; set; } = new List<Resources>();
     }
 }

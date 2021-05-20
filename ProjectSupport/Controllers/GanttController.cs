@@ -23,8 +23,10 @@ namespace ProjectSupport.Controllers
         private readonly IProjectData projectData;
         private readonly IGanttTaskData ganttTaskData;
         private readonly IProjectUserData projectUserData;
+        private readonly IResourcesData resourcesData;
 
-        public GanttController(UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager, AppDbContext db, IProjectData projectData, IGanttTaskData ganttTaskData, IProjectUserData projectUserData)
+        public GanttController(UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager, AppDbContext db,
+            IProjectData projectData, IGanttTaskData ganttTaskData, IProjectUserData projectUserData, IResourcesData resourcesData)
         {
             this.userManager = userManager;
             this.roleManager = roleManager;
@@ -32,6 +34,7 @@ namespace ProjectSupport.Controllers
             this.projectData = projectData;
             this.ganttTaskData = ganttTaskData;
             this.projectUserData = projectUserData;
+            this.resourcesData = resourcesData;
         }
         public IActionResult Index(string sortOrder, int pg = 1, string SearchText = "")
         {
@@ -331,6 +334,196 @@ namespace ProjectSupport.Controllers
             ganttTaskData.Delete(model.Id);
 
             return RedirectToAction("SeeTasks", new { id = task.ProjectId });
+        }
+
+        [Authorize(Roles = "Manager")]
+        [HttpGet]
+        public IActionResult ManageResources(int id, string sortOrder, int pg = 1, string SearchText = "")
+        {
+            ViewBag.CurrentSort = sortOrder;
+            ViewBag.DateSortParm = String.IsNullOrEmpty(sortOrder) ? "date_desc" : "";
+
+            var tasks = ganttTaskData.GetAll();
+            var model = new List<GanttTask>();
+
+            foreach (var task in tasks)
+            {
+                if (task.ProjectId == id)
+                {
+                    task.EndDate = task.EndDate.Date;
+                    task.StartDate = task.StartDate.Date;
+                    model.Add(task);
+                }
+            }
+
+            if (SearchText != "" && SearchText != null)
+            {
+                model = model.OrderBy(p => p.Name).Where(m => m.Name.Contains(SearchText)).ToList();
+            }
+            else
+            {
+                model = model.OrderBy(p => p.Name).ToList();
+            }
+
+            const int pageSize = 5;
+            if (pg < 1)
+            {
+                pg = 1;
+            }
+
+            int recsCount = model.Count();
+
+            var pager = new Pager(recsCount, pg, pageSize);
+
+            int recSkip = (pg - 1) * pageSize;
+
+            var data = model.Skip(recSkip).Take(pager.PageSize).ToList();
+
+            this.ViewBag.Pager = pager;
+
+            switch (sortOrder)
+            {
+                case "date_desc":
+                    data = data.OrderByDescending(s => s.StartDate).ToList();
+                    break;
+                default:
+                    data = data.OrderBy(s => s.StartDate).ThenBy(s => s.EndDate).ToList();
+                    break;
+            }
+
+            ViewBag.id = id;
+
+            return View(data);
+        }
+
+        [Authorize(Roles = "Manager")]
+        [HttpGet]
+        public async Task<IActionResult> EditResources(int id, string sortOrder, int pg = 1, string SearchText = "")
+        {
+            var model = new List<ResourcesViewModel>();
+            var task = ganttTaskData.Get(id);
+
+            if (task == null)
+            {
+                ViewBag.ErrorMessage = $"Role with Id= {id} cannot be found";
+                return View("NotFound");
+            }
+
+            var project = projectData.Get(task.ProjectId);
+            var projectUsers = projectUserData.GetAll();
+            var developerRole = await roleManager.FindByNameAsync("Developer");
+
+            var developers = new List<AppUser>();
+            foreach (var user in userManager.Users)
+            {
+                if (await userManager.IsInRoleAsync(user, role: developerRole.Name))
+                {
+                    developers.Add(user);
+                }
+            }
+
+            var users = new List<AppUser>();
+            foreach (var developer in developers)
+            {
+                foreach (var projectUser in projectUsers)
+                {
+                    if (developer.Id == projectUser.UserId && project.Id == projectUser.ProjectId)
+                    {
+                        users.Add(developer);
+                    }
+                }
+            }
+
+            const int pageSize = 10;
+            if (pg < 1)
+            {
+                pg = 1;
+            }
+
+            int recsCount = users.Count();
+
+            var pager = new Pager(recsCount, pg, pageSize);
+
+            int recSkip = (pg - 1) * pageSize;
+
+            var data = users.Skip(recSkip).Take(pager.PageSize).ToList();
+
+            this.ViewBag.Pager = pager;
+
+
+            var resources = resourcesData.GetAll();
+            foreach (var user in data)
+            {
+                var resourceViewModel = new ResourcesViewModel
+                {
+                    TaskId = task.Id,
+                    UserId = user.Id,
+                    UserName = user.UserName
+                };
+                foreach (var resource in resources)
+                    if (user.Id == resource.UserId && task.Id == resource.TaskId)
+                    {
+                        resourceViewModel.IsSelected = true;
+                        break;
+                    }
+                    else
+                    {
+                        resourceViewModel.IsSelected = false;
+                    }
+                model.Add(resourceViewModel);
+            }
+
+            if (SearchText != "" && SearchText != null)
+            {
+                model = model.OrderBy(p => p.UserName).Where(m => m.UserName.Contains(SearchText)).ToList();
+            }
+            else
+            {
+                model = model.OrderBy(p => p.UserName).ToList();
+            }
+
+            ViewBag.id = project.Id;
+
+            return View(model);
+        }
+        [HttpPost]
+        public async Task<IActionResult> EditResources(List<ResourcesViewModel> model)
+        {
+            var task = ganttTaskData.Get(model[0].TaskId);
+            if (task == null)
+            {
+                ViewBag.ErrorMessage = $"Role with Id= {model[0].TaskId} cannot be found";
+                return View("NotFound");
+            }
+
+            for (int i = 0; i < model.Count; i++)
+            {
+                var user = await userManager.FindByIdAsync(model[i].UserId);
+                if (model[i].IsSelected && !(resourcesData.HasUser(task.Id, user.Id)))
+                {
+                    var temp = new Resources();
+                    temp.TaskId = task.Id;
+                    temp.UserId = model[i].UserId;
+                    resourcesData.Add(temp);
+                    db.SaveChanges();
+                }
+                else if (!model[i].IsSelected && resourcesData.HasUser(task.Id, user.Id))
+                {
+                    resourcesData.Delete(user.Id, task.Id);
+                    db.SaveChanges();
+                }
+                else
+                {
+                    continue;
+                }
+
+                if (i < (model.Count - 1))
+                    continue;
+                else
+                    return RedirectToAction("ManageResources", new { id = task.ProjectId });
+            }
+
+            return RedirectToAction("ManageResources", new { id = task.ProjectId });
         }
     }
 }
