@@ -22,14 +22,19 @@ namespace ProjectSupport.Controllers
         private readonly AppDbContext db;
         private readonly IProjectData projectData;
         private readonly IProjectUserData projectUserData;
+        private readonly IGanttTaskData ganttTaskData;
+        private readonly IResourcesData resourcesData;
 
-        public ManagerController(RoleManager<IdentityRole> roleManager, UserManager<AppUser> userManager, AppDbContext db, IProjectData projectData, IProjectUserData projectUserData)
+        public ManagerController(RoleManager<IdentityRole> roleManager, UserManager<AppUser> userManager, AppDbContext db,
+            IProjectData projectData, IProjectUserData projectUserData, IGanttTaskData ganttTaskData, IResourcesData resourcesData)
         {
             this.roleManager = roleManager;
             this.userManager = userManager;
             this.db = db;
             this.projectData = projectData;
             this.projectUserData = projectUserData;
+            this.ganttTaskData = ganttTaskData;
+            this.resourcesData = resourcesData;
         }
         public IActionResult Index()
         {
@@ -159,7 +164,7 @@ namespace ProjectSupport.Controllers
                 }
             }
 
-            const int pageSize = 10;
+            const int pageSize = 5;
             if (pg < 1)
             {
                 pg = 1;
@@ -232,6 +237,23 @@ namespace ProjectSupport.Controllers
                 else if (!model[i].IsSelected && projectUserData.HasUser(project.Id, user.Id))
                 {
                     projectUserData.Delete(user.Id, project.Id);
+
+                    var tasks = ganttTaskData.GetAll();
+                    var projectTasks = new List<GanttTask>();
+                    foreach(var task in tasks)
+                    {
+                        if(task.ProjectId == project.Id)
+                        {
+                            projectTasks.Add(task);
+                        }
+                    }
+                    foreach (var task in projectTasks)
+                    {
+                        if (resourcesData.HasUser(task.Id, user.Id))
+                        {
+                            resourcesData.Delete(user.Id, task.Id);
+                        }
+                    }
                     db.SaveChanges();
                 }
                 else

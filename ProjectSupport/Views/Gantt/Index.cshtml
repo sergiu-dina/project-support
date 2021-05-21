@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Project>
+﻿@model List<ProjectSupport.ViewModels.ProjectIndexViewModel>
 
 @using Microsoft.AspNetCore.Identity
 @using ProjectSupport.Areas.Identity.Data
@@ -55,31 +55,42 @@
                         <tbody>
                             @foreach (var project in Model)
                             {
-                                <tr>
-                                    <td>@project.Name</td>
-                                    <td>@project.Description</td>
-                                    @if (SignInManager.IsSignedIn(User) && User.IsInRole("Manager"))
+                            <tr>
+                                <td>@project.Project.Name</td>
+                                <td>@project.Project.Description</td>
+                                @if (SignInManager.IsSignedIn(User) && User.IsInRole("Manager"))
+                                {
+                                    if (project.IsManager == true)
                                     {
                                         <td style="padding-left: 40px">
                                             <a class="btn"
-                                               asp-action="Actions" asp-controller="Gantt" asp-route-id="@project.Id">
+                                               asp-action="Actions" asp-controller="Gantt" asp-route-id="@project.Project.Id" asp-route-user="@UserManager.GetUserId(User)">
                                                 <i class="fas fa-edit" style="font-size:24px;color:blue"></i>
                                             </a>
                                         </td>
                                     }
-                                    <td style="padding-left: 35px">
-                                        <a class="btn"
-                                           asp-action="Gantt" asp-controller="Gantt" asp-route-id="@project.Id">
-                                            <i class="fas fa-project-diagram" style="font-size:24px;color:blue"></i>
-                                        </a>
-                                    </td>
-                                    <td style="padding-left: 20px">
-                                        <a class="btn"
-                                           asp-action="Details" asp-controller="Gantt" asp-route-id="@project.Id">
-                                            <i class="fas fa-info" style="font-size:24px;color:blue"></i>
-                                        </a>
-                                    </td>
-                                </tr>
+                                    else
+                                    {
+                                        <td style="padding-left: 40px">
+                                            <div class="btn">
+                                                <i class="fas fa-edit" style="font-size:24px;color:grey"></i>
+                                            </div>
+                                        </td>
+                                    }
+                                }
+                                <td style="padding-left: 35px">
+                                    <a class="btn"
+                                       asp-action="Gantt" asp-controller="Gantt" asp-route-id="@project.Project.Id">
+                                        <i class="fas fa-project-diagram" style="font-size:24px;color:blue"></i>
+                                    </a>
+                                </td>
+                                <td style="padding-left: 20px">
+                                    <a class="btn"
+                                       asp-action="Details" asp-controller="Gantt" asp-route-id="@project.Project.Id">
+                                        <i class="fas fa-info" style="font-size:24px;color:blue"></i>
+                                    </a>
+                                </td>
+                            </tr>
                             }
                         </tbody>
                     </table>

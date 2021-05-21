@@ -20,17 +20,22 @@ namespace ProjectSupport.Controllers
     {
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly UserManager<AppUser> userManager;
+        private readonly IGanttTaskData ganttTaskData;
         private readonly AppDbContext db;
         private readonly IProjectData projectData;
         private readonly IProjectUserData projectUserData;
+        private readonly IResourcesData resourcesData;
 
-        public AdminController(RoleManager<IdentityRole> roleManager, UserManager<AppUser> userManager, AppDbContext db, IProjectData projectData, IProjectUserData projectUserData)
+        public AdminController(RoleManager<IdentityRole> roleManager, UserManager<AppUser> userManager, IGanttTaskData ganttTaskData,
+            AppDbContext db, IProjectData projectData, IProjectUserData projectUserData, IResourcesData resourcesData)
         {
             this.roleManager = roleManager;
             this.userManager = userManager;
+            this.ganttTaskData = ganttTaskData;
             this.db = db;
             this.projectData = projectData;
             this.projectUserData = projectUserData;
+            this.resourcesData = resourcesData;
         }
         public IActionResult Index()
         {
@@ -248,7 +253,16 @@ namespace ProjectSupport.Controllers
                             if (projectUserData.HasUser(project.Id, user.Id))
                             {
                                 projectUserData.Delete(user.Id, project.Id);
+                            }
+                        }
 
+                        var tasks = ganttTaskData.GetAll();
+                        var resources = resourcesData.GetAll();
+                        foreach(var task in tasks)
+                        {
+                            if(resourcesData.HasUser(task.Id, user.Id))
+                            {
+                                resourcesData.Delete(user.Id, task.Id);
                             }
                         }
                     }
@@ -282,6 +296,26 @@ namespace ProjectSupport.Controllers
             var result = await userManager.DeleteAsync(model);
             if(result.Succeeded)
             {
+                var projects = projectData.GetAll();
+                var projectUsers = projectUserData.GetAll();
+                foreach (var project in projects)
+                {
+                    if (projectUserData.HasUser(project.Id, user.Id))
+                    {
+                        projectUserData.Delete(user.Id, project.Id);
+                    }
+                }
+
+                var tasks = ganttTaskData.GetAll();
+                var resources = resourcesData.GetAll();
+                foreach (var task in tasks)
+                {
+                    if (resourcesData.HasUser(task.Id, user.Id))
+                    {
+                        resourcesData.Delete(user.Id, task.Id);
+                    }
+                }
+
                 return RedirectToAction("EditUsers");
             }
             foreach(var error in result.Errors)
@@ -371,6 +405,30 @@ namespace ProjectSupport.Controllers
             var model = projectData.Get(project.Id);
             projectData.Delete(model.Id);
 
+            foreach (var projectUser in projectUserData.GetAll())
+            {
+                if (projectUser.ProjectId==project.Id)
+                {
+                    projectUserData.Delete(projectUser.UserId, project.Id);
+                }
+            }
+
+            var resources = resourcesData.GetAll();
+            foreach (var task in ganttTaskData.GetAll())
+            {
+                if(task.ProjectId == project.Id)
+                {
+                    ganttTaskData.Delete(task.ProjectId);
+                    foreach(var resource in resources)
+                    {
+                        if(resource.TaskId == task.Id)
+                        {
+                            resourcesData.Delete(resource.UserId, task.Id);
+                        }
+                    }
+                }
+            }
+
             return RedirectToAction("CreateProject");
         }
 
@@ -442,7 +500,7 @@ namespace ProjectSupport.Controllers
                 }
             }
 
-            const int pageSize = 10;
+            const int pageSize = 5;
             if (pg < 1)
             {
                 pg = 1;

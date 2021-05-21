@@ -35,7 +35,7 @@
             }
             <li class="header">Another Menu</li>
             <li>
-                <a asp-area="" asp-controller="Gantt" asp-action="Index">
+                <a asp-area="" asp-controller="Gantt" asp-action="Index" asp-route-id=@UserManager.GetUserId(User)>
                     <i class="fa fa-users" aria-hidden="true"></i> Projects
                 </a>
             </li>

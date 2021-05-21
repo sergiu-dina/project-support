@@ -1,5 +1,11 @@
 ﻿@model ProjectSupport.ViewModels.TaskProjectViewModel
 
+@using Microsoft.AspNetCore.Identity
+@using ProjectSupport.Areas.Identity.Data
+
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+
 @{
     ViewBag.Title = "Add Task";
 }
@@ -68,7 +74,7 @@
                         <div class="card-footer">
                             <input type="submit" value="Create" class="btn btn-primary" />
                             <a class="btn btn-primary"
-                               asp-action="Actions" asp-controller="Gantt" asp-route-id="@Model.Task.ProjectId">
+                               asp-action="Actions" asp-controller="Gantt" asp-route-id="@Model.Task.ProjectId" asp-route-user="@UserManager.GetUserId(User)">
                                 Back to Actions
                             </a>
                         </div>

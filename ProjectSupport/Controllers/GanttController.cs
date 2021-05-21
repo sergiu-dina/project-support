@@ -36,7 +36,7 @@ namespace ProjectSupport.Controllers
             this.projectUserData = projectUserData;
             this.resourcesData = resourcesData;
         }
-        public IActionResult Index(string sortOrder, int pg = 1, string SearchText = "")
+        public async Task<IActionResult> Index(string id, string sortOrder, int pg = 1, string SearchText = "")
         {
             ViewBag.CurrentSort = sortOrder;
             ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
@@ -44,13 +44,39 @@ namespace ProjectSupport.Controllers
             var projects = from s in projectData.GetAll()
                            select s;
 
+            var managerProjects = new List<ProjectIndexViewModel>();
+            var managerRole = await roleManager.FindByNameAsync("Manager");
+
+            var user = await userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                ViewBag.ErrorMessage = $"User with Id = {id} cannot be found";
+                return View("NotFound");
+            }
+
+            foreach (var project in projects)
+            {
+                var managerProject = new ProjectIndexViewModel();
+                if (projectUserData.HasUser(project.Id, user.Id))
+                {
+                    managerProject.IsManager = true;
+                }
+                else
+                {
+                    managerProject.IsManager = false;
+                }
+                managerProject.Project = project;
+                managerProjects.Add(managerProject);
+            }
+
+
             if (SearchText != "" && SearchText != null)
             {
-                projects = projects.OrderBy(p => p.Name).Where(m => m.Name.Contains(SearchText)).ToList();
+                managerProjects = managerProjects.OrderByDescending(p => p.IsManager).Where(m => m.Project.Name.Contains(SearchText)).ToList();
             }
             else
             {
-                projects = projects.OrderBy(p => p.Name).ToList();
+                managerProjects = managerProjects.OrderByDescending(p => p.IsManager).ToList();
             }
 
             const int pageSize = 5;
@@ -59,25 +85,25 @@ namespace ProjectSupport.Controllers
                 pg = 1;
             }
 
-            int recsCount = projects.Count();
+            int recsCount = managerProjects.Count();
 
             var pager = new Pager(recsCount, pg, pageSize);
 
             int recSkip = (pg - 1) * pageSize;
 
-            var data = projects.Skip(recSkip).Take(pager.PageSize).ToList();
+            var data = managerProjects.Skip(recSkip).Take(pager.PageSize).ToList();
 
             this.ViewBag.Pager = pager;
 
             switch (sortOrder)
             {
                 case "name_desc":
-                    data = data.OrderByDescending(s => s.Name).ToList();
+                    data = data.OrderByDescending(s => s.IsManager).ThenByDescending(s => s.Project.Name).ToList();
                     break;
                 default:
-                    data = data.OrderBy(s => s.Name).ToList();
+                    data = data.OrderByDescending(s => s.IsManager).ThenBy(s => s.Project.Name).ToList();
                     break;
-            }
+            }  
 
             return View(data);
         }
@@ -168,8 +194,14 @@ namespace ProjectSupport.Controllers
 
         [Authorize(Roles = "Manager")]
         [HttpGet]
-        public IActionResult Actions(int id)
+        public async Task<IActionResult> Actions(int id, string user)
         {
+            var manager = await userManager.FindByIdAsync(user);
+            if (user == null)
+            {
+                ViewBag.ErrorMessage = $"User with Id = {id} cannot be found";
+                return View("NotFound");
+            }
             return View(id);
         }
 
@@ -434,7 +466,7 @@ namespace ProjectSupport.Controllers
                 }
             }
 
-            const int pageSize = 10;
+            const int pageSize = 5;
             if (pg < 1)
             {
                 pg = 1;

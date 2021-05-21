@@ -14,10 +14,14 @@
     }
 }
 
-<div class="container child2">
+<div class="container child">
     <div class="content-container">
         <div class="container-fluid">
 
+            <img src="~/img/AddUser.svg" style="padding-left:100px">
+            <p>
+                <br />
+            </p>
             <div class="card">
                 <div class="card-header">
                     <h2>Add or remove Developers from this project</h2>
@@ -34,65 +38,75 @@
                     </div>
                     <br />
                 </div>
-                <hr />
+
                 <form method="post">
-                    <div class="card-body ">
-
-                        @for (int i = 0; i < Model.Count; i++)
-                        {
-                            <div class="form-check m-1">
-                                <input type="hidden" asp-for="@Model[i].ProjectId" />
-                                <input type="hidden" asp-for="@Model[i].UserId" />
-                                <input type="hidden" asp-for="@Model[i].UserName" />
-                                <input asp-for="@Model[i].IsSelected" class="form-check-input" />
-                                <label class="form-check-label" asp-for="@Model[i].IsSelected">
-                                    @Model[i].UserName
-                                </label>
-                            </div>
-                        }
-                    </div>
-                    <br />
                     <div class="container">
-                        @if (pager.TotalPages > 0)
-                        {
-                            <ul class="pagination">
-                                @if (pager.CurrentPage > 1)
-                                {
-                                    <li class="page-item">
-                                        <a class="page-link" asp-controller="Manager" asp-action="SelectDevelopers" asp-route-pg="1">First</a>
-                                    </li>
-                                    <li>
-                                        <a class="page-link" asp-controller="Manager" asp-action="SelectDevelopers" asp-route-pg="@(pager.CurrentPage -1)">Previous</a>
-                                    </li>
-                                }
+                        <div class="row">
+                            <div class="col-6">
 
-                                @for (var pge = pager.StartPage; pge <= pager.EndPage; pge++)
-                                {
-                                    <li class="page-item @(pge == pager.CurrentPage ? "active" : "")">
-                                        <a class="page-link" asp-controller="Manager" asp-action="SelectDevelopers" asp-route-pg="@pge"> @pge </a>
-                                    </li>
-                                }
+                                <div class="card-body ">
+                                    @for (int i = 0; i < Model.Count; i++)
+                                    {
+                                        <div class="form-check m-1">
+                                            <input type="hidden" asp-for="@Model[i].ProjectId" />
+                                            <input type="hidden" asp-for="@Model[i].UserId" />
+                                            <input type="hidden" asp-for="@Model[i].UserName" />
+                                            <input asp-for="@Model[i].IsSelected" class="form-check-input" />
+                                            <label class="form-check-label" asp-for="@Model[i].IsSelected">
+                                                @Model[i].UserName
+                                            </label>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="container">
+                                    @if (pager.TotalPages > 0)
+                                    {
+                                        <ul class="pagination">
+                                            @if (pager.CurrentPage > 1)
+                                            {
+                                                <li class="page-item">
+                                                    <a class="page-link" asp-controller="Manager" asp-action="SelectDevelopers" asp-route-pg="1">First</a>
+                                                </li>
+                                                <li>
+                                                    <a class="page-link" asp-controller="Manager" asp-action="SelectDevelopers" asp-route-pg="@(pager.CurrentPage -1)">Previous</a>
+                                                </li>
+                                            }
 
-                                @if (pager.CurrentPage < pager.TotalPages)
-                                {
-                                    <li class="page-item">
-                                        <a class="page-link" asp-controller="Manager" asp-action="SelectDevelopers" asp-route-pg="@(pager.CurrentPage + 1)">Next</a>
-                                    </li>
-                                    <li>
-                                        <a class="page-link" asp-controller="Manager" asp-action="SelectDevelopers" asp-route-pg="@(pager.TotalPages)">Last</a>
-                                    </li>
-                                }
-                            </ul>
-                        }
+                                            @for (var pge = pager.StartPage; pge <= pager.EndPage; pge++)
+                                            {
+                                                <li class="page-item @(pge == pager.CurrentPage ? "active" : "")">
+                                                    <a class="page-link" asp-controller="Manager" asp-action="SelectDevelopers" asp-route-pg="@pge"> @pge </a>
+                                                </li>
+                                            }
+
+                                            @if (pager.CurrentPage < pager.TotalPages)
+                                            {
+                                                <li class="page-item">
+                                                    <a class="page-link" asp-controller="Manager" asp-action="SelectDevelopers" asp-route-pg="@(pager.CurrentPage + 1)">Next</a>
+                                                </li>
+                                                <li>
+                                                    <a class="page-link" asp-controller="Manager" asp-action="SelectDevelopers" asp-route-pg="@(pager.TotalPages)">Last</a>
+                                                </li>
+                                            }
+                                        </ul>
+                                    }
+                                </div>
+                            </div>
+                            <div class="col-3 text-center">
+                                <h3 class="text-danger">WARNING!</h3>
+                                <div class="text-danger">Removing an User from an existing project will also remove him from any task where he is attached.</div>
+                            </div>
+                            <div class="col-3">
+                                <img class="text-danger" src="~/img/warning.svg">
+                            </div>
+                        </div>
                     </div>
-
                     <div class="card-footer">
                         <input type="submit" value="Update" class="btn btn-primary" style="width:auto" />
                         <a asp-action="AddDevelopers" class="btn btn-primary" style="width:auto">Cancel</a>
                     </div>
                 </form>
             </div>
-
         </div>
     </div>
 </div>

@@ -16,6 +16,9 @@
                     <p class="card-text">
                         <h4 class="card-title">@Model.Email</h4>
                     </p>
+                    <img src="~/img/warning.svg">
+                    <h3 class="text-danger">WARNING!</h3>
+                    <div class="text-danger">Deleting a User will also remove him from all existing Projects and Tasks.</div>
                 </div>
                 <div class="card-footer">
                     @using (Html.BeginForm())
