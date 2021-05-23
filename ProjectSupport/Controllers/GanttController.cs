@@ -24,9 +24,12 @@ namespace ProjectSupport.Controllers
         private readonly IGanttTaskData ganttTaskData;
         private readonly IProjectUserData projectUserData;
         private readonly IResourcesData resourcesData;
+        private readonly IDependencyData dependencyData;
+        private readonly ITaskDependencyData taskDependencyData;
 
         public GanttController(UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager, AppDbContext db,
-            IProjectData projectData, IGanttTaskData ganttTaskData, IProjectUserData projectUserData, IResourcesData resourcesData)
+            IProjectData projectData, IGanttTaskData ganttTaskData, IProjectUserData projectUserData, IResourcesData resourcesData,
+            IDependencyData dependencyData, ITaskDependencyData taskDependencyData)
         {
             this.userManager = userManager;
             this.roleManager = roleManager;
@@ -35,6 +38,8 @@ namespace ProjectSupport.Controllers
             this.ganttTaskData = ganttTaskData;
             this.projectUserData = projectUserData;
             this.resourcesData = resourcesData;
+            this.dependencyData = dependencyData;
+            this.taskDependencyData = taskDependencyData;
         }
         public async Task<IActionResult> Index(string id, string sortOrder, int pg = 1, string SearchText = "")
         {
@@ -214,6 +219,7 @@ namespace ProjectSupport.Controllers
                 }
             }
 
+            /*
             if (user == null)
             {
                 ViewBag.ErrorMessage = $"User with Id = {id} cannot be found";
@@ -223,7 +229,7 @@ namespace ProjectSupport.Controllers
             {
                 ViewBag.ErrorMessage = $"This User is not the manager of this project";
                 return View("NotFound");
-            }
+            }*/
 
             return View(id);
         }

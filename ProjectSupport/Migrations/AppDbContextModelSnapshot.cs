@@ -224,6 +224,24 @@ namespace ProjectSupport.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
+            modelBuilder.Entity("ProjectSupport.Models.Dependency", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("TaskId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TaskName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Dependencies");
+                });
+
             modelBuilder.Entity("ProjectSupport.Models.GanttTask", b =>
                 {
                     b.Property<int>("Id")
@@ -306,6 +324,21 @@ namespace ProjectSupport.Migrations
                     b.HasIndex("TaskId");
 
                     b.ToTable("Resources");
+                });
+
+            modelBuilder.Entity("ProjectSupport.Models.TaskDependency", b =>
+                {
+                    b.Property<int>("DependencyId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TaskId")
+                        .HasColumnType("int");
+
+                    b.HasKey("DependencyId", "TaskId");
+
+                    b.HasIndex("TaskId");
+
+                    b.ToTable("TaskDependencies");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -394,6 +427,21 @@ namespace ProjectSupport.Migrations
                     b.HasOne("ProjectSupport.Areas.Identity.Data.AppUser", "User")
                         .WithMany("Resources")
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ProjectSupport.Models.TaskDependency", b =>
+                {
+                    b.HasOne("ProjectSupport.Models.Dependency", "Dependency")
+                        .WithMany("TaskDependencies")
+                        .HasForeignKey("DependencyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProjectSupport.Models.GanttTask", "Task")
+                        .WithMany("TaskDependencies")
+                        .HasForeignKey("TaskId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
