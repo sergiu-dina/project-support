@@ -1,0 +1,114 @@
+﻿@model IEnumerable<GanttTask>
+
+@using Microsoft.AspNetCore.Identity
+@using ProjectSupport.Areas.Identity.Data
+
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+
+@{
+    ViewBag.Title = "Tasks";
+
+    Pager pager = new Pager();
+
+    int pageNo = 0;
+
+    if (ViewBag.Pager != null)
+    {
+        pager = ViewBag.Pager;
+        pageNo = pager.CurrentPage;
+    }
+}
+
+<div class="container child2">
+    <div class="content-container">
+        <div class="container-fluid">
+
+            <div class="card">
+                <div class="card-header">
+                    <h1>Tasks</h1>
+                </div>
+                <div class="card-body">
+                    <div class="col-4 p-0 justify-content-end">
+                        <form asp-controller="Gantt" asp-action="EditDependencies" method="get">
+                            <span class="btn-group">
+                                <input class="form-control" type="text" name="SearchText" placeholder="Search Task">
+                                <input class="p-1 ml-2 btn btn-sm btn-primary" type="submit" value="Search" />
+                            </span>
+                        </form>
+                    </div>
+                    <br />
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>
+                                    @Html.ActionLink("Start Date", "EditDependencies", new { sortOrder = ViewBag.DateSortParm, currentFilter = ViewBag.CurrentFilter })
+                                </th>
+                                <th>End Date</th>
+                                <th>Edit Dependencies</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var task in Model)
+                            {
+                                <tr>
+                                    <td>@task.Name</td>
+                                    <td>@task.StartDate.ToString("dd/MM/yyyy")</td>
+                                    <td>@task.EndDate.Date.ToString("dd/MM/yyyy")</td>
+                                    <td style="padding-left: 50px">
+                                        <a class="btn"
+                                           asp-action="AddDependencies" asp-controller="Gantt" asp-route-id="@task.Id">
+                                            <i class="fas fa-edit" style="font-size:24px;color:blue"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    <br />
+                    <div class="container">
+                        @if (pager.TotalPages > 0)
+                        {
+                            <ul class="pagination">
+                                @if (pager.CurrentPage > 1)
+                                {
+                                    <li class="page-item">
+                                        <a class="page-link" asp-controller="Gantt" asp-action="EditDependencies" asp-route-pg="1">First</a>
+                                    </li>
+                                    <li>
+                                        <a class="page-link" asp-controller="Gantt" asp-action="EditDependencies" asp-route-pg="@(pager.CurrentPage -1)">Previous</a>
+                                    </li>
+                                }
+
+                                @for (var pge = pager.StartPage; pge <= pager.EndPage; pge++)
+                                {
+                                    <li class="page-item @(pge == pager.CurrentPage ? "active" : "")">
+                                        <a class="page-link" asp-controller="Gantt" asp-action="EditDependencies" asp-route-pg="@pge"> @pge </a>
+                                    </li>
+                                }
+
+                                @if (pager.CurrentPage < pager.TotalPages)
+                                {
+                                    <li class="page-item">
+                                        <a class="page-link" asp-controller="Gantt" asp-action="EditDependencies" asp-route-pg="@(pager.CurrentPage + 1)">Next</a>
+                                    </li>
+                                    <li>
+                                        <a class="page-link" asp-controller="Gantt" asp-action="EditDependencies" asp-route-pg="@(pager.TotalPages)">Last</a>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a class="btn btn-primary"
+                       asp-action="Actions" asp-controller="Gantt" asp-route-id="@ViewBag.id" asp-route-user="@UserManager.GetUserId(User)">
+                        Back to Dashboard
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

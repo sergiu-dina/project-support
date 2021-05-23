@@ -48,13 +48,13 @@
                 <div class="card">
                     <img class="card-img-top h-25" src="~/img/admin1.jpg" alt="Card image cap">
                     <div class="card-body">
-                        <h5 class="card-title">Create Project</h5>
-                        <p class="card-text">The Admin can use this page to create a project where managers and users can tasks or delete it.</p>
+                        <h5 class="card-title">Add Dependencies</h5>
+                        <p class="card-text">The Manager can use this page to add or remove dependencies between Tasks.</p>
                     </div>
                     <div class="card-footer">
                         <a class="btn btn-primary"
-                           asp-action="CreateProject" asp-controller="Admin">
-                            Create Project
+                           asp-action="EditDependencies" asp-controller="Gantt" asp-route-id="@Model">
+                            Add Dependencies
                         </a>
                     </div>
                 </div>

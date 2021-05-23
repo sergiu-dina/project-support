@@ -196,12 +196,35 @@ namespace ProjectSupport.Controllers
         [HttpGet]
         public async Task<IActionResult> Actions(int id, string user)
         {
-            var manager = await userManager.FindByIdAsync(user);
+            var manager = false;
+            var managerRole = await roleManager.FindByNameAsync("Manager");
+            var appUser = await userManager.FindByIdAsync(user);
+
+            var project = projectData.Get(id);
+            var projectUsers = projectUserData.GetAll();
+
+            foreach (var projectUser in projectUsers)
+            {
+                if (user == projectUser.UserId && project.Id == projectUser.ProjectId)
+                {
+                    if (await userManager.IsInRoleAsync(appUser, role: managerRole.Name))
+                    {
+                        manager = true;
+                    }
+                }
+            }
+
             if (user == null)
             {
                 ViewBag.ErrorMessage = $"User with Id = {id} cannot be found";
                 return View("NotFound");
             }
+            else if(manager==false)
+            {
+                ViewBag.ErrorMessage = $"This User is not the manager of this project";
+                return View("NotFound");
+            }
+
             return View(id);
         }
 
@@ -556,6 +579,66 @@ namespace ProjectSupport.Controllers
             }
 
             return RedirectToAction("ManageResources", new { id = task.ProjectId });
+        }
+
+        [Authorize(Roles = "Manager")]
+        [HttpGet]
+        public IActionResult EditDependencies(int id, string sortOrder, int pg = 1, string SearchText = "")
+        {
+            ViewBag.CurrentSort = sortOrder;
+            ViewBag.DateSortParm = String.IsNullOrEmpty(sortOrder) ? "date_desc" : "";
+
+            var tasks = ganttTaskData.GetAll();
+            var model = new List<GanttTask>();
+
+            foreach (var task in tasks)
+            {
+                if (task.ProjectId == id)
+                {
+                    task.EndDate = task.EndDate.Date;
+                    task.StartDate = task.StartDate.Date;
+                    model.Add(task);
+                }
+            }
+
+            if (SearchText != "" && SearchText != null)
+            {
+                model = model.OrderBy(p => p.Name).Where(m => m.Name.Contains(SearchText)).ToList();
+            }
+            else
+            {
+                model = model.OrderBy(p => p.Name).ToList();
+            }
+
+            const int pageSize = 5;
+            if (pg < 1)
+            {
+                pg = 1;
+            }
+
+            int recsCount = model.Count();
+
+            var pager = new Pager(recsCount, pg, pageSize);
+
+            int recSkip = (pg - 1) * pageSize;
+
+            var data = model.Skip(recSkip).Take(pager.PageSize).ToList();
+
+            this.ViewBag.Pager = pager;
+
+            switch (sortOrder)
+            {
+                case "date_desc":
+                    data = data.OrderByDescending(s => s.StartDate).ToList();
+                    break;
+                default:
+                    data = data.OrderBy(s => s.StartDate).ThenBy(s => s.EndDate).ToList();
+                    break;
+            }
+
+            ViewBag.id = id;
+
+            return View(data);
         }
     }
 }
