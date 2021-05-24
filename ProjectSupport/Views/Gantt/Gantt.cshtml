@@ -1,79 +1,83 @@
-﻿@model List<GanttTask>
+﻿@model int
 
-@{
-    ViewData["Title"] = "Home Page";
-}
+@using Microsoft.AspNetCore.Identity
+@using ProjectSupport.Areas.Identity.Data
+
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+
+@{ ViewData["Title"] = "Home Page"; }
 
 <div class="container child2">
     <div class="content-container">
         <div class="container-fluid">
-            <div class="container">
-                <div class="row">
-                    <div class="col-4">
-                        <a class="btn btn-primary"
-                           asp-action="Index" asp-controller="Gantt">
-                            Back to Projects
+
+            <div class="container align-content-end">
+                <div class="row align-content-end">
+                        <a class="btn btn-primary align-content-end" asp-action="Index" asp-controller="Gantt" asp-route-user="@UserManager.GetUserId(User)">
+                            <i class="fas fa-arrow-left" style="font-size:24px;color:white"></i>
                         </a>
-                    </div>
                 </div>
             </div>
             <hr />
-            <div id="chart_div"></div>
 
+            <div id="chart_div"></div>
         </div>
     </div>
 </div>
 
 @section Scripts
 {
-    <script type="text/javascript">
-        google.charts.load('current', { 'packages': ['gantt'] });
-        google.charts.setOnLoadCallback(drawChart);
+    <script defer type="text/javascript">
+    google.charts.load('current', { 'packages': ['gantt'] });
+    google.charts.setOnLoadCallback(getJsonData);
 
-        function daysToMilliseconds(days) {
-            return days * 24 * 60 * 60 * 1000;
+    function daysToMilliseconds(days) {
+        return days * 24 * 60 * 60 * 1000;
+    }
+
+    function getJsonData() {
+        $.ajax({
+
+        url: '/Gantt/GetJsonData/@Model',
+        dataType: "json",
+        type: "GET",
+        error: function(xhr, status, error) {
+            //var err = eval("(" + xhr.responseText + ")");
+            console.log(error.message);
+            //toastr.error(err.message);
+        },
+        success: function(data) {
+            console.log(data);
+            drawChart(data);
+            return false;
         }
+    });
+    return false;
+    }
 
-        function drawChart() {
+    function drawChart(jsonData) {
 
-            var data = new google.visualization.DataTable();
-            data.addColumn('string', 'Task ID');
-            data.addColumn('string', 'Task Name');
-            data.addColumn('date', 'Start Date');
-            data.addColumn('date', 'End Date');
-            data.addColumn('number', 'Duration');
-            data.addColumn('number', 'Percent Complete');
-            data.addColumn('string', 'Dependencies');
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Task ID');
+        data.addColumn('string', 'Task Name');
+        data.addColumn('date', 'Start Date');
+        data.addColumn('date', 'End Date');
+        data.addColumn('number', 'Duration');
+        data.addColumn('number', 'Percent Complete');
+        data.addColumn('string', 'Dependencies');
 
-            data.addRows([
-                ['Research', 'Find sources',
-                    new Date(2015, 0, 1), new Date(2015, 0, 5), null, 100, null],
-                ['Write', 'Write paper',
-                    null, new Date(2015, 0, 9), daysToMilliseconds(3), 25, 'Research,Outline'],
-                ['Cite', 'Create bibliography',
-                    null, new Date(2015, 0, 7), daysToMilliseconds(1), 20, 'Research'],
-                ['Complete', 'Hand in paper',
-                    null, new Date(2015, 0, 10), daysToMilliseconds(1), 0, 'Cite,Write'],
-                ['Outline', 'Outline paper',
-                    null, new Date(2015, 0, 6), daysToMilliseconds(1), 100, 'Research']
-            ]);
+        jsonData.forEach(row => {
+            data.addRow([row["taskId"], row["name"], new Date(row["startYear"], row["startMonth"], row["startDay"]),
+            new Date(row["endYear"], row["endMonth"], row["endDay"]), daysToMilliseconds(row["duration"]), row["progress"], row["dependencies"]]);
+        });
+     var options = {
+            height: 275
+        };
 
-            var options = {
-                height: 275
-            };
+        var chart = new google.visualization.Gantt(document.getElementById('chart_div'));
 
-            var chart = new google.visualization.Gantt(document.getElementById('chart_div'));
-
-            chart.draw(data, options);
-        }
+        chart.draw(data, options);
+    }
     </script>
 }
-
-<!--
-    data.addRows([
-                [@Model[0].Id, @Model[0].Name,
-                    @Model[0].StartDate.Date, @Model[0].EndDate.Date, null, 100, null],
-                [@Model[1].Id, @Model[1].Name,
-                    @Model[1].StartDate.Date, @Model[1].StartDate.Date, daysToMilliseconds(3), 25, null]
-            ]);
--->

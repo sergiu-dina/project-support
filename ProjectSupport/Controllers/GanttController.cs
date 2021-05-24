@@ -10,6 +10,7 @@ using ProjectSupport.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace ProjectSupport.Controllers
@@ -181,18 +182,63 @@ namespace ProjectSupport.Controllers
         [HttpGet]
         public IActionResult Gantt(int id)
         {
+            return View(id);
+        }
+
+        [HttpGet]
+        public JsonResult GetJsonData(int id)
+        {
             var tasks = ganttTaskData.GetAll();
-            var projectTasks = new List<GanttTask>();
+            var ganttViewModel = new List<GanttViewModel>();
+            var relations = ganttTaskRelationData.GetAll();
 
             foreach (var task in tasks)
             {
                 if (task.ProjectId == id)
                 {
-                    projectTasks.Add(task);
+                    var temp = new GanttViewModel();
+                    temp.TaskId = task.Id.ToString();
+                    temp.Name = task.Name;
+                    temp.StartYear = task.StartDate.Year;
+                    temp.StartMonth = task.StartDate.Month;
+                    temp.StartDay = task.StartDate.Day;
+
+                    temp.EndYear = task.EndDate.Year;
+                    temp.EndMonth = task.EndDate.Month;
+                    temp.EndDay = task.EndDate.Day;
+
+                    temp.Duration = task.Duration;
+                    temp.Progress = task.Progress;
+                    
+
+                    var sb = new StringBuilder();
+                    var counter = 0;
+                    foreach(var relation in relations)
+                    {
+                        if(task.Id==relation.GanttTaskId)
+                        {
+                            counter++;
+                            var tempId = relation.RelatedTaskId.ToString();
+                            sb.Append(tempId);
+                            sb.Append(",");
+                        }
+                    }
+                    
+                    if (counter > 0)
+                    {
+                        sb.Remove(sb.Length - 1, 1);
+                        temp.Dependencies = sb.ToString();
+                    }
+                    else
+                    {
+                        temp.Dependencies = null;
+                    }
+
+                    ganttViewModel.Add(temp);
                 }
             }
 
-            return View(projectTasks);
+            return Json(ganttViewModel);
         }
 
         [Authorize(Roles = "Manager")]
