@@ -16,8 +16,7 @@ namespace ProjectSupport.Data
         public DbSet<GanttTask> GanttTasks { get; set; }
         public DbSet<ProjectUser> ProjectUsers { get; set; }
         public DbSet<Resources> Resources { get; set; }
-        public DbSet<Dependency> Dependencies { get; set; }
-        public DbSet<TaskDependency> TaskDependencies { get; set; }
+        public DbSet<GanttTaskRelation> GanttTaskRelations { get; set; }
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
         {
@@ -47,16 +46,18 @@ namespace ProjectSupport.Data
                 .WithMany(t => t.Resources)
                 .HasForeignKey(r => r.TaskId);
 
-            builder.Entity<TaskDependency>()
-                .HasKey(td => new { td.DependencyId, td.TaskId });
-            builder.Entity<TaskDependency>()
-                .HasOne(td => td.Task)
-                .WithMany(t => t.TaskDependencies)
-                .HasForeignKey(td => td.TaskId);
-            builder.Entity<TaskDependency>()
-                .HasOne(td => td.Dependency)
-                .WithMany(d => d.TaskDependencies)
-                .HasForeignKey(td => td.DependencyId);
+            builder.Entity<GanttTaskRelation>()
+                .HasKey(gtr=>new { gtr.GanttTaskId, gtr.RelatedTaskId});
+            builder.Entity<GanttTask>()
+                .HasMany(gt => gt.GanttTaskRelations)
+                .WithOne(gtr => gtr.GanttTask)
+                .HasForeignKey(gt => gt.GanttTaskId)
+                .OnDelete(DeleteBehavior.Restrict);
+            builder.Entity<GanttTask>()
+                .HasMany(gt => gt.GanttTaskRelationsOf)
+                .WithOne(gtr => gtr.RelatedGanttTask)
+                .HasForeignKey(gt => gt.RelatedTaskId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             base.OnModelCreating(builder);
         }

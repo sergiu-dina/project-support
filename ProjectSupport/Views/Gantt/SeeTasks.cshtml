@@ -59,13 +59,13 @@
                                     <td>@task.EndDate.Date.ToString("dd/MM/yyyy")</td>
                                     <td style="padding-left: 20px">
                                         <a class="btn"
-                                           asp-action="EditTask" asp-controller="Gantt" asp-route-id="@task.Id">
+                                           asp-action="EditTask" asp-controller="Gantt" asp-route-id="@task.Id" asp-route-user="@UserManager.GetUserId(User)">
                                             <i class="fas fa-edit" style="font-size:24px;color:blue"></i>
                                         </a>
                                     </td>
                                     <td style="padding-left: 35px">
                                         <a class="btn"
-                                           asp-action="RemoveTask" asp-controller="Gantt" asp-route-Id="@task.Id">
+                                           asp-action="RemoveTask" asp-controller="Gantt" asp-route-Id="@task.Id" asp-route-user="@UserManager.GetUserId(User)">
                                             <i class="fa fa-trash-o" style="font-size:24px;color:red"></i>
                                         </a>
                                     </td>

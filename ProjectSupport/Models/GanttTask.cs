@@ -24,10 +24,11 @@ namespace ProjectSupport.Models
         public DateTime EndDate { get; set; }
         public int Duration { get; set; }
         public decimal Progress { get; set; }
-        public string Dependency { get; set; }
         public int ProjectId { get; set; }
         public Project Project { get; set; }
         public List<Resources> Resources { get; set; } = new List<Resources>();
-        public List<TaskDependency> TaskDependencies { get; set; } = new List<TaskDependency>();
+        public virtual List<GanttTaskRelation> GanttTaskRelations { get; set; } = new List<GanttTaskRelation>();
+        public virtual List<GanttTaskRelation> GanttTaskRelationsOf { get; set; } = new List<GanttTaskRelation>();
+
     }
 }

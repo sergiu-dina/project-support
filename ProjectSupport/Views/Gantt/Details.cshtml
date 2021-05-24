@@ -1,5 +1,11 @@
 ﻿@model ProjectSupport.ViewModels.ProjectUsersViewModel
 
+@using Microsoft.AspNetCore.Identity
+@using ProjectSupport.Areas.Identity.Data
+
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+
 @{
     ViewBag.Title = "Details";
 
@@ -135,7 +141,7 @@
                 <div class="card-footer">
                     <p>
                         <a class="btn btn-primary"
-                           asp-action="Index" asp-controller="Gantt">
+                           asp-action="Index" asp-controller="Gantt" asp-route-id="@UserManager.GetUserId(User)">
                             Back to List
                         </a>
                     </p>

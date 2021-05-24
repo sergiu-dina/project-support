@@ -50,20 +50,6 @@ namespace ProjectSupport.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Dependencies",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    TaskId = table.Column<int>(nullable: false),
-                    TaskName = table.Column<string>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Dependencies", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Projects",
                 columns: table => new
                 {
@@ -233,6 +219,30 @@ namespace ProjectSupport.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "GanttTaskRelations",
+                columns: table => new
+                {
+                    GanttTaskId = table.Column<int>(nullable: false),
+                    RelatedTaskId = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_GanttTaskRelations", x => new { x.GanttTaskId, x.RelatedTaskId });
+                    table.ForeignKey(
+                        name: "FK_GanttTaskRelations_GanttTasks_GanttTaskId",
+                        column: x => x.GanttTaskId,
+                        principalTable: "GanttTasks",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_GanttTaskRelations_GanttTasks_RelatedTaskId",
+                        column: x => x.RelatedTaskId,
+                        principalTable: "GanttTasks",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Resources",
                 columns: table => new
                 {
@@ -252,30 +262,6 @@ namespace ProjectSupport.Migrations
                         name: "FK_Resources_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "TaskDependencies",
-                columns: table => new
-                {
-                    TaskId = table.Column<int>(nullable: false),
-                    DependencyId = table.Column<int>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TaskDependencies", x => new { x.DependencyId, x.TaskId });
-                    table.ForeignKey(
-                        name: "FK_TaskDependencies_Dependencies_DependencyId",
-                        column: x => x.DependencyId,
-                        principalTable: "Dependencies",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_TaskDependencies_GanttTasks_TaskId",
-                        column: x => x.TaskId,
-                        principalTable: "GanttTasks",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -320,6 +306,11 @@ namespace ProjectSupport.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_GanttTaskRelations_RelatedTaskId",
+                table: "GanttTaskRelations",
+                column: "RelatedTaskId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_GanttTasks_ProjectId",
                 table: "GanttTasks",
                 column: "ProjectId");
@@ -332,11 +323,6 @@ namespace ProjectSupport.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Resources_TaskId",
                 table: "Resources",
-                column: "TaskId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_TaskDependencies_TaskId",
-                table: "TaskDependencies",
                 column: "TaskId");
         }
 
@@ -358,25 +344,22 @@ namespace ProjectSupport.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "GanttTaskRelations");
+
+            migrationBuilder.DropTable(
                 name: "ProjectUsers");
 
             migrationBuilder.DropTable(
                 name: "Resources");
 
             migrationBuilder.DropTable(
-                name: "TaskDependencies");
-
-            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
-
-            migrationBuilder.DropTable(
-                name: "Dependencies");
-
-            migrationBuilder.DropTable(
                 name: "GanttTasks");
+
+            migrationBuilder.DropTable(
+                name: "AspNetUsers");
 
             migrationBuilder.DropTable(
                 name: "Projects");

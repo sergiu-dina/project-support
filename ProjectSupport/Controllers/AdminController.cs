@@ -25,9 +25,11 @@ namespace ProjectSupport.Controllers
         private readonly IProjectData projectData;
         private readonly IProjectUserData projectUserData;
         private readonly IResourcesData resourcesData;
+        private readonly IGanttTaskRelationData ganttTaskRelationData;
 
         public AdminController(RoleManager<IdentityRole> roleManager, UserManager<AppUser> userManager, IGanttTaskData ganttTaskData,
-            AppDbContext db, IProjectData projectData, IProjectUserData projectUserData, IResourcesData resourcesData)
+            AppDbContext db, IProjectData projectData, IProjectUserData projectUserData, IResourcesData resourcesData,
+            IGanttTaskRelationData ganttTaskRelationData)
         {
             this.roleManager = roleManager;
             this.userManager = userManager;
@@ -36,6 +38,7 @@ namespace ProjectSupport.Controllers
             this.projectData = projectData;
             this.projectUserData = projectUserData;
             this.resourcesData = resourcesData;
+            this.ganttTaskRelationData = ganttTaskRelationData;
         }
         public IActionResult Index()
         {
@@ -414,6 +417,7 @@ namespace ProjectSupport.Controllers
             }
 
             var resources = resourcesData.GetAll();
+            var relations = ganttTaskRelationData.GetAll();
             foreach (var task in ganttTaskData.GetAll())
             {
                 if(task.ProjectId == project.Id)
@@ -424,6 +428,13 @@ namespace ProjectSupport.Controllers
                         if(resource.TaskId == task.Id)
                         {
                             resourcesData.Delete(resource.UserId, task.Id);
+                        }
+                    }
+                    foreach (var relation in relations)
+                    {
+                        if (relation.GanttTaskId == task.Id || relation.RelatedTaskId == task.Id)
+                        {
+                            ganttTaskRelationData.Delete(relation.GanttTaskId, relation.RelatedTaskId);
                         }
                     }
                 }

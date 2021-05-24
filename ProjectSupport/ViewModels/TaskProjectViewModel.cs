@@ -16,5 +16,6 @@ namespace ProjectSupport.ViewModels
         [Display(Name ="Dependency")]
         public string Selected { get; set; }
         public int ProjectId { get; set; }
+        public string UserId { get; set; }
     }
 }

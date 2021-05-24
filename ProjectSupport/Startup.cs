@@ -30,8 +30,7 @@ namespace ProjectSupport
             services.AddScoped<IProjectUserData, SqlProjectUserData>();
             services.AddScoped<IGanttTaskData, SqlGanttTaskData>();
             services.AddScoped<IResourcesData, SqlResourcesData>();
-            services.AddScoped<ITaskDependencyData, SqlTaskDependencyData>();
-            services.AddScoped<IDependencyData, SqlDependencyData>();
+            services.AddScoped<IGanttTaskRelationData, SqlGanttTaskRelationData>();
             services.AddControllersWithViews();
             services.AddRazorPages();
         }

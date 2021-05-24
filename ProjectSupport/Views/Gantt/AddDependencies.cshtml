@@ -1,0 +1,108 @@
+﻿@model List<ProjectSupport.ViewModels.DependencyViewModel>
+
+@using Microsoft.AspNetCore.Identity
+@using ProjectSupport.Areas.Identity.Data
+
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+
+@{
+    var projectId = ViewBag.Id;
+
+    Pager pager = new Pager();
+
+    int pageNo = 0;
+
+    if (ViewBag.Pager != null)
+    {
+        pager = ViewBag.Pager;
+        pageNo = pager.CurrentPage;
+    }
+}
+
+<div class="container child2">
+    <div class="content-container">
+        <div class="container-fluid">
+
+            <img src="~/img/AddUser.svg" style="padding-left:100px">
+            <p>
+                <br />
+            </p>
+
+            <div class="card">
+                <div class="card-header">
+                    <h2>Add or remove Dependencies to this Task</h2>
+                </div>
+                <br />
+                <div style="margin-left: 25px">
+                    <div class="col-4 p-0 justify-content-end">
+                        <form asp-controller="Gantt" asp-action="AddDependencies" method="get">
+                            <span class="btn-group">
+                                <input class="form-control" type="text" name="SearchText" placeholder="Search Name">
+                                <input class="p-1 ml-2 btn btn-sm btn-primary" type="submit" value="Search" />
+                            </span>
+                        </form>
+                    </div>
+                    <br />
+                </div>
+                <hr />
+                <form method="post">
+                    <div class="card-body ">
+                        @for (int i = 0; i < Model.Count; i++)
+                        {
+                            <div class="form-check m-1">
+                                <input type="hidden" asp-for="@Model[i].TaskId" />
+                                <input type="hidden" asp-for="@Model[i].RelatedTaskId" />
+                                <input type="hidden" asp-for="@Model[i].RelatedTaskName" />
+                                <input asp-for="@Model[i].IsSelected" class="form-check-input" />
+                                <label class="form-check-label" asp-for="@Model[i].IsSelected">
+                                    @Model[i].RelatedTaskName
+                                </label>
+                            </div>
+                        }
+                    </div>
+                    <br />
+                    <div class="container">
+                        @if (pager.TotalPages > 0)
+                        {
+                            <ul class="pagination">
+                                @if (pager.CurrentPage > 1)
+                                {
+                                    <li class="page-item">
+                                        <a class="page-link" asp-controller="Gantt" asp-action="AddDependencies" asp-route-pg="1">First</a>
+                                    </li>
+                                    <li>
+                                        <a class="page-link" asp-controller="Gantt" asp-action="AddDependencies" asp-route-pg="@(pager.CurrentPage -1)">Previous</a>
+                                    </li>
+                                }
+
+                                @for (var pge = pager.StartPage; pge <= pager.EndPage; pge++)
+                                {
+                                    <li class="page-item @(pge == pager.CurrentPage ? "active" : "")">
+                                        <a class="page-link" asp-controller="Gantt" asp-action="AddDependencies" asp-route-pg="@pge"> @pge </a>
+                                    </li>
+                                }
+
+                                @if (pager.CurrentPage < pager.TotalPages)
+                                {
+                                    <li class="page-item">
+                                        <a class="page-link" asp-controller="Gantt" asp-action="AddDependencies" asp-route-pg="@(pager.CurrentPage + 1)">Next</a>
+                                    </li>
+                                    <li>
+                                        <a class="page-link" asp-controller="Gantt" asp-action="AddDependencies" asp-route-pg="@(pager.TotalPages)">Last</a>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                    </div>
+
+                    <div class="card-footer">
+                        <input type="submit" value="Update" class="btn btn-primary" style="width:auto" />
+                        <a asp-action="EditDependencies" asp-route-id=@ViewBag.id  asp-route-user="@UserManager.GetUserId(User)" class="btn btn-primary" style="width:auto">Cancel</a>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>

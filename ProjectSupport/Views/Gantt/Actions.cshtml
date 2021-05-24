@@ -1,4 +1,11 @@
-﻿@model int 
+﻿@model int
+
+@using Microsoft.AspNetCore.Identity
+@using ProjectSupport.Areas.Identity.Data
+
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+
 
 <div class="container child">
     <div class="content-container">
@@ -14,7 +21,7 @@
                     </div>
                     <div class="card-footer">
                         <a class="btn btn-primary"
-                           asp-action="AddTask" asp-controller="Gantt" asp-route-id="@Model">
+                           asp-action="AddTask" asp-controller="Gantt" asp-route-id="@Model" asp-route-user="@UserManager.GetUserId(User)">
                             Add Task
                         </a>
                     </div>
@@ -27,7 +34,7 @@
                     </div>
                     <div class="card-footer">
                         <a class="btn btn-primary"
-                           asp-action="SeeTasks" asp-controller="Gantt" asp-route-id="@Model">
+                           asp-action="SeeTasks" asp-controller="Gantt" asp-route-id="@Model" asp-route-user="@UserManager.GetUserId(User)">
                             Edit Task
                         </a>
                     </div>
@@ -40,7 +47,7 @@
                     </div>
                     <div class="card-footer">
                         <a class="btn btn-primary"
-                           asp-action="ManageResources" asp-controller="Gantt" asp-route-id="@Model">
+                           asp-action="ManageResources" asp-controller="Gantt" asp-route-id="@Model" asp-route-user="@UserManager.GetUserId(User)">
                             Manage Resources
                         </a>
                     </div>
@@ -53,7 +60,7 @@
                     </div>
                     <div class="card-footer">
                         <a class="btn btn-primary"
-                           asp-action="EditDependencies" asp-controller="Gantt" asp-route-id="@Model">
+                           asp-action="EditDependencies" asp-controller="Gantt" asp-route-id="@Model" asp-route-user="@UserManager.GetUserId(User)">
                             Add Dependencies
                         </a>
                     </div>

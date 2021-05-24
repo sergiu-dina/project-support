@@ -24,12 +24,11 @@ namespace ProjectSupport.Controllers
         private readonly IGanttTaskData ganttTaskData;
         private readonly IProjectUserData projectUserData;
         private readonly IResourcesData resourcesData;
-        private readonly IDependencyData dependencyData;
-        private readonly ITaskDependencyData taskDependencyData;
+        private readonly IGanttTaskRelationData ganttTaskRelationData;
 
         public GanttController(UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager, AppDbContext db,
             IProjectData projectData, IGanttTaskData ganttTaskData, IProjectUserData projectUserData, IResourcesData resourcesData,
-            IDependencyData dependencyData, ITaskDependencyData taskDependencyData)
+            IGanttTaskRelationData ganttTaskRelationData)
         {
             this.userManager = userManager;
             this.roleManager = roleManager;
@@ -38,8 +37,7 @@ namespace ProjectSupport.Controllers
             this.ganttTaskData = ganttTaskData;
             this.projectUserData = projectUserData;
             this.resourcesData = resourcesData;
-            this.dependencyData = dependencyData;
-            this.taskDependencyData = taskDependencyData;
+            this.ganttTaskRelationData = ganttTaskRelationData;
         }
         public async Task<IActionResult> Index(string id, string sortOrder, int pg = 1, string SearchText = "")
         {
@@ -219,7 +217,7 @@ namespace ProjectSupport.Controllers
                 }
             }
 
-            /*
+            
             if (user == null)
             {
                 ViewBag.ErrorMessage = $"User with Id = {id} cannot be found";
@@ -229,14 +227,14 @@ namespace ProjectSupport.Controllers
             {
                 ViewBag.ErrorMessage = $"This User is not the manager of this project";
                 return View("NotFound");
-            }*/
+            }
 
             return View(id);
         }
 
         [Authorize(Roles = "Manager")]
         [HttpGet]
-        public IActionResult AddTask(int id)
+        public async Task<IActionResult> AddTask(int id, string user)
         {
             var model = new TaskProjectViewModel();
 
@@ -252,6 +250,7 @@ namespace ProjectSupport.Controllers
             var project = projectData.Get(id);
 
             model.ProjectId = id;
+            model.UserId = user;
             model.Task = tempTask;
             model.Task.ProjectId = id;
             model.Task.Project = project;
@@ -260,6 +259,35 @@ namespace ProjectSupport.Controllers
             {
                 var item = new SelectListItem { Text = task.Name, Value = task.Name };
                 model.Tasks.Add(item);
+            }
+
+            var manager = false;
+            var managerRole = await roleManager.FindByNameAsync("Manager");
+            var appUser = await userManager.FindByIdAsync(user);
+
+            var projectUsers = projectUserData.GetAll();
+
+            foreach (var projectUser in projectUsers)
+            {
+                if (user == projectUser.UserId && project.Id == projectUser.ProjectId)
+                {
+                    if (await userManager.IsInRoleAsync(appUser, role: managerRole.Name))
+                    {
+                        manager = true;
+                    }
+                }
+            }
+
+
+            if (user == null)
+            {
+                ViewBag.ErrorMessage = $"User with Id = {id} cannot be found";
+                return View("NotFound");
+            }
+            else if (manager == false)
+            {
+                ViewBag.ErrorMessage = $"This User is not the manager of this project";
+                return View("NotFound");
             }
 
             return View(model);
@@ -271,7 +299,6 @@ namespace ProjectSupport.Controllers
         {
             var taskName = model.Selected;
 
-            model.Task.Dependency = taskName;
             model.Task.Duration = (model.Task.EndDate - model.Task.StartDate).Days;
 
             var task = model.Task;
@@ -280,17 +307,17 @@ namespace ProjectSupport.Controllers
             if (ModelState.IsValid)
             {
                 ganttTaskData.Add(task);
-                return RedirectToAction("Actions", new { id = model.Task.ProjectId });
+                return RedirectToAction("Actions", new { id = model.Task.ProjectId, user = model.UserId });
             }
             else
             {
-                return RedirectToAction("AddTask", new { id = model.ProjectId });
+                return RedirectToAction("AddTask", new { id = model.ProjectId, user = model.UserId });
             }
         }
 
         [Authorize(Roles = "Manager")]
         [HttpGet]
-        public IActionResult SeeTasks(int id, string sortOrder, int pg = 1, string SearchText = "")
+        public async Task<IActionResult> SeeTasks(int id, string user, string sortOrder, int pg = 1, string SearchText = "")
         {
             ViewBag.CurrentSort = sortOrder;
             ViewBag.DateSortParm = String.IsNullOrEmpty(sortOrder) ? "date_desc" : "";
@@ -345,15 +372,76 @@ namespace ProjectSupport.Controllers
 
             ViewBag.id = id;
 
+            var manager = false;
+            var managerRole = await roleManager.FindByNameAsync("Manager");
+            var appUser = await userManager.FindByIdAsync(user);
+
+            var project = projectData.Get(id);
+            var projectUsers = projectUserData.GetAll();
+
+            foreach (var projectUser in projectUsers)
+            {
+                if (user == projectUser.UserId && project.Id == projectUser.ProjectId)
+                {
+                    if (await userManager.IsInRoleAsync(appUser, role: managerRole.Name))
+                    {
+                        manager = true;
+                    }
+                }
+            }
+
+            if (user == null)
+            {
+                ViewBag.ErrorMessage = $"User with Id = {id} cannot be found";
+                return View("NotFound");
+            }
+            else if (manager == false)
+            {
+                ViewBag.ErrorMessage = $"This User is not the manager of this project";
+                return View("NotFound");
+            }
+
             return View(data);
         }
 
         [Authorize(Roles = "Manager")]
         [HttpGet]
-        public IActionResult EditTask(int id)
+        public async Task<IActionResult> EditTask(int id, string user)
         {
-            var model = ganttTaskData.Get(id);
-            if (model == null)
+            var model = new EditTaskViewModel();
+            model.Task = ganttTaskData.Get(id);
+            model.UserId = user;
+
+            var manager = false;
+            var managerRole = await roleManager.FindByNameAsync("Manager");
+            var appUser = await userManager.FindByIdAsync(user);
+
+            var project = projectData.Get(model.Task.ProjectId);
+            var projectUsers = projectUserData.GetAll();
+
+            foreach (var projectUser in projectUsers)
+            {
+                if (user == projectUser.UserId && project.Id == projectUser.ProjectId)
+                {
+                    if (await userManager.IsInRoleAsync(appUser, role: managerRole.Name))
+                    {
+                        manager = true;
+                    }
+                }
+            }
+
+            if (user == null)
+            {
+                ViewBag.ErrorMessage = $"User with Id = {id} cannot be found";
+                return View("NotFound");
+            }
+            else if (manager == false)
+            {
+                ViewBag.ErrorMessage = $"This User is not the manager of this project";
+                return View("NotFound");
+            }
+
+            if (model.Task == null)
             {
                 return View("NotFound");
             }
@@ -363,21 +451,23 @@ namespace ProjectSupport.Controllers
         [Authorize(Roles = "Manager")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult EditTask(GanttTask task)
+        public IActionResult EditTask(EditTaskViewModel model)
         {
             if (ModelState.IsValid)
             {
-                ganttTaskData.Update(task);
-                return RedirectToAction("SeeTasks", new { id = task.ProjectId });
+                ganttTaskData.Update(model.Task);
+                return RedirectToAction("SeeTasks", new { id = model.Task.ProjectId, user= model.UserId});
             }
             return View();
         }
 
         [Authorize(Roles = "Manager")]
         [HttpGet]
-        public IActionResult RemoveTask(int id)
+        public IActionResult RemoveTask(int id, string user)
         {
-            var model = ganttTaskData.Get(id);
+            var model = new EditTaskViewModel();
+            model.Task = ganttTaskData.Get(id);
+            model.UserId = user;
 
             if (model == null)
             {
@@ -389,12 +479,21 @@ namespace ProjectSupport.Controllers
 
         [Authorize(Roles = "Manager")]
         [HttpPost]
-        public IActionResult RemoveTask(GanttTask task)
+        public IActionResult RemoveTask(EditTaskViewModel model)
         {
-            var model = ganttTaskData.Get(task.Id);
-            ganttTaskData.Delete(model.Id);
+            var relations = ganttTaskRelationData.GetAll();
+            
+            foreach(var relation in relations)
+            {
+                if(relation.GanttTaskId == model.Task.Id || relation.RelatedTaskId == model.Task.Id)
+                {
+                    ganttTaskRelationData.Delete(relation.GanttTaskId, relation.RelatedTaskId);
+                }
+            }
 
-            return RedirectToAction("SeeTasks", new { id = task.ProjectId });
+            ganttTaskData.Delete(model.Task.Id);
+
+            return RedirectToAction("SeeTasks", new { id = model.Task.ProjectId, user = model.UserId });
         }
 
         [Authorize(Roles = "Manager")]
@@ -547,6 +646,7 @@ namespace ProjectSupport.Controllers
 
             return View(model);
         }
+
         [HttpPost]
         public async Task<IActionResult> EditResources(List<ResourcesViewModel> model)
         {
@@ -645,6 +745,128 @@ namespace ProjectSupport.Controllers
             ViewBag.id = id;
 
             return View(data);
+        }
+
+        [Authorize(Roles = "Manager")]
+        [HttpGet]
+        public IActionResult AddDependencies(int id, string sortOrder, int pg = 1, string SearchText = "")
+        {
+            var model = new List<DependencyViewModel>();
+            var task = ganttTaskData.Get(id);
+
+            if (task == null)
+            {
+                ViewBag.ErrorMessage = $"Role with Id= {id} cannot be found";
+                return View("NotFound");
+            }
+
+            var project = projectData.Get(task.ProjectId);
+            var tasks = ganttTaskData.GetAll();
+            var projectTasks = new List<GanttTask>();
+
+            foreach(var projectTask in tasks)
+            {
+                if(projectTask.ProjectId == project.Id && projectTask.Id != task.Id)
+                {
+                    projectTasks.Add(projectTask);
+                }
+            }
+
+            const int pageSize = 5;
+            if (pg < 1)
+            {
+                pg = 1;
+            }
+
+            int recsCount = projectTasks.Count();
+
+            var pager = new Pager(recsCount, pg, pageSize);
+
+            int recSkip = (pg - 1) * pageSize;
+
+            var data = projectTasks.Skip(recSkip).Take(pager.PageSize).ToList();
+
+            this.ViewBag.Pager = pager;
+
+
+            var relations = ganttTaskRelationData.GetAll();
+            foreach (var projectTask in data)
+            {
+                var dependencyViewModel = new DependencyViewModel
+                {
+                    TaskId = task.Id,
+                    RelatedTaskId = projectTask.Id,
+                    RelatedTaskName = projectTask.Name
+                };
+                foreach (var relation in relations)
+                    if (projectTask.Id == relation.RelatedTaskId && task.Id == relation.GanttTaskId)
+                    {
+                        dependencyViewModel.IsSelected = true;
+                        break;
+                    }
+                    else
+                    {
+                        dependencyViewModel.IsSelected = false;
+                    }
+                model.Add(dependencyViewModel);
+            }
+
+            if (SearchText != "" && SearchText != null)
+            {
+                model = model.OrderBy(p => p.RelatedTaskName).Where(m => m.RelatedTaskName.Contains(SearchText)).ToList();
+            }
+            else
+            {
+                model = model.OrderBy(p => p.RelatedTaskName).ToList();
+            }
+
+            ViewBag.id = project.Id;
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public IActionResult AddDependencies(List<DependencyViewModel> model)
+        {
+            GanttTask task;
+            if (model.Count > 0)
+            {
+                task = ganttTaskData.Get(model[0].TaskId);
+            }
+            else
+            {
+                ViewBag.ErrorMessage = $"The Task cannot be found";
+                return View("NotFound");
+            }
+
+            for (int i = 0; i < model.Count; i++)
+            {
+                var relatedTask = ganttTaskData.Get(model[i].RelatedTaskId);
+                if (model[i].IsSelected && !(ganttTaskRelationData.HasRelation(task.Id, relatedTask.Id)))
+                {
+                    var temp = new GanttTaskRelation();
+                    temp.GanttTaskId = task.Id;
+                    temp.RelatedTaskId = model[i].RelatedTaskId;
+                    ganttTaskRelationData.Add(temp);
+                    db.SaveChanges();
+                }
+                else if (!model[i].IsSelected && ganttTaskRelationData.HasRelation(task.Id, relatedTask.Id))
+                {
+                    ganttTaskRelationData.Delete(task.Id, relatedTask.Id);
+                    db.SaveChanges();
+                }
+                else
+                {
+                    continue;
+                }
+
+                if (i < (model.Count - 1))
+                    continue;
+                else
+                    return RedirectToAction("EditDependencies", new { id = task.ProjectId });
+            }
+
+            return RedirectToAction("EditDependencies", new { id = task.ProjectId });
         }
     }
 }
