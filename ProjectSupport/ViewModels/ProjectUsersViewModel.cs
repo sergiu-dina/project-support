@@ -12,5 +12,7 @@ namespace ProjectSupport.ViewModels
         public Project Project { get; set; }
         public AppUser Manager { get; set; }
         public List<AppUser> Developers { get; set; }
+        public List<GanttTask> Tasks { get; set; }
+        public int DevelopersCount { get; set; }
     }
 }

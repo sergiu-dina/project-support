@@ -145,6 +145,7 @@ namespace ProjectSupport.Controllers
                         else
                         {
                             developers.Add(user);
+                            model.DevelopersCount++;
                         }
                     }
                 }
@@ -178,6 +179,15 @@ namespace ProjectSupport.Controllers
                 default:
                     model.Developers = model.Developers.OrderBy(s => s.Email).ToList();
                     break;
+            }
+
+            var tasks = ganttTaskData.GetAll();
+            foreach(var task in tasks)
+            {
+                if(project.Id == task.Id)
+                {
+                    model.Tasks.Add(task);
+                }
             }
 
             return View(model);
@@ -563,31 +573,44 @@ namespace ProjectSupport.Controllers
 
         [Authorize(Roles = "Manager")]
         [HttpGet]
-        public IActionResult ManageResources(int id, string sortOrder, int pg = 1, string SearchText = "")
+        public async Task<IActionResult> ManageResources(int id, string sortOrder, int pg = 1, string SearchText = "")
         {
             ViewBag.CurrentSort = sortOrder;
             ViewBag.DateSortParm = String.IsNullOrEmpty(sortOrder) ? "date_desc" : "";
 
             var tasks = ganttTaskData.GetAll();
-            var model = new List<GanttTask>();
+            var resources = resourcesData.GetAll();
+            var model = new List<ManageResourcesViewModel>();
 
             foreach (var task in tasks)
             {
+                var temp = new ManageResourcesViewModel();
                 if (task.ProjectId == id)
                 {
                     task.EndDate = task.EndDate.Date;
                     task.StartDate = task.StartDate.Date;
-                    model.Add(task);
+                    temp.Task = task;
+
+                    foreach(var resource in resources)
+                    {
+                        if(resource.TaskId==task.Id)
+                        {
+                            var user = await userManager.FindByIdAsync(resource.UserId);
+                            temp.TaskCost += user.HourlyRate * task.Duration * 8;
+                        }
+                    }
+
+                    model.Add(temp);
                 }
             }
 
             if (SearchText != "" && SearchText != null)
             {
-                model = model.OrderBy(p => p.Name).Where(m => m.Name.Contains(SearchText)).ToList();
+                model = model.OrderBy(p => p.Task.Name).Where(m => m.Task.Name.Contains(SearchText)).ToList();
             }
             else
             {
-                model = model.OrderBy(p => p.Name).ToList();
+                model = model.OrderBy(p => p.Task.Name).ToList();
             }
 
             const int pageSize = 5;
@@ -609,10 +632,10 @@ namespace ProjectSupport.Controllers
             switch (sortOrder)
             {
                 case "date_desc":
-                    data = data.OrderByDescending(s => s.StartDate).ToList();
+                    data = data.OrderByDescending(s => s.Task.StartDate).ToList();
                     break;
                 default:
-                    data = data.OrderBy(s => s.StartDate).ThenBy(s => s.EndDate).ToList();
+                    data = data.OrderBy(s => s.Task.StartDate).ThenBy(s => s.Task.EndDate).ToList();
                     break;
             }
 

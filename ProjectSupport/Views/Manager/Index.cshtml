@@ -22,7 +22,7 @@
                 </div>
                 <div class="card-group text-center" style="padding-left:90px">
                     <div class="card">
-                        <img class="card-img-top h-50" src="~/img/admin1.jpg" alt="Card image cap">
+                        <img class="card-img-top h-25" src="~/img/admin1.jpg" alt="Card image cap">
                         <div class="card-body">
                             <h5 class="card-title">Edit Project</h5>
                             <p class="card-text">A Manager can use this page to edit a project and add a description.</p>
@@ -35,7 +35,20 @@
                         </div>
                     </div>
                     <div class="card">
-                        <img class="card-img-top h-50" src="~/img/admin3.jpg" alt="Card image cap">
+                        <img class="card-img-top h-25" src="~/img/admin2.jpg" alt="Card image cap">
+                        <div class="card-body">
+                            <h5 class="card-title">Edit Hourly Rate</h5>
+                            <p class="card-text">This page is only visible to the Manager and he can use it to edit the hourly rate of a Developer. </p>
+                        </div>
+                        <div class="card-footer">
+                            <a class="btn btn-primary"
+                               asp-action="SeeDevelopers" asp-controller="Manager" asp-route-id="@UserManager.GetUserId(User)">
+                                Edit Hourly Rate
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <img class="card-img-top h-25" src="~/img/admin3.jpg" alt="Card image cap">
                         <div class="card-body">
                             <h5 class="card-title">Add Developers</h5>
                             <p class="card-text">A Manager can use this page to add or remove Developers to one of the projects.</p>

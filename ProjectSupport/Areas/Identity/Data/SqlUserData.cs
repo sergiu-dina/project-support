@@ -1,4 +1,5 @@
-﻿using ProjectSupport.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using ProjectSupport.Data;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,13 @@ namespace ProjectSupport.Areas.Identity.Data
         {
             var user = db.Users.Find(id);
             db.Users.Remove(user);
+            db.SaveChanges();
+        }
+
+        public void Update(AppUser user)
+        {
+            var entry = db.Entry(user);
+            entry.State = EntityState.Modified;
             db.SaveChanges();
         }
 

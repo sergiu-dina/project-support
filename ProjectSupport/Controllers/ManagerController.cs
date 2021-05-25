@@ -24,9 +24,11 @@ namespace ProjectSupport.Controllers
         private readonly IProjectUserData projectUserData;
         private readonly IGanttTaskData ganttTaskData;
         private readonly IResourcesData resourcesData;
+        private readonly IUserData userData;
 
         public ManagerController(RoleManager<IdentityRole> roleManager, UserManager<AppUser> userManager, AppDbContext db,
-            IProjectData projectData, IProjectUserData projectUserData, IGanttTaskData ganttTaskData, IResourcesData resourcesData)
+            IProjectData projectData, IProjectUserData projectUserData, IGanttTaskData ganttTaskData, IResourcesData resourcesData,
+            IUserData userData)
         {
             this.roleManager = roleManager;
             this.userManager = userManager;
@@ -35,6 +37,7 @@ namespace ProjectSupport.Controllers
             this.projectUserData = projectUserData;
             this.ganttTaskData = ganttTaskData;
             this.resourcesData = resourcesData;
+            this.userData = userData;
         }
         public IActionResult Index()
         {
@@ -385,5 +388,89 @@ namespace ProjectSupport.Controllers
             return RedirectToAction("AddDevelopers", new { id = model[0].User });
         }
         
+        [HttpGet]
+        public async Task<IActionResult> SeeDevelopers(string id, string sortOrder, int pg = 1, string SearchText = "")
+        {
+            ViewBag.CurrentSort = sortOrder;
+            ViewBag.EmailSortParm = String.IsNullOrEmpty(sortOrder) ? "email_desc" : "";
+            ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+
+            var developerRole = await roleManager.FindByNameAsync("Developer");
+            var users = new List<AppUser>();
+            foreach (var appUser in userManager.Users)
+            {
+                if (await userManager.IsInRoleAsync(appUser, role: developerRole.Name))
+                {
+                    users.Add(appUser);
+                }
+            }
+
+            if (SearchText != "" && SearchText != null)
+            {
+                users = users.OrderBy(p => p.UserName).Where(m => m.UserName.Contains(SearchText)).ToList();
+            }
+            else
+            {
+                users = users.OrderBy(p => p.UserName).ToList();
+            }
+
+            const int pageSize = 5;
+            if (pg < 1)
+            {
+                pg = 1;
+            }
+
+            int recsCount = users.Count();
+
+            var pager = new Pager(recsCount, pg, pageSize);
+
+            int recSkip = (pg - 1) * pageSize;
+
+            var data = users.Skip(recSkip).Take(pager.PageSize).ToList();
+
+            this.ViewBag.Pager = pager;
+
+            switch (sortOrder)
+            {
+                case "email_desc":
+                    data = data.OrderByDescending(u => u.Email).ToList();
+                    break;
+                case "name_desc":
+                    data = data.OrderByDescending(s => s.LastName).ToList();
+                    break;
+                default:
+                    data = data.OrderBy(u => u.LastName).ToList();
+                    break;
+            }
+
+            return View(data);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> AddSalary(string id)
+        {
+            var appUser = await userManager.FindByIdAsync(id);
+
+            var model = new EditUserViewModel();
+            model.AppUser = appUser;
+            model.UserId = id;
+            if (model == null)
+            {
+                return View("NotFound");
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult AddSalary(EditUserViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                userData.Update(model.AppUser);
+                return RedirectToAction("SeeDevelopers", new { id = model.UserId });
+            }
+            return View();
+        }
     }
 }

@@ -5,10 +5,11 @@ using System.Threading.Tasks;
 
 namespace ProjectSupport.Areas.Identity.Data
 {
-    interface IUserData
+    public interface IUserData
     {
         IEnumerable<AppUser> GetAll();
         AppUser Get(string email);
         void Delete(string id);
+        void Update(AppUser id);
     }
 }

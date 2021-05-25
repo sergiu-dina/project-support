@@ -1,4 +1,4 @@
-﻿@model List<ProjectSupport.ViewModels.ManageResourcesViewModel>
+﻿@model List<ProjectSupport.Areas.Identity.Data.AppUser>
 
 @using Microsoft.AspNetCore.Identity
 @using ProjectSupport.Areas.Identity.Data
@@ -7,7 +7,7 @@
 @inject UserManager<AppUser> UserManager
 
 @{
-    ViewBag.Title = "Tasks";
+    ViewBag.Title = "Add Hourly Rate";
 
     Pager pager = new Pager();
 
@@ -23,16 +23,15 @@
 <div class="container child2">
     <div class="content-container">
         <div class="container-fluid">
-
             <div class="card">
                 <div class="card-header">
-                    <h1>Tasks</h1>
+                    <h1>Developers</h1>
                 </div>
                 <div class="card-body">
                     <div class="col-4 p-0 justify-content-end">
-                        <form asp-controller="Gantt" asp-action="ManageResources" method="get">
+                        <form asp-controller="Manager" asp-action="SeeDevelopers" method="get">
                             <span class="btn-group">
-                                <input class="form-control" type="text" name="SearchText" placeholder="Search Task">
+                                <input class="form-control" type="text" name="SearchText" placeholder="Search Email">
                                 <input class="p-1 ml-2 btn btn-sm btn-primary" type="submit" value="Search" />
                             </span>
                         </form>
@@ -41,27 +40,36 @@
                     <table class="table table-striped">
                         <thead>
                             <tr>
-                                <th>Name</th>
                                 <th>
-                                    @Html.ActionLink("Start Date", "ManageResources", new { sortOrder = ViewBag.DateSortParm, currentFilter = ViewBag.CurrentFilter })
+                                    @Html.ActionLink("Last Name", "SeeDevelopers", new { sortOrder = ViewBag.NameSortParm, currentFilter = ViewBag.CurrentFilter })
                                 </th>
-                                <th>End Date</th>
-                                <th>Task Cost</th>
-                                <th>Edit Resources</th>
+                                <th>First Name</th>
+                                <th>
+                                    @Html.ActionLink("Email", "SeeDevelopers", new { sortOrder = ViewBag.EmailSortParm, currentFilter = ViewBag.CurrentFilter })
+                                </th>
+                                <th>Hourly Rate</th>
+                                <th>Add Hourly Rate</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var task in Model)
+                            @foreach (var user in Model)
                             {
                                 <tr>
-                                    <td>@task.Task.Name</td>
-                                    <td>@task.Task.StartDate.ToString("dd/MM/yyyy")</td>
-                                    <td>@task.Task.EndDate.Date.ToString("dd/MM/yyyy")</td>
-                                    <td style="padding-left: 25px">@task.TaskCost</td>
+                                    <td>@user.LastName</td>
+                                    <td>@user.FirstName</td>
+                                    <td>@user.Email</td>
+                                    @if (user.HourlyRate > 0)
+                                    {
+                                        <td style="padding-left:45px">@user.HourlyRate</td>
+                                    }
+                                    else
+                                    {
+                                        <td td style="padding-left:35px">None</td>
+                                    }
                                     <td style="padding-left: 45px">
                                         <a class="btn"
-                                           asp-action="EditResources" asp-controller="Gantt" asp-route-id="@task.Task.Id">
-                                            <i class="fas fa-edit" style="font-size:24px;color:blue"></i>
+                                           asp-action="AddSalary" asp-controller="Manager" asp-route-id="@user.Id">
+                                            <i class="fas fa-dollar-sign" style="font-size:24px;color:green"></i>
                                         </a>
                                     </td>
                                 </tr>
@@ -76,41 +84,41 @@
                                 @if (pager.CurrentPage > 1)
                                 {
                                     <li class="page-item">
-                                        <a class="page-link" asp-controller="Gantt" asp-action="ManageResources" asp-route-pg="1">First</a>
+                                        <a class="page-link" asp-controller="Manager" asp-action="SeeDevelopers" asp-route-pg="1">First</a>
                                     </li>
                                     <li>
-                                        <a class="page-link" asp-controller="Gantt" asp-action="ManageResources" asp-route-pg="@(pager.CurrentPage -1)">Previous</a>
+                                        <a class="page-link" asp-controller="Manager" asp-action="SeeDevelopers" asp-route-pg="@(pager.CurrentPage -1)">Previous</a>
                                     </li>
                                 }
 
                                 @for (var pge = pager.StartPage; pge <= pager.EndPage; pge++)
                                 {
                                     <li class="page-item @(pge == pager.CurrentPage ? "active" : "")">
-                                        <a class="page-link" asp-controller="Gantt" asp-action="ManageResources" asp-route-pg="@pge"> @pge </a>
+                                        <a class="page-link" asp-controller="Manager" asp-action="SeeDevelopers" asp-route-pg="@pge"> @pge </a>
                                     </li>
                                 }
 
                                 @if (pager.CurrentPage < pager.TotalPages)
                                 {
                                     <li class="page-item">
-                                        <a class="page-link" asp-controller="Gantt" asp-action="ManageResources" asp-route-pg="@(pager.CurrentPage + 1)">Next</a>
+                                        <a class="page-link" asp-controller="Manager" asp-action="SeeDevelopers" asp-route-pg="@(pager.CurrentPage + 1)">Next</a>
                                     </li>
                                     <li>
-                                        <a class="page-link" asp-controller="Gantt" asp-action="ManageResources" asp-route-pg="@(pager.TotalPages)">Last</a>
+                                        <a class="page-link" asp-controller="Manager" asp-action="SeeDevelopers" asp-route-pg="@(pager.TotalPages)">Last</a>
                                     </li>
                                 }
                             </ul>
                         }
                     </div>
+
                 </div>
                 <div class="card-footer">
                     <a class="btn btn-primary"
-                       asp-action="Actions" asp-controller="Gantt" asp-route-id="@ViewBag.id" asp-route-user="@UserManager.GetUserId(User)">
+                       asp-action="Index" asp-controller="Manager">
                         Back to Dashboard
                     </a>
                 </div>
             </div>
-
         </div>
     </div>
 </div>
