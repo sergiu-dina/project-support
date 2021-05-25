@@ -23,7 +23,7 @@ namespace ProjectSupport.Models
         [DisplayFormat(DataFormatString = "{0:yyyy/MM/dd}", ApplyFormatInEditMode = true)]
         public DateTime EndDate { get; set; }
         public int Duration { get; set; }
-        public decimal Progress { get; set; }
+        public int Progress { get; set; }
         public int ProjectId { get; set; }
         public Project Project { get; set; }
         public List<Resources> Resources { get; set; } = new List<Resources>();

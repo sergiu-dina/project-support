@@ -29,7 +29,7 @@
                         </div>
                         <div class="card-footer">
                             <a class="btn btn-primary"
-                               asp-action="SeeProjects" asp-controller="Manager">
+                               asp-action="SeeProjects" asp-controller="Manager" asp-route-id="@UserManager.GetUserId(User)">
                                 Edit Project
                             </a>
                         </div>
@@ -42,7 +42,7 @@
                         </div>
                         <div class="card-footer">
                             <a class="btn btn-primary"
-                               asp-action="AddDevelopers" asp-controller="Manager">
+                               asp-action="AddDevelopers" asp-controller="Manager" asp-route-id="@UserManager.GetUserId(User)">
                                 Add Developers
                             </a>
                         </div>

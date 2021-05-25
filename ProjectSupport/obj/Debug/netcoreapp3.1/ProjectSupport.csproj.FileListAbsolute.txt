@@ -386,3 +386,6 @@ E:\Facultate\Licenta\project-support\ProjectSupport\obj\Debug\netcoreapp3.1\Razo
 E:\Facultate\Licenta\project-support\ProjectSupport\obj\Debug\netcoreapp3.1\Razor\Views\Gantt\EditResources.cshtml.g.cs
 E:\Facultate\Licenta\project-support\ProjectSupport\obj\Debug\netcoreapp3.1\Razor\Views\Gantt\EditDependencies.cshtml.g.cs
 E:\Facultate\Licenta\project-support\ProjectSupport\obj\Debug\netcoreapp3.1\Razor\Views\Gantt\AddDependencies.cshtml.g.cs
+E:\Facultate\Licenta\project-support\ProjectSupport\obj\Debug\netcoreapp3.1\Razor\Areas\Identity\Pages\Account\AccessDenied.cshtml.g.cs
+E:\Facultate\Licenta\project-support\ProjectSupport\obj\Debug\netcoreapp3.1\Razor\Views\Gantt\DeveloperTasks.cshtml.g.cs
+E:\Facultate\Licenta\project-support\ProjectSupport\obj\Debug\netcoreapp3.1\Razor\Views\Gantt\AddProgress.cshtml.g.cs

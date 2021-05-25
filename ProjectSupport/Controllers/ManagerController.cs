@@ -43,9 +43,41 @@ namespace ProjectSupport.Controllers
 
 
         [HttpGet]
-        public IActionResult EditProject(int id)
+        public async Task<IActionResult> EditProject(int id, string user)
         {
-            var model = projectData.Get(id);
+            var manager = false;
+            var managerRole = await roleManager.FindByNameAsync("Manager");
+            var appUser = await userManager.FindByIdAsync(user);
+
+            var project = projectData.Get(id);
+            var projectUsers = projectUserData.GetAll();
+
+            foreach (var projectUser in projectUsers)
+            {
+                if (user == projectUser.UserId && project.Id == projectUser.ProjectId)
+                {
+                    if (await userManager.IsInRoleAsync(appUser, role: managerRole.Name))
+                    {
+                        manager = true;
+                    }
+                }
+            }
+
+
+            if (user == null)
+            {
+                ViewBag.ErrorMessage = $"User with Id = {id} cannot be found";
+                return View("NotFound");
+            }
+            else if (manager == false)
+            {
+                ViewBag.ErrorMessage = $"This User is not the manager of this project";
+                return View("NotFound");
+            }
+
+            var model = new EditProjectViewModel();
+            model.Project = projectData.Get(id);
+            model.UserId = user;
             if (model == null)
             {
                 return View("NotFound");
@@ -55,26 +87,54 @@ namespace ProjectSupport.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult EditProject(Project project)
+        public IActionResult EditProject(EditProjectViewModel model)
         {
             if (ModelState.IsValid)
             {
-                projectData.Update(project);
-                return RedirectToAction("SeeProjects");
+                projectData.Update(model.Project);
+                return RedirectToAction("SeeProjects", new { id = model.UserId });
             }
             return View();
         }
 
-        public IActionResult SeeProjects(string SearchText="", int pg = 1)
+        public async Task<IActionResult> SeeProjects(string id, string SearchText="", int pg = 1)
         {
-            List<Project> model;
+            var model = new List<ProjectIndexViewModel>();
+
+            var managerRole = await roleManager.FindByNameAsync("Manager");
+
+            var user = await userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                ViewBag.ErrorMessage = $"User with Id = {id} cannot be found";
+                return View("NotFound");
+            }
+
+            var manager = await userManager.IsInRoleAsync(user, managerRole.Name);
+
+            foreach (var project in projectData.GetAll())
+            {
+                var managerProject = new ProjectIndexViewModel();
+                if (projectUserData.HasUser(project.Id, user.Id))
+                {
+                    managerProject.IsManager = true;
+                }
+                else
+                {
+                    managerProject.IsManager = false;
+                }
+                managerProject.Project = project;
+                model.Add(managerProject);
+            }
+
+
             if (SearchText != "" && SearchText != null)
             {
-                model = projectData.GetAll().OrderBy(p => p.Name).Where(m => m.Name.Contains(SearchText)).ToList();
+                model = model.OrderByDescending(p => p.IsManager).ThenBy(p => p.Project.Name).Where(m => m.Project.Name.Contains(SearchText)).ToList();
             }
             else
             {
-                model = projectData.GetAll().OrderBy(p => p.Name).ToList();
+                model = model.OrderByDescending(p => p.IsManager).ThenBy(p => p.Project.Name).ToList();
             }
             const int pageSize = 5;
             if (pg < 1)
@@ -96,21 +156,46 @@ namespace ProjectSupport.Controllers
         }
 
         [HttpGet]
-        public IActionResult AddDevelopers(string sortOrder, int pg = 1, string SearchText = "")
+        public async Task<IActionResult> AddDevelopers(string id ,string sortOrder, int pg = 1, string SearchText = "")
         {
             ViewBag.CurrentSort = sortOrder;
             ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
 
-            var projects = from s in projectData.GetAll()
-                           select s;
+            var model = new List<ProjectIndexViewModel>();
+
+            var managerRole = await roleManager.FindByNameAsync("Manager");
+
+            var user = await userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                ViewBag.ErrorMessage = $"User with Id = {id} cannot be found";
+                return View("NotFound");
+            }
+
+            var manager = await userManager.IsInRoleAsync(user, managerRole.Name);
+
+            foreach (var project in projectData.GetAll())
+            {
+                var managerProject = new ProjectIndexViewModel();
+                if (projectUserData.HasUser(project.Id, user.Id))
+                {
+                    managerProject.IsManager = true;
+                }
+                else
+                {
+                    managerProject.IsManager = false;
+                }
+                managerProject.Project = project;
+                model.Add(managerProject);
+            }
 
             if (SearchText != "" && SearchText != null)
             {
-                projects = projectData.GetAll().OrderBy(p => p.Name).Where(m => m.Name.Contains(SearchText)).ToList();
+                model = model.OrderByDescending(p => p.IsManager).ThenBy(p => p.Project.Name).Where(m => m.Project.Name.Contains(SearchText)).ToList();
             }
             else
             {
-                projects = projectData.GetAll().OrderBy(p => p.Name).ToList();
+                model = model.OrderByDescending(p => p.IsManager).ThenBy(p => p.Project.Name).ToList();
             }
 
             const int pageSize = 5;
@@ -119,23 +204,23 @@ namespace ProjectSupport.Controllers
                 pg = 1;
             }
 
-            int recsCount = projects.Count();
+            int recsCount = model.Count();
 
             var pager = new Pager(recsCount, pg, pageSize);
 
             int recSkip = (pg - 1) * pageSize;
 
-            var data = projects.Skip(recSkip).Take(pager.PageSize).ToList();
+            var data = model.Skip(recSkip).Take(pager.PageSize).ToList();
 
             this.ViewBag.Pager = pager;
 
             switch (sortOrder)
             {
                 case "name_desc":
-                    data = data.OrderByDescending(s => s.Name).ToList();
+                    data = data.OrderByDescending(s => s.IsManager).ThenBy(s => s.Project.Name).ToList();
                     break;
                 default:
-                    data = data.OrderBy(s => s.Name).ToList();
+                    data = data.OrderByDescending(s => s.IsManager).ThenBy(s => s.Project.Name).ToList();
                     break;
             }
 
@@ -144,7 +229,7 @@ namespace ProjectSupport.Controllers
 
         
         [HttpGet]
-        public async Task<IActionResult> SelectDevelopers(int id, int pg = 1, string SearchText = "")
+        public async Task<IActionResult> SelectDevelopers(int id, string user, int pg = 1, string SearchText = "")
         {
             var project = projectData.Get(id);
             var projectUser = projectUserData.GetAll();
@@ -154,13 +239,42 @@ namespace ProjectSupport.Controllers
                 return View("NotFound");
             }
 
+            var manager = false;
+            var managerRole = await roleManager.FindByNameAsync("Manager");
+            var tempUser = await userManager.FindByIdAsync(user);
+
+            var projectUsers = projectUserData.GetAll();
+
+            foreach (var item in projectUsers)
+            {
+                if (user == item.UserId && project.Id == item.ProjectId)
+                {
+                    if (await userManager.IsInRoleAsync(tempUser, role: managerRole.Name))
+                    {
+                        manager = true;
+                    }
+                }
+            }
+
+
+            if (user == null)
+            {
+                ViewBag.ErrorMessage = $"User with Id = {id} cannot be found";
+                return View("NotFound");
+            }
+            else if (manager == false)
+            {
+                ViewBag.ErrorMessage = $"This User is not the manager of this project";
+                return View("NotFound");
+            }
+
             var developerRole = await roleManager.FindByNameAsync("Developer");
             var users = new List<AppUser>();
-            foreach (var user in userManager.Users)
+            foreach (var appUser in userManager.Users)
             {
-                if (await userManager.IsInRoleAsync(user, role: developerRole.Name))
+                if (await userManager.IsInRoleAsync(appUser, role: developerRole.Name))
                 {
-                    users.Add(user);
+                    users.Add(appUser);
                 }
             }
 
@@ -181,16 +295,17 @@ namespace ProjectSupport.Controllers
             this.ViewBag.Pager = pager;
 
             var model = new List<UserProjectViewModel>();
-            foreach (var user in data)
+            foreach (var appUser in data)
             {
                 var userProjectViewModel = new UserProjectViewModel
                 {
                     ProjectId = project.Id,
-                    UserId = user.Id,
-                    UserName = user.UserName
+                    UserId = appUser.Id,
+                    UserName = appUser.UserName,
+                    User = user
                 };
                 foreach (var existingUser in projectUser)
-                    if (user.Id == existingUser.UserId && project.Id == existingUser.ProjectId)
+                    if (appUser.Id == existingUser.UserId && project.Id == existingUser.ProjectId)
                     {
                         userProjectViewModel.IsSelected = true;
                         break;
@@ -264,10 +379,10 @@ namespace ProjectSupport.Controllers
                 if (i < (model.Count - 1))
                     continue;
                 else
-                    return RedirectToAction("AddDevelopers");
+                    return RedirectToAction("AddDevelopers", new { id = model[0].User });
 
             }
-            return RedirectToAction("AddDevelopers");
+            return RedirectToAction("AddDevelopers", new { id = model[0].User });
         }
         
     }

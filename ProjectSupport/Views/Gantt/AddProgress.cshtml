@@ -7,7 +7,7 @@
 @inject UserManager<AppUser> UserManager
 
 @{
-    ViewBag.Title = "Edit";
+    ViewBag.Title = "Edit Progress";
 }
 
 <div class="container child">
@@ -23,7 +23,7 @@
                 <div class="form-horizontal">
                     <div class="card">
                         <div class="card-header">
-                            <h4>Edit Task</h4>
+                            <h4>Edit Progress</h4>
                         </div>
                         <div class="card-body">
                             @Html.ValidationSummary(true, "", new { @class = "text-danger" })
@@ -33,21 +33,22 @@
                             @Html.HiddenFor(model => model.Task.StartDate)
                             @Html.HiddenFor(model => model.Task.EndDate)
                             @Html.HiddenFor(model => model.Task.Duration)
-                            @Html.HiddenFor(model => model.Task.Progress)
+                            @Html.HiddenFor(model => model.Task.Name)
                             @Html.HiddenFor(model => model.Task)
 
                             <div class="form-group">
-                                @Html.LabelFor(model => model.Task.Name, htmlAttributes: new { @class = "control-label col-md-2" })
-                                <div class="col-md-10">
-                                    @Html.EditorFor(model => model.Task.Name, new { htmlAttributes = new { @class = "form-control" } })
-                                    @Html.ValidationMessageFor(model => model.Task.Name, "", new { @class = "text-danger" })
+                                @Html.LabelFor(model => model.Task.Progress, htmlAttributes: new { @class = "control-label col-md-2" })
+                                <div class="text-center">
+                                    @Html.EditorFor(model => model.Task.Progress, new { htmlAttributes = new { @class = "form-control-range", type = "range", oninput = "this.nextElementSibling.value = this.value" } })
+                                    <output>@Model.Task.Progress</output>
+                                    @Html.ValidationMessageFor(model => model.Task.Progress, "", new { @class = "text-danger" })
                                 </div>
                             </div>
                         </div>
                         <div class="card-footer">
                             <input type="submit" value="Save" class="btn btn-primary" />
                             <a class="btn btn-primary"
-                               asp-action="SeeTasks" asp-controller="Gantt" asp-route-id="@Model.Task.ProjectId" asp-route-user="@UserManager.GetUserId(User)">
+                               asp-action="DeveloperTasks" asp-controller="Gantt" asp-route-id="@Model.Task.ProjectId" asp-route-user="@UserManager.GetUserId(User)">
                                 Back to List
                             </a>
                         </div>

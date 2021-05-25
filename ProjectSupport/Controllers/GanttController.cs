@@ -50,6 +50,7 @@ namespace ProjectSupport.Controllers
 
             var managerProjects = new List<ProjectIndexViewModel>();
             var managerRole = await roleManager.FindByNameAsync("Manager");
+            var developerRole = await roleManager.FindByNameAsync("Developer");
 
             var user = await userManager.FindByIdAsync(id);
             if (user == null)
@@ -57,6 +58,9 @@ namespace ProjectSupport.Controllers
                 ViewBag.ErrorMessage = $"User with Id = {id} cannot be found";
                 return View("NotFound");
             }
+
+            var manager = await userManager.IsInRoleAsync(user, managerRole.Name);
+            var developer = await userManager.IsInRoleAsync(user, developerRole.Name);
 
             foreach (var project in projects)
             {
@@ -182,7 +186,22 @@ namespace ProjectSupport.Controllers
         [HttpGet]
         public IActionResult Gantt(int id)
         {
-            return View(id);
+            var model = new GanttIndexViewModel();
+            var tasks = ganttTaskData.GetAll();
+            var hasTasks = false;
+            foreach(var task in tasks)
+            {
+                if(task.ProjectId == id)
+                {
+                    hasTasks = true;
+                    break;
+                }
+            }
+
+            model.ProjectId = id;
+            model.HasTasks = hasTasks;
+
+            return View(model);
         }
 
         [HttpGet]
@@ -871,6 +890,7 @@ namespace ProjectSupport.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "Manager")]
         [HttpPost]
         public IActionResult AddDependencies(List<DependencyViewModel> model)
         {
@@ -913,6 +933,159 @@ namespace ProjectSupport.Controllers
             }
 
             return RedirectToAction("EditDependencies", new { id = task.ProjectId });
+        }
+
+        [Authorize(Roles = "Developer")]
+        [HttpGet]
+        public async Task<IActionResult> DeveloperTasks(int id,string user, string sortOrder, int pg = 1, string SearchText = "")
+        {
+            ViewBag.CurrentSort = sortOrder;
+            ViewBag.DateSortParm = String.IsNullOrEmpty(sortOrder) ? "date_desc" : "";
+
+            var developer = false;
+            var developerRole = await roleManager.FindByNameAsync("Developer");
+            var appUser = await userManager.FindByIdAsync(user);
+
+            var project = projectData.Get(id);
+            var projectUsers = projectUserData.GetAll();
+
+            foreach (var projectUser in projectUsers)
+            {
+                if (user == projectUser.UserId && project.Id == projectUser.ProjectId)
+                {
+                    if (await userManager.IsInRoleAsync(appUser, role: developerRole.Name))
+                    {
+                        developer = true;
+                    }
+                }
+            }
+
+
+            if (user == null)
+            {
+                ViewBag.ErrorMessage = $"User with Id = {id} cannot be found";
+                return View("NotFound");
+            }
+            else if (developer == false)
+            {
+                ViewBag.ErrorMessage = $"This User is not a developer in this project";
+                return View("NotFound");
+            }
+
+            var tasks = ganttTaskData.GetAll();
+            var model = new List<AssignedTaskViewModel>();
+
+            foreach (var task in tasks)
+            {
+                var assignedTask = new AssignedTaskViewModel();
+                if (task.ProjectId == id)
+                {
+                    if (resourcesData.HasUser(task.Id, user))
+                    {
+                        assignedTask.IsAssigned = true;
+                    }
+                    else
+                    {
+                        assignedTask.IsAssigned = false;
+                    }
+                    assignedTask.Task = task;
+                    model.Add(assignedTask);
+                }
+            }
+
+
+            if (SearchText != "" && SearchText != null)
+            {
+                model = model.OrderByDescending(s => s.IsAssigned).ThenBy(p => p.Task.Name).Where(m => m.Task.Name.Contains(SearchText)).ToList();
+            }
+            else
+            {
+                model = model.OrderByDescending(s => s.IsAssigned).ThenBy(p => p.Task.Name).ToList();
+            }
+
+            const int pageSize = 5;
+            if (pg < 1)
+            {
+                pg = 1;
+            }
+
+            int recsCount = model.Count();
+
+            var pager = new Pager(recsCount, pg, pageSize);
+
+            int recSkip = (pg - 1) * pageSize;
+
+            var data = model.Skip(recSkip).Take(pager.PageSize).ToList();
+
+            this.ViewBag.Pager = pager;
+
+            switch (sortOrder)
+            {
+                case "date_desc":
+                    data = data.OrderByDescending(s => s.Task.StartDate).ThenBy(s => s.IsAssigned).ToList();
+                    break;
+                default:
+                    data = data.OrderBy(s => s.Task.StartDate).ThenBy(s => s.Task.EndDate).ThenBy(s => s.IsAssigned).ToList();
+                    break;
+            }
+
+            ViewBag.id = id;
+
+            return View(data);
+        }
+
+        [Authorize(Roles = "Developer")]
+        [HttpGet]
+        public async Task<IActionResult> AddProgress(int id, string user)
+        {
+            var model = new EditTaskViewModel();
+            model.Task = ganttTaskData.Get(id);
+            model.UserId = user;
+
+            var developer = false;
+            var developerRole = await roleManager.FindByNameAsync("Developer");
+            var appUser = await userManager.FindByIdAsync(user);
+
+            foreach (var resource in resourcesData.GetAll())
+            {
+                if (user == resource.UserId && model.Task.Id == resource.TaskId)
+                {
+                    if (await userManager.IsInRoleAsync(appUser, role: developerRole.Name))
+                    {
+                        developer = true;
+                    }
+                }
+            }
+
+            if (appUser == null)
+            {
+                ViewBag.ErrorMessage = $"User with Id = {id} cannot be found";
+                return View("NotFound");
+            }
+            else if (developer == false)
+            {
+                ViewBag.ErrorMessage = $"This User is not a developer in this Task";
+                return View("NotFound");
+            }
+
+            if (model.Task == null)
+            {
+                return View("NotFound");
+            }
+            return View(model);
+        }
+
+        [Authorize(Roles = "Developer")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult AddProgress(EditTaskViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                ganttTaskData.Update(model.Task);
+                return RedirectToAction("DeveloperTasks", new { id = model.Task.ProjectId, user = model.UserId });
+            }
+            return View();
         }
     }
 }

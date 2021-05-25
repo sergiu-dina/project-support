@@ -48,6 +48,10 @@
                                 {
                                     <th>Project Actions</th>
                                 }
+                                @if (SignInManager.IsSignedIn(User) && User.IsInRole("Developer"))
+                                {
+                                    <th>Project Actions</th>
+                                }
                                 <th>Gantt Diagram</th>
                                 <th>Details</th>
                             </tr>
@@ -65,6 +69,26 @@
                                         <td style="padding-left: 40px">
                                             <a class="btn"
                                                asp-action="Actions" asp-controller="Gantt" asp-route-id="@project.Project.Id" asp-route-user="@UserManager.GetUserId(User)">
+                                                <i class="fas fa-edit" style="font-size:24px;color:blue"></i>
+                                            </a>
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td style="padding-left: 40px">
+                                            <div class="btn">
+                                                <i class="fas fa-edit" style="font-size:24px;color:grey"></i>
+                                            </div>
+                                        </td>
+                                    }
+                                }
+                                @if (SignInManager.IsSignedIn(User) && User.IsInRole("Developer"))
+                                {
+                                    if (project.IsManager == true)
+                                    {
+                                        <td style="padding-left: 40px">
+                                            <a class="btn"
+                                               asp-action="DeveloperTasks" asp-controller="Gantt" asp-route-id="@project.Project.Id" asp-route-user="@UserManager.GetUserId(User)">
                                                 <i class="fas fa-edit" style="font-size:24px;color:blue"></i>
                                             </a>
                                         </td>
