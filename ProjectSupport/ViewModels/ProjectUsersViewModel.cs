@@ -14,5 +14,8 @@ namespace ProjectSupport.ViewModels
         public List<AppUser> Developers { get; set; }
         public List<GanttTask> Tasks { get; set; }
         public int DevelopersCount { get; set; }
+        public int TaskCount { get; set; }
+        public int ProjectCost { get; set; }
+        public int Duration { get; set; }
     }
 }

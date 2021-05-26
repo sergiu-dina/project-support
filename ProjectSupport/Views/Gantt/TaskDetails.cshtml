@@ -1,0 +1,184 @@
+﻿@model ProjectSupport.ViewModels.TaskDetailsViewModel
+
+@using Microsoft.AspNetCore.Identity
+@using ProjectSupport.Areas.Identity.Data
+
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+
+@{
+    ViewBag.Title = "Details";
+
+    Pager pager = new Pager();
+
+    int pageNo = 0;
+
+    if (ViewBag.Pager != null)
+    {
+        pager = ViewBag.Pager;
+        pageNo = pager.CurrentPage;
+    }
+}
+
+<div class="container child3">
+    <div class="content-container">
+        <div class="container-fluid">
+
+            <div class="card">
+                <div class="card-header">
+                    <h4>Details for @Html.DisplayFor(model => model.Task.Name)</h4>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <h5>Details</h5>
+                        <thead>
+                            <tr>
+                                <th scope="col">Task Name</th>
+                                <th scope="col">Progress</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>@Model.Task.Name</td>
+                                <td>@Model.Task.Progress%</td>
+                            </tr>
+                        </tbody>
+
+                        <thead>
+                            <tr>
+                                <th scope="col">Start Date</th>
+                                <th scope="col">End Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>@Model.Task.StartDate.Date.ToString("dd/MM/yyyy")</td>
+                                <td>@Model.Task.EndDate.Date.ToString("dd/MM/yyyy")</td>
+                            </tr>
+                        </tbody>
+
+                        <thead>
+                            <tr>
+                                <th scope="col">Project Cost</th>
+                                <th scope="col">Duration</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>@Model.TaskCost $</td>
+                                @if (Model.Task.Duration > 1)
+                                {
+                                    <td>@Model.Task.Duration days</td>
+                                }
+                                else
+                                {
+                                    <td>@Model.Task.Duration day</td>
+                                }
+                            </tr>
+                        </tbody>
+
+                    </table>
+
+                    @if (Model.Users.Count > 0)
+                    {
+                        <h5>Developers</h5>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Email</th>
+                                    <th scope="col">First Name</th>
+                                    <th scope="col">Last Name</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Users)
+                                {
+                                    <tr>
+                                        <td>@item.Email</td>
+                                        <td>@item.FirstName</td>
+                                        <td>@item.LastName</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+
+                        <div class="container">
+                            @if (pager.TotalPages > 0)
+                            {
+                                <ul class="pagination">
+                                    @if (pager.CurrentPage > 1)
+                                    {
+                                        <li class="page-item">
+                                            <a class="page-link" asp-controller="Gantt" asp-action="TaskDetails" asp-route-pg="1">First</a>
+                                        </li>
+                                        <li>
+                                            <a class="page-link" asp-controller="Gantt" asp-action="TaskDetails" asp-route-pg="@(pager.CurrentPage -1)">Previous</a>
+                                        </li>
+                                    }
+
+                                    @for (var pge = pager.StartPage; pge <= pager.EndPage; pge++)
+                                    {
+                                        <li class="page-item @(pge == pager.CurrentPage ? "active" : "")">
+                                            <a class="page-link" asp-controller="Gantt" asp-action="TaskDetails" asp-route-pg="@pge"> @pge </a>
+                                        </li>
+                                    }
+
+                                    @if (pager.CurrentPage < pager.TotalPages)
+                                    {
+                                        <li class="page-item">
+                                            <a class="page-link" asp-controller="Gantt" asp-action="TaskDetails" asp-route-pg="@(pager.CurrentPage + 1)">Next</a>
+                                        </li>
+                                        <li>
+                                            <a class="page-link" asp-controller="Gantt" asp-action="TaskDetails" asp-route-pg="@(pager.TotalPages)">Last</a>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                        </div>
+
+                        @if (Model.Dependencies.Count > 0)
+                        {
+                            <h5>Dependencies</h5>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Name</th>
+                                        <th scope="col">Start Date</th>
+                                        <th scope="col">End Date</th>
+                                        <th scope="col">Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model.Dependencies)
+                                    {
+                                        <tr>
+                                            <td>@item.Name</td>
+                                            <td>@item.StartDate.Date.ToString("dd/MM/yyyy")</td>
+                                            <td>@item.EndDate.Date.ToString("dd/MM/yyyy")</td>
+                                            <td style="padding-left: 20px">
+                                                <a class="btn"
+                                                   asp-action="TaskDetails" asp-controller="Gantt" asp-route-id="@item.Id">
+                                                    <i class="fas fa-info" style="font-size:24px;color:blue"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                    }
+
+                </div>
+                <div class="card-footer">
+                    <p>
+                        <a class="btn btn-primary"
+                           asp-action="Details" asp-controller="Gantt" asp-route-id="@Model.Task.ProjectId">
+                            Back to Project
+                        </a>
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

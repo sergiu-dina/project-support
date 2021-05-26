@@ -117,10 +117,12 @@ namespace ProjectSupport.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Details(int id, string sortOrder, int pg = 1)
+        public async Task<IActionResult> Details(int id, string sortOrder, string sortOrder2, int pg = 1, int pg2 = 1)
         {
             ViewBag.CurrentSort = sortOrder;
+            ViewBag.CurrentSort2 = sortOrder2;
             ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewBag.DateSortParm = String.IsNullOrEmpty(sortOrder2) ? "date_desc" : "";
 
             var model = new ProjectUsersViewModel();
 
@@ -182,12 +184,121 @@ namespace ProjectSupport.Controllers
             }
 
             var tasks = ganttTaskData.GetAll();
+            var projectTasks = new List<GanttTask>();
+            var resources = resourcesData.GetAll();
             foreach(var task in tasks)
             {
-                if(project.Id == task.Id)
+                if(project.Id == task.ProjectId)
                 {
-                    model.Tasks.Add(task);
+                    model.TaskCount++;
+                    projectTasks.Add(task);
+                    foreach (var resource in resources)
+                    {
+                        if (resource.TaskId == task.Id)
+                        {
+                            var user = await userManager.FindByIdAsync(resource.UserId);
+                            model.ProjectCost += user.HourlyRate * task.Duration * 8;
+                        }
+                    }
                 }
+            }
+
+            if (model.TaskCount > 0)
+            {
+                projectTasks = projectTasks.OrderBy(s => s.StartDate).ThenBy(s => s.EndDate).ToList();
+                model.Duration = (projectTasks[projectTasks.Count() - 1].EndDate - projectTasks[0].StartDate).Days;
+            }
+
+            model.Tasks = projectTasks;
+
+            const int pageSize2 = 3;
+            if (pg2 < 1)
+            {
+                pg2 = 1;
+            }
+
+            int recsCount2 = model.Tasks.Count();
+
+            var pager2 = new Pager(recsCount2, pg2, pageSize2);
+
+            int recSkip2 = (pg2 - 1) * pageSize2;
+
+            model.Tasks = model.Tasks.OrderBy(t=>t.StartDate).ThenBy(t=>t.EndDate).Skip(recSkip2).Take(pager2.PageSize).ToList();
+
+            this.ViewBag.Pager2 = pager2;
+
+            switch (sortOrder2)
+            {
+                case "date_desc":
+                    model.Tasks = model.Tasks.OrderByDescending(s => s.StartDate).ToList();
+                    break;
+                default:
+                    model.Tasks = model.Tasks.OrderBy(s => s.StartDate).ThenBy(s => s.EndDate).ToList();
+                    break;
+            }
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> TaskDetails(int id, string sortOrder, int pg = 1)
+        {
+            ViewBag.CurrentSort = sortOrder;
+            ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+
+            var model = new TaskDetailsViewModel();
+            var task = ganttTaskData.Get(id);
+            model.Task = task;
+
+            var resources = resourcesData.GetAll();
+            var users = new List<AppUser>();
+            foreach(var resource in resources)
+            {
+                if(resource.TaskId == task.Id)
+                {
+                    var user = await userManager.FindByIdAsync(resource.UserId);
+                    users.Add(user);
+                    model.TaskCost += user.HourlyRate * task.Duration * 8;
+                }
+            }
+            model.Users = users;
+
+            var relations = ganttTaskRelationData.GetAll();
+            var relatedTasks = new List<GanttTask>();
+            foreach (var relation in relations)
+            {
+                if(task.Id==relation.GanttTaskId)
+                {
+                    var relatedTask = ganttTaskData.Get(relation.RelatedTaskId);
+                    relatedTasks.Add(relatedTask);
+                }
+            }
+            model.Dependencies = relatedTasks;
+
+            const int pageSize = 3;
+            if (pg < 1)
+            {
+                pg = 1;
+            }
+
+            int recsCount = model.Users.Count();
+
+            var pager = new Pager(recsCount, pg, pageSize);
+
+            int recSkip = (pg - 1) * pageSize;
+
+            model.Users = model.Users.Skip(recSkip).Take(pager.PageSize).ToList();
+
+            this.ViewBag.Pager = pager;
+
+            switch (sortOrder)
+            {
+                case "name_desc":
+                    model.Users = model.Users.OrderByDescending(s => s.Email).ToList();
+                    break;
+                default:
+                    model.Users = model.Users.OrderBy(s => s.Email).ToList();
+                    break;
             }
 
             return View(model);

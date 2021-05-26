@@ -18,6 +18,16 @@
         pager = ViewBag.Pager;
         pageNo = pager.CurrentPage;
     }
+
+    Pager pager2 = new Pager();
+
+    int pageNo2 = 0;
+
+    if (ViewBag.Pager2 != null)
+    {
+        pager2 = ViewBag.Pager2;
+        pageNo2 = pager2.CurrentPage;
+    }
 }
 
 <div class="container child3">
@@ -29,28 +39,49 @@
                     <h4>Details for @Html.DisplayFor(model => model.Project.Name)</h4>
                 </div>
                 <div class="card-body">
-                    <dl class="dl-horizontal">
-                        <dt>
-                            Project Name
-                        </dt>
-                        <dd>
-                            @Html.DisplayFor(model => model.Project.Name)
-                        </dd>
+                    <table class="table">
+                        <h5>Details</h5>
+                        <thead>
+                            <tr>
+                                <th scope="col">Project Name</th>
+                                <th scope="col">Developers</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>@Html.DisplayFor(model => model.Project.Name)</td>
+                                <td>@Model.DevelopersCount</td>
+                            </tr>
+                        </tbody>
 
-                        <dt>
-                            Details
-                        </dt>
-                        <dd>
-                            @Html.DisplayFor(model => model.Project.Description)
-                        </dd>
+                        <thead>
+                            <tr>
+                                <th scope="col">Details</th>
+                                <th scope="col">Tasks</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>@Html.DisplayFor(model => model.Project.Description)</td>
+                                <td>@Model.TaskCount</td>
+                            </tr>
+                        </tbody>
 
-                        <dt>
-                            Developers
-                        </dt>
-                        <dd>
-                            @Model.DevelopersCount
-                        </dd>
-                    </dl>
+                        <thead>
+                            <tr>
+                                <th scope="col">Project Cost</th>
+                                <th scope="col">Duration</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>@Model.ProjectCost $</td>
+                                <td>@Model.Duration</td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+                    
 
                     @if (Model.Manager.Email != null)
                     {
@@ -84,9 +115,7 @@
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th scope="col">
-                                        @Html.ActionLink("Email", "Details", new { sortOrder = ViewBag.NameSortParm, currentFilter = ViewBag.CurrentFilter })
-                                    </th>
+                                    <th scope="col">Email</th>
                                     <th scope="col">First Name</th>
                                     <th scope="col">Last Name</th>
                                 </tr>
@@ -137,12 +166,78 @@
                         </div>
                     }
 
+
+                    @if (Model.Tasks.Count > 0)
+                    {
+                        <h5>Tasks</h5>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Start Date</th>
+                                    <th scope="col">End Date</th>
+                                    <th scope="col">Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.Tasks)
+                                {
+                                <tr>
+                                    <td>@item.Name</td>
+                                    <td>@item.StartDate.Date.ToString("dd/MM/yyyy")</td>
+                                    <td>@item.EndDate.Date.ToString("dd/MM/yyyy")</td>
+                                    <td style="padding-left: 20px">
+                                        <a class="btn"
+                                           asp-action="TaskDetails" asp-controller="Gantt" asp-route-id="@item.Id">
+                                            <i class="fas fa-info" style="font-size:24px;color:blue"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+                        <div class="container">
+                            @if (pager2.TotalPages > 0)
+                            {
+                                <ul class="pagination">
+                                    @if (pager2.CurrentPage > 1)
+                                    {
+                                        <li class="page-item">
+                                            <a class="page-link" asp-controller="Gantt" asp-action="Details" asp-route-pg2="1">First</a>
+                                        </li>
+                                        <li>
+                                            <a class="page-link" asp-controller="Gantt" asp-action="Details" asp-route-pg2="@(pager2.CurrentPage -1)">Previous</a>
+                                        </li>
+                                    }
+
+                                    @for (var pge = pager2.StartPage; pge <= pager2.EndPage; pge++)
+                                    {
+                                        <li class="page-item @(pge == pager2.CurrentPage ? "active" : "")">
+                                            <a class="page-link" asp-controller="Gantt" asp-action="Details" asp-route-pg2="@pge"> @pge </a>
+                                        </li>
+                                    }
+
+                                    @if (pager2.CurrentPage < pager2.TotalPages)
+                                    {
+                                        <li class="page-item">
+                                            <a class="page-link" asp-controller="Gantt" asp-action="Details" asp-route-pg2="@(pager2.CurrentPage + 1)">Next</a>
+                                        </li>
+                                        <li>
+                                            <a class="page-link" asp-controller="Gantt" asp-action="Details" asp-route-pg2="@(pager2.TotalPages)">Last</a>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                        </div>
+                    }
+
+
                 </div>
                 <div class="card-footer">
                     <p>
                         <a class="btn btn-primary"
                            asp-action="Index" asp-controller="Gantt" asp-route-id="@UserManager.GetUserId(User)">
-                            Back to List
+                            Back to Projects
                         </a>
                     </p>
                 </div>
