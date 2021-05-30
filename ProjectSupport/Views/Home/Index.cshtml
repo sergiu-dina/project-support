@@ -2,7 +2,6 @@
     ViewData["Title"] = "Home Page";
 }
 
-
 <div class="content-container2">
 
     <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
@@ -104,127 +103,126 @@
 
 @section Scripts
 {
-    <script type="text/javascript">
-        google.charts.load('current', { 'packages': ['bar'] });
-        google.charts.load('current', { 'packages': ['corechart'] });
-        google.charts.setOnLoadCallback(getColumnJsonData);
-        google.charts.setOnLoadCallback(getPieJsonData);
-        google.charts.setOnLoadCallback(getDonutJsonData);
+<script type="text/javascript">
+    google.charts.load('current', { 'packages': ['bar'] });
+    google.charts.load('current', { 'packages': ['corechart'] });
+    google.charts.setOnLoadCallback(getColumnJsonData);
+    google.charts.setOnLoadCallback(getPieJsonData);
+    google.charts.setOnLoadCallback(getDonutJsonData);
 
-        function getColumnJsonData() {
-            $.ajax({
+    function getColumnJsonData() {
+        $.ajax({
 
-                url: '/Home/GetColumnJsonData',
-                dataType: "json",
-                type: "GET",
-                error: function (xhr, status, error) {
-                    //var err = eval("(" + xhr.responseText + ")");
-                    console.log(error.message);
-                    //toastr.error(err.message);
-                },
-                success: function (data) {
-                    console.log(data);
-                    drawChart(data);
-                    return false;
-                }
-            });
-            return false;
-        }
+            url: '/Home/GetColumnJsonData',
+            dataType: "json",
+            type: "GET",
+            error: function (xhr, status, error) {
+                //var err = eval("(" + xhr.responseText + ")");
+                console.log(error.message);
+                //toastr.error(err.message);
+            },
+            success: function (data) {
+                console.log(data);
+                drawChart(data);
+                return false;
+            }
+        });
+        return false;
+    }
 
-        function drawChart(jsonData) {
-            var data = new google.visualization.DataTable();
-            data.addColumn('string', 'Project');
-            data.addColumn('number', 'Users');
-            data.addColumn('number', 'Tasks');
-            data.addColumn('number', 'Dependencies');
-            jsonData.forEach(row => {
-                data.addRow([row["projectName"], row["users"], row["tasks"], row["dependencies"]]);
-            });
+    function drawChart(jsonData) {
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Project');
+        data.addColumn('number', 'Users');
+        data.addColumn('number', 'Tasks');
+        data.addColumn('number', 'Dependencies');
+        jsonData.forEach(row => {
+            data.addRow([row["projectName"], row["users"], row["tasks"], row["dependencies"]]);
+        });
 
-            var options = {
-                chart: {
-                }
-            };
+        var options = {
+            chart: {
+            }
+        };
 
-            var chart = new google.charts.Bar(document.getElementById('columnchart_material'));
+        var chart = new google.charts.Bar(document.getElementById('columnchart_material'));
 
-            chart.draw(data, google.charts.Bar.convertOptions(options));
-        }
+        chart.draw(data, google.charts.Bar.convertOptions(options));
+    }
 
-        function getPieJsonData() {
-            $.ajax({
+    function getPieJsonData() {
+        $.ajax({
 
-                url: '/Home/GetPieJsonData',
-                dataType: "json",
-                type: "GET",
-                error: function (xhr, status, error) {
-                    //var err = eval("(" + xhr.responseText + ")");
-                    console.log(error.message);
-                    //toastr.error(err.message);
-                },
-                success: function (data2) {
-                    console.log(data2);
-                    drawChart2(data2);
-                    return false;
-                }
-            });
-            return false;
-        }
+            url: '/Home/GetPieJsonData',
+            dataType: "json",
+            type: "GET",
+            error: function (xhr, status, error) {
+                //var err = eval("(" + xhr.responseText + ")");
+                console.log(error.message);
+                //toastr.error(err.message);
+            },
+            success: function (data2) {
+                console.log(data2);
+                drawChart2(data2);
+                return false;
+            }
+        });
+        return false;
+    }
 
-        function drawChart2(jsonData2) {
+    function drawChart2(jsonData2) {
 
-            var data2 = new google.visualization.DataTable();
-            data2.addColumn('string', 'Project');
-            data2.addColumn('number', 'Cost');
-            jsonData2.forEach(row => {
-                data2.addRow([row["projectName"], row["cost"]]);
-            });
+        var data2 = new google.visualization.DataTable();
+        data2.addColumn('string', 'Project');
+        data2.addColumn('number', 'Cost');
+        jsonData2.forEach(row => {
+            data2.addRow([row["projectName"], row["cost"]]);
+        });
 
-            var options2 = {
-                title: 'Projects by Cost'
-            };
+        var options2 = {
+            title: 'Projects by Cost'
+        };
 
-            var chart2 = new google.visualization.PieChart(document.getElementById('piechart'));
+        var chart2 = new google.visualization.PieChart(document.getElementById('piechart'));
 
-            chart2.draw(data2, options2);
-        }
+        chart2.draw(data2, options2);
+    }
 
-        function getDonutJsonData() {
-            $.ajax({
+    function getDonutJsonData() {
+        $.ajax({
 
-                url: '/Home/GetDonutJsonData',
-                dataType: "json",
-                type: "GET",
-                error: function (xhr, status, error) {
-                    //var err = eval("(" + xhr.responseText + ")");
-                    console.log(error.message);
-                    //toastr.error(err.message);
-                },
-                success: function (data3) {
-                    console.log(data3);
-                    drawChart3(data3);
-                    return false;
-                }
-            });
-            return false;
-        }
+            url: '/Home/GetDonutJsonData',
+            dataType: "json",
+            type: "GET",
+            error: function (xhr, status, error) {
+                //var err = eval("(" + xhr.responseText + ")");
+                console.log(error.message);
+                //toastr.error(err.message);
+            },
+            success: function (data3) {
+                console.log(data3);
+                drawChart3(data3);
+                return false;
+            }
+        });
+        return false;
+    }
 
-        function drawChart3(jsonData3) {
-            var data3 = new google.visualization.DataTable();
-            data3.addColumn('string', 'Project');
-            data3.addColumn('number', 'Duration');
-            jsonData3.forEach(row => {
-                data3.addRow([row["projectName"], row["duration"]]);
-            });
+    function drawChart3(jsonData3) {
+        var data3 = new google.visualization.DataTable();
+        data3.addColumn('string', 'Project');
+        data3.addColumn('number', 'Duration');
+        jsonData3.forEach(row => {
+            data3.addRow([row["projectName"], row["duration"]]);
+        });
 
-            var options3 = {
-                title: 'Projects by Days',
-                pieHole: 0.4,
-            };
+        var options3 = {
+            title: 'Projects by Days',
+            pieHole: 0.4,
+        };
 
-            var chart3 = new google.visualization.PieChart(document.getElementById('donutchart'));
-            chart3.draw(data3, options3);
-        }
-
-    </script>
+        var chart3 = new google.visualization.PieChart(document.getElementById('donutchart'));
+        chart3.draw(data3, options3);
+    }
+</script>
 }

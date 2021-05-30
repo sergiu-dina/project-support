@@ -4,6 +4,14 @@
 @inject SignInManager<AppUser> SignInManager
 @inject UserManager<AppUser> UserManager
 
+@{
+    string userId = "";
+    if (SignInManager.IsSignedIn(User))
+    {
+        userId = @UserManager.GetUserId(User);
+    }
+}
+
 @if (SignInManager.IsSignedIn(User))
 {
     <div class="sidebar-container">
@@ -70,9 +78,46 @@
                             Hello @UserManager.GetUserName(User)!
                         </div>
                     </a>
+                    <p class="hidden" style="font-size:16px;color:orange" id="notificationCounter"></p>
+                    <a class=""
+                   asp-action="" asp-controller="" asp-route-id="" asp-route-user="">
+                        <i class="fas fa-bell" style="font-size:24px;color:orange"></i>
+                    </a>
+                    
                 </div>
             </div>
         </nav>
     </header>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.7/signalr.min.js"></script>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script src="~/js/usernotification.js"></script>
+    <script>
+         function getNotifications() {
+            $.ajax({
+
+                url: '/getNotifications/@userId',
+            dataType: "json",
+            type: "GET",
+            error: function(xhr, status, error) {
+                console.log(error.message);
+            },
+            success: function(data) {
+                if (data.length > 0) {
+                    document.getElementById("notificationCounter").classList.remove("hidden");
+                    document.getElementById("notificationCounter").innerHTML = data.length;
+                } else {
+                    document.getElementById("notificationCounter").classList.add("hidden");
+                }
+            }
+        });
+        return false;
+        }
+
+        getNotifications();
+        connectToNotificationHub('@userId');
+    </script>
+    <input type="hidden" id="signalRConnectionId" />
 }
 

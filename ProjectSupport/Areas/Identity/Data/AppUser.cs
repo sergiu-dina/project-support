@@ -28,5 +28,6 @@ namespace ProjectSupport.Areas.Identity.Data
         public List<ProjectUser> ProjectUsers { get; set; } = new List<ProjectUser>();
 
         public List<Resources> Resources { get; set; } = new List<Resources>();
+        public List<Notification> Notifications { get; set; } = new List<Notification>();
     }
 }

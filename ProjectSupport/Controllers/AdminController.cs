@@ -12,6 +12,9 @@ using PagedList;
 using Microsoft.AspNetCore.Authorization;
 using ProjectSupport.Models;
 using ProjectSupport.Models.Services;
+using ProjectSupport.SignalR.Services;
+using Microsoft.AspNetCore.SignalR;
+using ProjectSupport.SignalR;
 
 namespace ProjectSupport.Controllers
 {
@@ -26,10 +29,14 @@ namespace ProjectSupport.Controllers
         private readonly IProjectUserData projectUserData;
         private readonly IResourcesData resourcesData;
         private readonly IGanttTaskRelationData ganttTaskRelationData;
+        private readonly INotificationData notificationData;
+        private readonly IUserConnectionManager _userConnectionManager;
+        private readonly IHubContext<NotificationsHub> _notificationsHubContext;
 
         public AdminController(RoleManager<IdentityRole> roleManager, UserManager<AppUser> userManager, IGanttTaskData ganttTaskData,
             AppDbContext db, IProjectData projectData, IProjectUserData projectUserData, IResourcesData resourcesData,
-            IGanttTaskRelationData ganttTaskRelationData)
+            IGanttTaskRelationData ganttTaskRelationData, INotificationData notificationData, IUserConnectionManager userConnectionManager,
+            IHubContext<NotificationsHub> notificationsHubContext)
         {
             this.roleManager = roleManager;
             this.userManager = userManager;
@@ -39,6 +46,9 @@ namespace ProjectSupport.Controllers
             this.projectUserData = projectUserData;
             this.resourcesData = resourcesData;
             this.ganttTaskRelationData = ganttTaskRelationData;
+            this.notificationData = notificationData;
+            this._userConnectionManager = userConnectionManager;
+            this._notificationsHubContext = notificationsHubContext;
         }
         public IActionResult Index()
         {
@@ -575,10 +585,27 @@ namespace ProjectSupport.Controllers
                 var user = await userManager.FindByIdAsync(model[i].UserId);
                 if (model[i].IsSelected && !(projectUserData.HasUser(project.Id, user.Id)))
                 {
+                    // Update database, adding user to project
                     var temp = new ProjectUser();
                     temp.ProjectId = project.Id;
                     temp.UserId = model[i].UserId;
                     projectUserData.Add(temp);
+
+
+                    // Updating database, adding notification for user
+                    var notification = new Notification
+                    {
+                        Desctiption = $"You have been added as a manager to {project.Name}",
+                        Created = DateTime.Now,
+                        IsRead = false,
+                        UserId = temp.UserId
+                    };
+
+                    // Send notification through signalR
+                    await SendNotification(notification);
+                    
+                   
+                    notificationData.Add(notification);
                     db.SaveChanges();
                 }
                 else if (!model[i].IsSelected && projectUserData.HasUser(project.Id, user.Id))
@@ -598,6 +625,20 @@ namespace ProjectSupport.Controllers
 
             }
             return RedirectToAction("AddManager");
+        }
+
+        private async Task<bool> SendNotification(Notification notification)
+        {
+            var connections = _userConnectionManager.GetUserConnections(notification.UserId);
+            if (connections != null && connections.Count > 0)
+            {
+                foreach (var connectionId in connections)
+                {
+                    await _notificationsHubContext.Clients.Client(connectionId).SendAsync("sendToUser", notification.Desctiption, notification.Created);
+                }
+                return true;
+            }
+            return false;
         }
         
     }

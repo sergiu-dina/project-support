@@ -6,6 +6,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using ProjectSupport.Areas.Identity.Data;
 using ProjectSupport.Models.Services;
+using ProjectSupport.SignalR;
+using ProjectSupport.SignalR.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,6 +33,9 @@ namespace ProjectSupport
             services.AddScoped<IGanttTaskData, SqlGanttTaskData>();
             services.AddScoped<IResourcesData, SqlResourcesData>();
             services.AddScoped<IGanttTaskRelationData, SqlGanttTaskRelationData>();
+            services.AddScoped<INotificationData, SqlNotificationData>();
+            services.AddSingleton<IUserConnectionManager, UserConnectionManager>();
+            services.AddSignalR();
             services.AddControllersWithViews();
             services.AddRazorPages();
         }
@@ -62,6 +67,7 @@ namespace ProjectSupport
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}/{user?}");
                 endpoints.MapRazorPages();
+                endpoints.MapHub<NotificationsHub>("/NotificationsHub");
             });
         }
     }
