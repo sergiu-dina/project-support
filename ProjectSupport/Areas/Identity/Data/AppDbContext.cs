@@ -17,6 +17,8 @@ namespace ProjectSupport.Data
         public DbSet<ProjectUser> ProjectUsers { get; set; }
         public DbSet<Resources> Resources { get; set; }
         public DbSet<GanttTaskRelation> GanttTaskRelations { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
+
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
         {

@@ -25,10 +25,11 @@ namespace ProjectSupport.Controllers
         private readonly IGanttTaskData ganttTaskData;
         private readonly IResourcesData resourcesData;
         private readonly IUserData userData;
+        private readonly INotificationData notificationData;
 
         public ManagerController(RoleManager<IdentityRole> roleManager, UserManager<AppUser> userManager, AppDbContext db,
             IProjectData projectData, IProjectUserData projectUserData, IGanttTaskData ganttTaskData, IResourcesData resourcesData,
-            IUserData userData)
+            IUserData userData, INotificationData notificationData)
         {
             this.roleManager = roleManager;
             this.userManager = userManager;
@@ -38,6 +39,7 @@ namespace ProjectSupport.Controllers
             this.ganttTaskData = ganttTaskData;
             this.resourcesData = resourcesData;
             this.userData = userData;
+            this.notificationData = notificationData;
         }
         public IActionResult Index()
         {

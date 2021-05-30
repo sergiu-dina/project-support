@@ -26,10 +26,11 @@ namespace ProjectSupport.Controllers
         private readonly IProjectUserData projectUserData;
         private readonly IResourcesData resourcesData;
         private readonly IGanttTaskRelationData ganttTaskRelationData;
+        private readonly INotificationData notificationData;
 
         public GanttController(UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager, AppDbContext db,
             IProjectData projectData, IGanttTaskData ganttTaskData, IProjectUserData projectUserData, IResourcesData resourcesData,
-            IGanttTaskRelationData ganttTaskRelationData)
+            IGanttTaskRelationData ganttTaskRelationData, INotificationData notificationData)
         {
             this.userManager = userManager;
             this.roleManager = roleManager;
@@ -39,6 +40,7 @@ namespace ProjectSupport.Controllers
             this.projectUserData = projectUserData;
             this.resourcesData = resourcesData;
             this.ganttTaskRelationData = ganttTaskRelationData;
+            this.notificationData = notificationData;
         }
         public async Task<IActionResult> Index(string id, string sortOrder, int pg = 1, string SearchText = "")
         {

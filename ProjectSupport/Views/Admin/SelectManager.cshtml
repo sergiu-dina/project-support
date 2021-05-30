@@ -1,8 +1,13 @@
 ﻿@model List<ProjectSupport.ViewModels.UserProjectViewModel>
 
+@using Microsoft.AspNetCore.Identity
+@using ProjectSupport.Areas.Identity.Data
+
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+
 @{
     var projectId = ViewBag.Id;
-
     Pager pager = new Pager();
 
     int pageNo = 0;
@@ -112,4 +117,6 @@
             }
         }
     }
+
+
 </script>
