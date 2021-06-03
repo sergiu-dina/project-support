@@ -30,8 +30,8 @@ namespace ProjectSupport.Controllers
         private readonly IResourcesData resourcesData;
         private readonly IGanttTaskRelationData ganttTaskRelationData;
         private readonly INotificationData notificationData;
-        private readonly IUserConnectionManager _userConnectionManager;
-        private readonly IHubContext<NotificationsHub> _notificationsHubContext;
+        private readonly IUserConnectionManager userConnectionManager;
+        private readonly IHubContext<NotificationsHub> notificationsHubContext;
 
         public AdminController(RoleManager<IdentityRole> roleManager, UserManager<AppUser> userManager, IGanttTaskData ganttTaskData,
             AppDbContext db, IProjectData projectData, IProjectUserData projectUserData, IResourcesData resourcesData,
@@ -47,8 +47,8 @@ namespace ProjectSupport.Controllers
             this.resourcesData = resourcesData;
             this.ganttTaskRelationData = ganttTaskRelationData;
             this.notificationData = notificationData;
-            this._userConnectionManager = userConnectionManager;
-            this._notificationsHubContext = notificationsHubContext;
+            this.userConnectionManager = userConnectionManager;
+            this.notificationsHubContext = notificationsHubContext;
         }
         public IActionResult Index()
         {
@@ -242,7 +242,8 @@ namespace ProjectSupport.Controllers
             {
                 return View();
             }
-            
+
+            var removed = false;
             var roles = await userManager.GetRolesAsync(user);
             var result = await userManager.RemoveFromRolesAsync(user, roles);
             if (!result.Succeeded)
@@ -278,6 +279,23 @@ namespace ProjectSupport.Controllers
                                 resourcesData.Delete(user.Id, task.Id);
                             }
                         }
+
+                        var notification = new Notification
+                        {
+                            Description = $"You have been removed from the role of {roles[0]}",
+                            Created = DateTime.Now,
+                            IsRead = false,
+                            UserId = user.Id,
+                            IsSuccess = false
+                        };
+
+                        await SendNotification(notification);
+
+                        notificationData.Add(notification);
+
+                        db.SaveChanges();
+
+                        removed = true;
                     }
                 }
             }
@@ -287,6 +305,27 @@ namespace ProjectSupport.Controllers
                 ModelState.AddModelError("", "Cannot add selected roles to user");
                 return View(model);
             }
+            else
+            {
+                if (removed == false)
+                {
+                    var notification = new Notification
+                    {
+                        Description = $"You have been added in the role of {model.Where(x => x.Selected).Select(y => y.RoleName).FirstOrDefault()}",
+                        Created = DateTime.Now,
+                        IsRead = false,
+                        UserId = user.Id,
+                        IsSuccess = true
+                    };
+
+                    await SendNotification(notification);
+
+                    notificationData.Add(notification);
+
+                    db.SaveChanges();
+                }
+            }
+
             db.SaveChanges();
             return RedirectToAction("EditUsers");
         }
@@ -585,32 +624,43 @@ namespace ProjectSupport.Controllers
                 var user = await userManager.FindByIdAsync(model[i].UserId);
                 if (model[i].IsSelected && !(projectUserData.HasUser(project.Id, user.Id)))
                 {
-                    // Update database, adding user to project
                     var temp = new ProjectUser();
                     temp.ProjectId = project.Id;
                     temp.UserId = model[i].UserId;
                     projectUserData.Add(temp);
 
-
-                    // Updating database, adding notification for user
                     var notification = new Notification
                     {
-                        Desctiption = $"You have been added as a manager to {project.Name}",
+                        Description = $"You have been added as a manager to the '{project.Name}' project",
                         Created = DateTime.Now,
                         IsRead = false,
-                        UserId = temp.UserId
+                        UserId = temp.UserId,
+                        IsSuccess = true
                     };
 
-                    // Send notification through signalR
                     await SendNotification(notification);
                     
-                   
                     notificationData.Add(notification);
+
                     db.SaveChanges();
                 }
                 else if (!model[i].IsSelected && projectUserData.HasUser(project.Id, user.Id))
                 {
                     projectUserData.Delete(user.Id, project.Id);
+
+                    var notification = new Notification
+                    {
+                        Description = $"You have been removed from the '{project.Name}' project",
+                        Created = DateTime.Now,
+                        IsRead = false,
+                        UserId = user.Id,
+                        IsSuccess = false
+                    };
+
+                    await SendNotification(notification);
+
+                    notificationData.Add(notification);
+
                     db.SaveChanges();
                 }
                 else
@@ -629,12 +679,12 @@ namespace ProjectSupport.Controllers
 
         private async Task<bool> SendNotification(Notification notification)
         {
-            var connections = _userConnectionManager.GetUserConnections(notification.UserId);
+            var connections = userConnectionManager.GetUserConnections(notification.UserId);
             if (connections != null && connections.Count > 0)
             {
                 foreach (var connectionId in connections)
                 {
-                    await _notificationsHubContext.Clients.Client(connectionId).SendAsync("sendToUser", notification.Desctiption, notification.Created);
+                    await notificationsHubContext.Clients.Client(connectionId).SendAsync("sendToUser", notification.Description, notification.Created);
                 }
                 return true;
             }

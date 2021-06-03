@@ -392,3 +392,5 @@ E:\Facultate\Licenta\project-support\ProjectSupport\obj\Debug\netcoreapp3.1\Razo
 E:\Facultate\Licenta\project-support\ProjectSupport\obj\Debug\netcoreapp3.1\Razor\Views\Manager\SeeDevelopers.cshtml.g.cs
 E:\Facultate\Licenta\project-support\ProjectSupport\obj\Debug\netcoreapp3.1\Razor\Views\Manager\AddSalary.cshtml.g.cs
 E:\Facultate\Licenta\project-support\ProjectSupport\obj\Debug\netcoreapp3.1\Razor\Views\Gantt\TaskDetails.cshtml.g.cs
+E:\Facultate\Licenta\project-support\ProjectSupport\bin\Debug\netcoreapp3.1\System.Net.WebSockets.WebSocketProtocol.dll
+E:\Facultate\Licenta\project-support\ProjectSupport\obj\Debug\netcoreapp3.1\Razor\Views\Notifications\Index.cshtml.g.cs

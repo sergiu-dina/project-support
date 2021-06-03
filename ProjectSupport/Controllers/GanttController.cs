@@ -2,10 +2,13 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.SignalR;
 using ProjectSupport.Areas.Identity.Data;
 using ProjectSupport.Data;
 using ProjectSupport.Models;
 using ProjectSupport.Models.Services;
+using ProjectSupport.SignalR;
+using ProjectSupport.SignalR.Services;
 using ProjectSupport.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -27,10 +30,13 @@ namespace ProjectSupport.Controllers
         private readonly IResourcesData resourcesData;
         private readonly IGanttTaskRelationData ganttTaskRelationData;
         private readonly INotificationData notificationData;
+        private readonly IUserConnectionManager userConnectionManager;
+        private readonly IHubContext<NotificationsHub> notificationsHubContext;
 
         public GanttController(UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager, AppDbContext db,
             IProjectData projectData, IGanttTaskData ganttTaskData, IProjectUserData projectUserData, IResourcesData resourcesData,
-            IGanttTaskRelationData ganttTaskRelationData, INotificationData notificationData)
+            IGanttTaskRelationData ganttTaskRelationData, INotificationData notificationData, IUserConnectionManager userConnectionManager,
+            IHubContext<NotificationsHub> notificationsHubContext)
         {
             this.userManager = userManager;
             this.roleManager = roleManager;
@@ -41,6 +47,8 @@ namespace ProjectSupport.Controllers
             this.resourcesData = resourcesData;
             this.ganttTaskRelationData = ganttTaskRelationData;
             this.notificationData = notificationData;
+            this.userConnectionManager = userConnectionManager;
+            this.notificationsHubContext = notificationsHubContext;
         }
         public async Task<IActionResult> Index(string id, string sortOrder, int pg = 1, string SearchText = "")
         {
@@ -867,11 +875,39 @@ namespace ProjectSupport.Controllers
                     temp.TaskId = task.Id;
                     temp.UserId = model[i].UserId;
                     resourcesData.Add(temp);
+
+                    var notification = new Notification
+                    {
+                        Description = $"You have been added to the '{task.Name}' task",
+                        Created = DateTime.Now,
+                        IsRead = false,
+                        UserId = temp.UserId,
+                        IsSuccess = true
+                    };
+
+                    await SendNotification(notification);
+
+                    notificationData.Add(notification);
+
                     db.SaveChanges();
                 }
                 else if (!model[i].IsSelected && resourcesData.HasUser(task.Id, user.Id))
                 {
                     resourcesData.Delete(user.Id, task.Id);
+
+                    var notification = new Notification
+                    {
+                        Description = $"You have been removed from the '{task.Name}' task",
+                        Created = DateTime.Now,
+                        IsRead = false,
+                        UserId = user.Id,
+                        IsSuccess = false
+                    };
+
+                    await SendNotification(notification);
+
+                    notificationData.Add(notification);
+
                     db.SaveChanges();
                 }
                 else
@@ -1222,6 +1258,20 @@ namespace ProjectSupport.Controllers
                 return RedirectToAction("DeveloperTasks", new { id = model.Task.ProjectId, user = model.UserId });
             }
             return View();
+        }
+
+        private async Task<bool> SendNotification(Notification notification)
+        {
+            var connections = userConnectionManager.GetUserConnections(notification.UserId);
+            if (connections != null && connections.Count > 0)
+            {
+                foreach (var connectionId in connections)
+                {
+                    await notificationsHubContext.Clients.Client(connectionId).SendAsync("sendToUser", notification.Description, notification.Created);
+                }
+                return true;
+            }
+            return false;
         }
     }
 }

@@ -1,11 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using PagedList;
 using ProjectSupport.Areas.Identity.Data;
 using ProjectSupport.Data;
 using ProjectSupport.Models;
 using ProjectSupport.Models.Services;
+using ProjectSupport.SignalR;
+using ProjectSupport.SignalR.Services;
 using ProjectSupport.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -26,10 +29,13 @@ namespace ProjectSupport.Controllers
         private readonly IResourcesData resourcesData;
         private readonly IUserData userData;
         private readonly INotificationData notificationData;
+        private readonly IUserConnectionManager userConnectionManager;
+        private readonly IHubContext<NotificationsHub> notificationsHubContext;
 
         public ManagerController(RoleManager<IdentityRole> roleManager, UserManager<AppUser> userManager, AppDbContext db,
             IProjectData projectData, IProjectUserData projectUserData, IGanttTaskData ganttTaskData, IResourcesData resourcesData,
-            IUserData userData, INotificationData notificationData)
+            IUserData userData, INotificationData notificationData, IUserConnectionManager userConnectionManager,
+            IHubContext<NotificationsHub> notificationsHubContext)
         {
             this.roleManager = roleManager;
             this.userManager = userManager;
@@ -40,6 +46,8 @@ namespace ProjectSupport.Controllers
             this.resourcesData = resourcesData;
             this.userData = userData;
             this.notificationData = notificationData;
+            this.userConnectionManager = userConnectionManager;
+            this.notificationsHubContext = notificationsHubContext;
         }
         public IActionResult Index()
         {
@@ -352,6 +360,20 @@ namespace ProjectSupport.Controllers
                     temp.ProjectId = project.Id;
                     temp.UserId = model[i].UserId;
                     projectUserData.Add(temp);
+
+                    var notification = new Notification
+                    {
+                        Description = $"You have been added as a developer to the '{project.Name}' project",
+                        Created = DateTime.Now,
+                        IsRead = false,
+                        UserId = temp.UserId,
+                        IsSuccess = true
+                    };
+
+                    await SendNotification(notification);
+
+                    notificationData.Add(notification);
+
                     db.SaveChanges();
                 }
                 else if (!model[i].IsSelected && projectUserData.HasUser(project.Id, user.Id))
@@ -374,6 +396,20 @@ namespace ProjectSupport.Controllers
                             resourcesData.Delete(user.Id, task.Id);
                         }
                     }
+
+                    var notification = new Notification
+                    {
+                        Description = $"You have been removed from the '{project.Name}' project",
+                        Created = DateTime.Now,
+                        IsRead = false,
+                        UserId = user.Id,
+                        IsSuccess = false
+                    };
+
+                    await SendNotification(notification);
+
+                    notificationData.Add(notification);
+
                     db.SaveChanges();
                 }
                 else
@@ -465,14 +501,44 @@ namespace ProjectSupport.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult AddSalary(EditUserViewModel model)
+        public async Task<IActionResult> AddSalary(EditUserViewModel model)
         {
             if (ModelState.IsValid)
             {
+                var notification = new Notification
+                {
+                    Description = $"Your hourly rate has been updated to {model.AppUser.HourlyRate} $",
+                    Created = DateTime.Now,
+                    IsRead = false,
+                    UserId = model.UserId,
+                    IsSuccess = true
+                };
+
+                await SendNotification(notification);
+
+                notificationData.Add(notification);
+
+                db.SaveChanges();
+
                 userData.Update(model.AppUser);
                 return RedirectToAction("SeeDevelopers", new { id = model.UserId });
             }
             return View();
         }
+
+        private async Task<bool> SendNotification(Notification notification)
+        {
+            var connections = userConnectionManager.GetUserConnections(notification.UserId);
+            if (connections != null && connections.Count > 0)
+            {
+                foreach (var connectionId in connections)
+                {
+                    await notificationsHubContext.Clients.Client(connectionId).SendAsync("sendToUser", notification.Description, notification.Created);
+                }
+                return true;
+            }
+            return false;
+        }
+
     }
 }

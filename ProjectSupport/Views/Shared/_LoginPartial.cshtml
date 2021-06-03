@@ -80,7 +80,7 @@
                     </a>
                     <p class="hidden" style="font-size:16px;color:orange" id="notificationCounter"></p>
                     <a class=""
-                   asp-action="" asp-controller="" asp-route-id="" asp-route-user="">
+                   asp-action="Index" asp-controller="Notifications" asp-route-id="@UserManager.GetUserId(User)">
                         <i class="fas fa-bell" style="font-size:24px;color:orange"></i>
                     </a>
                     

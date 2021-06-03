@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using ProjectSupport.Areas.Identity.Data;
+using ProjectSupport.Data;
 using ProjectSupport.Models;
 using ProjectSupport.Models.Services;
 using ProjectSupport.SignalR;
@@ -15,29 +16,45 @@ namespace ProjectSupport.Controllers
 {
     public class NotificationsController : Controller
     {
-        private readonly UserManager<AppUser> _userManager;
-        private readonly INotificationData _notificationData;
-        private readonly IUserConnectionManager _userConnectionManager;
-        private readonly IHubContext<NotificationsHub> _notificationsHubContext;
+        private readonly UserManager<AppUser> userManager;
+        private readonly INotificationData notificationData;
+        private readonly IUserConnectionManager userConnectionManager;
+        private readonly IHubContext<NotificationsHub> notificationsHubContext;
+        private readonly AppDbContext db;
 
         public NotificationsController(UserManager<AppUser> userManager, INotificationData notificationData, IUserConnectionManager userConnectionManager,
-            IHubContext<NotificationsHub> notificationsHubContext)
+            IHubContext<NotificationsHub> notificationsHubContext, AppDbContext db)
         {
-            this._userManager = userManager;
-            this._notificationData = notificationData;
-            this._userConnectionManager = userConnectionManager;
-            this._notificationsHubContext = notificationsHubContext;
+            this.userManager = userManager;
+            this.notificationData = notificationData;
+            this.userConnectionManager = userConnectionManager;
+            this.notificationsHubContext = notificationsHubContext;
+            this.db = db;
         }
 
-        public IActionResult Index()
+        public IActionResult Index(string id)
         {
-            return View();
+            var model = new List<Notification>();
+            var notifications = notificationData.GetAll();
+
+            foreach(var notification in notifications)
+            {
+                if(notification.UserId == id && notification.IsRead == false)
+                {
+                    notification.IsRead = true;
+                    model.Add(notification);
+                }
+            }
+
+            db.SaveChanges();
+
+            return View(model.OrderByDescending(n=>n.Created).ToList());
         }
 
         [HttpGet("/getNotifications/{userId}")]
         public IEnumerable<Notification> GetNotifications(string userId)
         {
-            var notifications = _notificationData.GetAll();
+            var notifications = notificationData.GetAll();
             return notifications.Where(n => n.UserId == userId && n.IsRead == false);
         }
     }
