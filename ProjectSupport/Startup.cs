@@ -34,6 +34,9 @@ namespace ProjectSupport
             services.AddScoped<IResourcesData, SqlResourcesData>();
             services.AddScoped<IGanttTaskRelationData, SqlGanttTaskRelationData>();
             services.AddScoped<INotificationData, SqlNotificationData>();
+            services.AddScoped<IChatData, SqlChatData>();
+            services.AddScoped<IChatUserData, SqlChatUserData>();
+            services.AddScoped<IMessageData, SqlMessageData>();
             services.AddSingleton<IUserConnectionManager, UserConnectionManager>();
             services.AddSignalR();
             services.AddControllersWithViews();

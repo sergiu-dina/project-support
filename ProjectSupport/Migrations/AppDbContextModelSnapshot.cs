@@ -227,6 +227,39 @@ namespace ProjectSupport.Migrations
                     b.ToTable("AspNetUsers");
                 });
 
+            modelBuilder.Entity("ProjectSupport.Models.Chat", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Chats");
+                });
+
+            modelBuilder.Entity("ProjectSupport.Models.ChatUser", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("ChatId")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserId", "ChatId");
+
+                    b.HasIndex("ChatId");
+
+                    b.ToTable("ChatUsers");
+                });
+
             modelBuilder.Entity("ProjectSupport.Models.GanttTask", b =>
                 {
                     b.Property<int>("Id")
@@ -272,6 +305,32 @@ namespace ProjectSupport.Migrations
                     b.HasIndex("RelatedTaskId");
 
                     b.ToTable("GanttTaskRelations");
+                });
+
+            modelBuilder.Entity("ProjectSupport.Models.Message", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("ChatId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Text")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChatId");
+
+                    b.ToTable("Messages");
                 });
 
             modelBuilder.Entity("ProjectSupport.Models.Notification", b =>
@@ -403,6 +462,21 @@ namespace ProjectSupport.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("ProjectSupport.Models.ChatUser", b =>
+                {
+                    b.HasOne("ProjectSupport.Models.Chat", "Chat")
+                        .WithMany("ChatUsers")
+                        .HasForeignKey("ChatId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProjectSupport.Areas.Identity.Data.AppUser", "User")
+                        .WithMany("ChatUsers")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("ProjectSupport.Models.GanttTask", b =>
                 {
                     b.HasOne("ProjectSupport.Models.Project", "Project")
@@ -417,13 +491,22 @@ namespace ProjectSupport.Migrations
                     b.HasOne("ProjectSupport.Models.GanttTask", "GanttTask")
                         .WithMany("GanttTaskRelations")
                         .HasForeignKey("GanttTaskId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("ProjectSupport.Models.GanttTask", "RelatedGanttTask")
                         .WithMany("GanttTaskRelationsOf")
                         .HasForeignKey("RelatedTaskId")
                         .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ProjectSupport.Models.Message", b =>
+                {
+                    b.HasOne("ProjectSupport.Models.Chat", "Chat")
+                        .WithMany("Messages")
+                        .HasForeignKey("ChatId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 

@@ -46,14 +46,15 @@
                                 <th>Description</th>
                                 @if (SignInManager.IsSignedIn(User) && User.IsInRole("Manager"))
                                 {
-                                    <th>Project Actions</th>
+                                    <th>Actions</th>
                                 }
                                 @if (SignInManager.IsSignedIn(User) && User.IsInRole("Developer"))
                                 {
-                                    <th>Project Actions</th>
+                                    <th>Actions</th>
                                 }
-                                <th>Gantt Diagram</th>
+                                <th>Gantt</th>
                                 <th>Details</th>
+                                <th>Chat</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -66,7 +67,7 @@
                                 {
                                     if (project.IsManager == true)
                                     {
-                                        <td style="padding-left: 40px">
+                                        <td style="padding-left: 15px">
                                             <a class="btn"
                                                asp-action="Actions" asp-controller="Gantt" asp-route-id="@project.Project.Id" asp-route-user="@UserManager.GetUserId(User)">
                                                 <i class="fas fa-edit" style="font-size:24px;color:blue"></i>
@@ -75,7 +76,7 @@
                                     }
                                     else
                                     {
-                                        <td style="padding-left: 40px">
+                                        <td style="padding-left: 15px">
                                             <div class="btn">
                                                 <i class="fas fa-edit" style="font-size:24px;color:grey"></i>
                                             </div>
@@ -86,7 +87,7 @@
                                 {
                                     if (project.IsManager == true)
                                     {
-                                        <td style="padding-left: 40px">
+                                        <td style="padding-left: 5px">
                                             <a class="btn"
                                                asp-action="DeveloperTasks" asp-controller="Gantt" asp-route-id="@project.Project.Id" asp-route-user="@UserManager.GetUserId(User)">
                                                 <i class="fas fa-edit" style="font-size:24px;color:blue"></i>
@@ -95,14 +96,14 @@
                                     }
                                     else
                                     {
-                                        <td style="padding-left: 40px">
+                                        <td style="padding-left: 5px">
                                             <div class="btn">
                                                 <i class="fas fa-edit" style="font-size:24px;color:grey"></i>
                                             </div>
                                         </td>
                                     }
                                 }
-                                <td style="padding-left: 35px">
+                                <td style="padding-left: 5px">
                                     <a class="btn"
                                        asp-action="Gantt" asp-controller="Gantt" asp-route-id="@project.Project.Id">
                                         <i class="fas fa-project-diagram" style="font-size:24px;color:blue"></i>
@@ -114,6 +115,28 @@
                                         <i class="fas fa-info" style="font-size:24px;color:blue"></i>
                                     </a>
                                 </td>
+                                @if (SignInManager.IsSignedIn(User) && (User.IsInRole("Developer") || User.IsInRole("Manager")))
+                                {
+                                    if (project.IsManager == true)
+                                    {
+                                        <td style="padding-left: 5px">
+                                            <a class="btn"
+                                               asp-action="Index" asp-controller="Chat" asp-route-id="@project.Project.Id" asp-route-user="@UserManager.GetUserId(User)">
+                                                <i class="fas fa-comment" style="font-size:24px;color:blue"></i>
+                                            </a>
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td style="padding-left: 5px">
+                                            <div class="btn">
+                                                <i class="fas fa-comment" style="font-size:24px;color:grey"></i>
+                                            </div>
+                                        </td>
+                                    }
+                                }
+
+
                             </tr>
                             }
                         </tbody>

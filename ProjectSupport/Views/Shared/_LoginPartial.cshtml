@@ -41,7 +41,7 @@
                     </a>
                 </li>
             }
-            <li class="header">Another Menu</li>
+            <li class="header">Actions Menu</li>
             <li>
                 <a asp-area="" asp-controller="Gantt" asp-action="Index" asp-route-id=@UserManager.GetUserId(User)>
                     <i class="fa fa-users" aria-hidden="true"></i> Projects
@@ -49,19 +49,21 @@
             </li>
             <li>
                 <a href="#">
-                    <i class="fa fa-cog" aria-hidden="true"></i> Settings
+                    <i class="fa fa-comment" aria-hidden="true"></i> Chats
                 </a>
             </li>
             <li>
                 <a href="#">
-                    <i class="fa fa-info-circle" aria-hidden="true"></i> Information
+                    <i class="fa fa-info-circle" aria-hidden="true"></i> Privacy
                 </a>
             </li>
         </ul>
     </div>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark navbar-custom border-bottom box-shadow mb-3 fixed-top">
+       
             <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                <img src="~/img/logo.png" width="45" height="30">
                 Project Support
             </a>
             <div class="container">

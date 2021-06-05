@@ -32,11 +32,13 @@ namespace ProjectSupport.Controllers
         private readonly INotificationData notificationData;
         private readonly IUserConnectionManager userConnectionManager;
         private readonly IHubContext<NotificationsHub> notificationsHubContext;
+        private readonly IChatData chatData;
+        private readonly IChatUserData chatUserData;
 
         public AdminController(RoleManager<IdentityRole> roleManager, UserManager<AppUser> userManager, IGanttTaskData ganttTaskData,
             AppDbContext db, IProjectData projectData, IProjectUserData projectUserData, IResourcesData resourcesData,
             IGanttTaskRelationData ganttTaskRelationData, INotificationData notificationData, IUserConnectionManager userConnectionManager,
-            IHubContext<NotificationsHub> notificationsHubContext)
+            IHubContext<NotificationsHub> notificationsHubContext, IChatData chatData, IChatUserData chatUserData)
         {
             this.roleManager = roleManager;
             this.userManager = userManager;
@@ -49,6 +51,8 @@ namespace ProjectSupport.Controllers
             this.notificationData = notificationData;
             this.userConnectionManager = userConnectionManager;
             this.notificationsHubContext = notificationsHubContext;
+            this.chatData = chatData;
+            this.chatUserData = chatUserData;
         }
         public IActionResult Index()
         {
@@ -270,6 +274,15 @@ namespace ProjectSupport.Controllers
                             }
                         }
 
+                        var chatUsers = chatUserData.GetAll();
+                        foreach(var chatUser in chatUsers)
+                        {
+                            if(chatUser.UserId == user.Id)
+                            {
+                                chatUserData.Delete(chatUser.UserId, chatUser.ChatId);
+                            }
+                        }
+
                         var tasks = ganttTaskData.GetAll();
                         var resources = resourcesData.GetAll();
                         foreach(var task in tasks)
@@ -411,8 +424,14 @@ namespace ProjectSupport.Controllers
             {
                 var project = new Project();
                 project.Name = model.ProjectName;
-
                 projectData.Add(project);
+
+                var chat = new Chat
+                {
+                    Name = project.Name,
+                    Type = ChatType.Room
+                };
+                chatData.Add(chat);
             }
 
             var projects = projectData.GetAll().OrderBy(p => p.Name);
@@ -457,7 +476,7 @@ namespace ProjectSupport.Controllers
             var model = projectData.Get(project.Id);
             projectData.Delete(model.Id);
 
-            foreach (var projectUser in projectUserData.GetAll())
+            foreach (var projectUser in projectUserData.GetAll().ToList())
             {
                 if (projectUser.ProjectId==project.Id)
                 {
@@ -467,27 +486,33 @@ namespace ProjectSupport.Controllers
 
             var resources = resourcesData.GetAll();
             var relations = ganttTaskRelationData.GetAll();
-            foreach (var task in ganttTaskData.GetAll())
+            foreach (var task in ganttTaskData.GetAll().ToList())
             {
                 if(task.ProjectId == project.Id)
                 {
-                    ganttTaskData.Delete(task.ProjectId);
-                    foreach(var resource in resources)
+                    ganttTaskData.Delete(task.Id);
+                    foreach (var resource in resources.ToList())
                     {
                         if(resource.TaskId == task.Id)
                         {
                             resourcesData.Delete(resource.UserId, task.Id);
                         }
                     }
-                    foreach (var relation in relations)
+                    foreach (var relation in relations.ToList())
                     {
                         if (relation.GanttTaskId == task.Id || relation.RelatedTaskId == task.Id)
                         {
                             ganttTaskRelationData.Delete(relation.GanttTaskId, relation.RelatedTaskId);
                         }
                     }
+                    ganttTaskData.Delete(task.Id);
                 }
             }
+
+            var chat = chatData.GetByName(model.Name);
+            chatData.Delete(chat.Id);
+            
+            db.SaveChanges();
 
             return RedirectToAction("CreateProject");
         }
@@ -629,6 +654,14 @@ namespace ProjectSupport.Controllers
                     temp.UserId = model[i].UserId;
                     projectUserData.Add(temp);
 
+                    var chat = chatData.GetByName(project.Name);
+                    var chatTemp = new ChatUser
+                    {
+                        UserId = model[i].UserId,
+                        ChatId = chat.Id
+                    };
+                    chatUserData.Add(chatTemp);
+
                     var notification = new Notification
                     {
                         Description = $"You have been added as a manager to the '{project.Name}' project",
@@ -647,6 +680,9 @@ namespace ProjectSupport.Controllers
                 else if (!model[i].IsSelected && projectUserData.HasUser(project.Id, user.Id))
                 {
                     projectUserData.Delete(user.Id, project.Id);
+
+                    var chat = chatData.GetByName(project.Name);
+                    chatUserData.Delete(model[i].UserId, chat.Id);
 
                     var notification = new Notification
                     {

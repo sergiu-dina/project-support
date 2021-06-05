@@ -18,6 +18,9 @@ namespace ProjectSupport.Data
         public DbSet<Resources> Resources { get; set; }
         public DbSet<GanttTaskRelation> GanttTaskRelations { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<Chat> Chats { get; set; }
+        public DbSet<ChatUser> ChatUsers { get; set; }
+        public DbSet<Message> Messages { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options)
             : base(options)
@@ -53,13 +56,23 @@ namespace ProjectSupport.Data
             builder.Entity<GanttTask>()
                 .HasMany(gt => gt.GanttTaskRelations)
                 .WithOne(gtr => gtr.GanttTask)
-                .HasForeignKey(gt => gt.GanttTaskId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .HasForeignKey(gt => gt.GanttTaskId);
             builder.Entity<GanttTask>()
                 .HasMany(gt => gt.GanttTaskRelationsOf)
                 .WithOne(gtr => gtr.RelatedGanttTask)
                 .HasForeignKey(gt => gt.RelatedTaskId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<ChatUser>()
+                .HasKey(pu => new { pu.UserId, pu.ChatId });
+            builder.Entity<ChatUser>()
+                .HasOne(pu => pu.User)
+                .WithMany(m => m.ChatUsers)
+                .HasForeignKey(pu => pu.UserId);
+            builder.Entity<ChatUser>()
+                .HasOne(pu => pu.Chat)
+                .WithMany(p => p.ChatUsers)
+                .HasForeignKey(pu => pu.ChatId);
 
             base.OnModelCreating(builder);
         }

@@ -31,11 +31,13 @@ namespace ProjectSupport.Controllers
         private readonly INotificationData notificationData;
         private readonly IUserConnectionManager userConnectionManager;
         private readonly IHubContext<NotificationsHub> notificationsHubContext;
+        private readonly IChatData chatData;
+        private readonly IChatUserData chatUserData;
 
         public ManagerController(RoleManager<IdentityRole> roleManager, UserManager<AppUser> userManager, AppDbContext db,
             IProjectData projectData, IProjectUserData projectUserData, IGanttTaskData ganttTaskData, IResourcesData resourcesData,
             IUserData userData, INotificationData notificationData, IUserConnectionManager userConnectionManager,
-            IHubContext<NotificationsHub> notificationsHubContext)
+            IHubContext<NotificationsHub> notificationsHubContext, IChatData chatData, IChatUserData chatUserData)
         {
             this.roleManager = roleManager;
             this.userManager = userManager;
@@ -48,6 +50,8 @@ namespace ProjectSupport.Controllers
             this.notificationData = notificationData;
             this.userConnectionManager = userConnectionManager;
             this.notificationsHubContext = notificationsHubContext;
+            this.chatData = chatData;
+            this.chatUserData = chatUserData;
         }
         public IActionResult Index()
         {
@@ -361,6 +365,14 @@ namespace ProjectSupport.Controllers
                     temp.UserId = model[i].UserId;
                     projectUserData.Add(temp);
 
+                    var chat = chatData.GetByName(project.Name);
+                    var chatTemp = new ChatUser
+                    {
+                        UserId = model[i].UserId,
+                        ChatId = chat.Id
+                    };
+                    chatUserData.Add(chatTemp);
+
                     var notification = new Notification
                     {
                         Description = $"You have been added as a developer to the '{project.Name}' project",
@@ -379,6 +391,9 @@ namespace ProjectSupport.Controllers
                 else if (!model[i].IsSelected && projectUserData.HasUser(project.Id, user.Id))
                 {
                     projectUserData.Delete(user.Id, project.Id);
+
+                    var chat = chatData.GetByName(project.Name);
+                    chatUserData.Delete(model[i].UserId, chat.Id);
 
                     var tasks = ganttTaskData.GetAll();
                     var projectTasks = new List<GanttTask>();

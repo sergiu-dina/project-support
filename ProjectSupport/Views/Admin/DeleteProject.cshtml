@@ -23,13 +23,15 @@
                 <div class="card-footer">
                     @using (Html.BeginForm())
                     {
-                    @Html.AntiForgeryToken()
-
-                    <input type="submit" value="Delete Project" class="btn btn-primary" />
-                    <a class="btn btn-primary"
-                       asp-action="CreateProject" asp-controller="Admin">
-                        Back to List
-                    </a>
+                        @Html.AntiForgeryToken()
+                        @Html.HiddenFor(model => model.Id)
+                        @Html.HiddenFor(model => model.Name)
+                        @Html.HiddenFor(model => model.Description)
+                        <input type="submit" value="Delete Project" class="btn btn-primary" />
+                        <a class="btn btn-primary"
+                           asp-action="CreateProject" asp-controller="Admin">
+                            Back to List
+                        </a>
                     }
                 </div>
             </div>

@@ -26,8 +26,8 @@ namespace ProjectSupport.Areas.Identity.Data
         [Display(Name = "Hourly Rate")]
         public int HourlyRate { get; set; }
         public List<ProjectUser> ProjectUsers { get; set; } = new List<ProjectUser>();
-
         public List<Resources> Resources { get; set; } = new List<Resources>();
         public List<Notification> Notifications { get; set; } = new List<Notification>();
+        public List<ChatUser> ChatUsers { get; set; } = new List<ChatUser>();
     }
 }
