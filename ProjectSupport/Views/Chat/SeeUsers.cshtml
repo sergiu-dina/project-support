@@ -1,0 +1,121 @@
+﻿@model IEnumerable<ProjectSupport.ViewModels.ChatUsersViewModel>
+
+@using Microsoft.AspNetCore.Identity
+@using ProjectSupport.Areas.Identity.Data
+
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+
+@{
+    ViewBag.Title = "Private Chats";
+
+    Pager pager = new Pager();
+
+    int pageNo = 0;
+
+    if (ViewBag.Pager != null)
+    {
+        pager = ViewBag.Pager;
+        pageNo = pager.CurrentPage;
+    }
+}
+
+<div class="container child2">
+    <div class="content-container">
+        <div class="container-fluid">
+            <div class="card">
+                <div class="card-header">
+                    <h1>Private Chats</h1>
+                </div>
+                <div class="card-body">
+                    <div class="col-4 p-0 justify-content-end">
+                        <form asp-controller="Chat" asp-action="SeeUsers" method="get">
+                            <span class="btn-group">
+                                <input class="form-control" type="text" name="SearchText" placeholder="Search Name">
+                                <input class="p-1 ml-2 btn btn-sm btn-primary" type="submit" value="Search" />
+                            </span>
+                        </form>
+                    </div>
+                    <br />
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Last Name
+                                </th>
+                                <th>First Name</th>
+                                <th>
+                                    Email
+                                </th>
+                                <th>Chat</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var user in Model)
+                            {
+                                <tr>
+                                    <td>@user.User.LastName</td>
+                                    <td>@user.User.FirstName</td>
+                                    <td>@user.User.Email</td>
+                                    @if (user.existingChat == true)
+                                    {
+                                        <td style="padding-left: 5px">
+                                            <a class="btn"
+                                               asp-action="PrivateChat" asp-controller="Chat" asp-route-Id="@user.chatId">
+                                                <i class="fas fa-comment" style="font-size:24px;color:blue"></i>
+                                            </a>
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td style="padding-left: 5px">
+                                            <a class="btn"
+                                               asp-action="CreatePrivateRoom" asp-controller="Chat" asp-route-userId="@user.User.Id">
+                                                <i class="fas fa-plus" style="font-size:24px;color:blue"></i>
+                                            </a>
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    <br />
+                    <div class="container">
+                        @if (pager.TotalPages > 0)
+                        {
+                            <ul class="pagination">
+                                @if (pager.CurrentPage > 1)
+                                {
+                                    <li class="page-item">
+                                        <a class="page-link" asp-controller="Chat" asp-action="SeeUsers" asp-route-id=@UserManager.GetUserId(User) asp-route-pg="1">First</a>
+                                    </li>
+                                    <li>
+                                        <a class="page-link" asp-controller="Chat" asp-action="SeeUsers" asp-route-id=@UserManager.GetUserId(User) asp-route-pg="@(pager.CurrentPage -1)">Previous</a>
+                                    </li>
+                                }
+
+                                @for (var pge = pager.StartPage; pge <= pager.EndPage; pge++)
+                                {
+                                    <li class="page-item @(pge == pager.CurrentPage ? "active" : "")">
+                                        <a class="page-link" asp-controller="Chat" asp-action="SeeUsers" asp-route-id=@UserManager.GetUserId(User) asp-route-pg="@pge"> @pge </a>
+                                    </li>
+                                }
+
+                                @if (pager.CurrentPage < pager.TotalPages)
+                                {
+                                    <li class="page-item">
+                                        <a class="page-link" asp-controller="Chat" asp-action="SeeUsers" asp-route-id=@UserManager.GetUserId(User) asp-route-pg="@(pager.CurrentPage + 1)">Next</a>
+                                    </li>
+                                    <li>
+                                        <a class="page-link" asp-controller="Chat" asp-action="SeeUsers" asp-route-id=@UserManager.GetUserId(User) asp-route-pg="@(pager.TotalPages)">Last</a>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -48,7 +48,7 @@
                 </a>
             </li>
             <li>
-                <a href="#">
+                <a asp-area="" asp-controller="Chat" asp-action="SeeUsers" asp-route-id=@UserManager.GetUserId(User)>
                     <i class="fa fa-comment" aria-hidden="true"></i> Chats
                 </a>
             </li>
@@ -99,7 +99,7 @@
          function getNotifications() {
             $.ajax({
 
-                url: '/getNotifications/@userId',
+            url: '/getNotifications/@userId',
             dataType: "json",
             type: "GET",
             error: function(xhr, status, error) {

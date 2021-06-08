@@ -1,5 +1,6 @@
 ﻿@model Chat
 
+@using System.Security.Claims;
 @using Microsoft.AspNetCore.Identity
 @using ProjectSupport.Areas.Identity.Data
 
@@ -7,7 +8,8 @@
 @inject UserManager<AppUser> UserManager
 
 @{
-    ViewBag.Title = "Project Chat";
+    ViewBag.Title = "private Chat";
+    var userId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
 }
 
 <div class="container child2">
@@ -16,7 +18,7 @@
 
             <div class="card">
                 <div class="card-header text-center" style="background-color: #3F0E40">
-                    <h1 class="text-white">@Model.Name Chat</h1>
+                    <h1 class="text-white">Chat</h1>
                 </div>
                 <div class="card-body">
                     <div class="chat-body" style="height: 500px">
@@ -34,24 +36,23 @@
                             }
                             else
                             {
-                                <h5 class="text-danger text-center">There are no messages in this chat.</h5>
-                                <img class="text-center" src="~/img/noMessages.svg" style="height: 450px">
+                                <div class="text-center">
+                                    <h5 class="text-danger text-center">There are no messages in this chat.</h5>
+                                    <img class="text-center" src="~/img/noMessages.svg" style="height: 450px">
+                                </div>
                             }
                         </div>
                     </div>
                 </div>
 
-                <form class="chat-input" onsubmit="sendMessage(event)" asp-controller="Chat" asp-action="CreateMessage">
+                <form class="chat-input" onsubmit="sendMessage(event)" asp-controller="Chat" asp-action="CreatePrivateMessage">
                     <input type="hidden" name="chatId" value="@Model.Id">
-                    <input type="hidden" name="roomName" value="@Model.Name">
+                    <input type="hidden" name="roomName" value="@Model.Id">
                     <input type="hidden" name="userId" value="@UserManager.GetUserId(User)">
                     <input type="text" name="mess" id="message-input">
-                    <button type="submit" class="btn btn-light">
-                        Send
-                        <i class="fa fa-paper-plane fa-fw"></i>
-                    </button>
+                    <button type="submit" class="btn btn-light">Send</button>
                     <a class="btn btn-light"
-                       asp-action="Index" asp-controller="Gantt" asp-route-id="@UserManager.GetUserId(User)">
+                       asp-action="SeeUsers" asp-controller="Chat" asp-route-id="@UserManager.GetUserId(User)">
                         Back
                     </a>
                 </form>
@@ -62,17 +63,17 @@
     </div>
 </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.7/signalr.min.js"></script>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/messageBuilder.js"></script>
-    <script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.7/signalr.min.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/messageBuilder.js"></script>
+<script>
         var connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
 
         connection.on("RecieveMessage", function (data) {
             console.log(data);
-            var date = new Date(data.timestamp).toLocaleString() 
+            var date = new Date(data.timestamp).toLocaleString()
             var message = messageBuilder()
                 .createMessage()
                 .withHeader(data.name)
@@ -84,7 +85,7 @@
 
         connection.start()
             .then(function () {
-                connection.invoke('joinRoom', '@Model.Name')
+                connection.invoke('joinRoom', '@Model.Id')
                 })
             .catch(function (err) {
                 console.log(err)
@@ -102,6 +103,5 @@
                     console.log("Failed to send message!")
                 })
         }
+</script>
 
-    </script>
-    

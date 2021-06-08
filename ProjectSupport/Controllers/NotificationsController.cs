@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using ProjectSupport.Areas.Identity.Data;
@@ -14,6 +15,7 @@ using System.Threading.Tasks;
 
 namespace ProjectSupport.Controllers
 {
+    [Authorize]
     public class NotificationsController : Controller
     {
         private readonly UserManager<AppUser> userManager;

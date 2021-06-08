@@ -54,7 +54,10 @@
                                 }
                                 <th>Gantt</th>
                                 <th>Details</th>
-                                <th>Chat</th>
+                                @if (SignInManager.IsSignedIn(User) && (User.IsInRole("Developer") || User.IsInRole("Manager")))
+                                {
+                                    <th>Chat</th>
+                                }
                             </tr>
                         </thead>
                         <tbody>
@@ -121,7 +124,7 @@
                                     {
                                         <td style="padding-left: 5px">
                                             <a class="btn"
-                                               asp-action="Index" asp-controller="Chat" asp-route-id="@project.Project.Id" asp-route-user="@UserManager.GetUserId(User)">
+                                               asp-action="Index" asp-controller="Chat" asp-route-id="@project.Project.Id">
                                                 <i class="fas fa-comment" style="font-size:24px;color:blue"></i>
                                             </a>
                                         </td>

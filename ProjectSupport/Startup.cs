@@ -71,6 +71,7 @@ namespace ProjectSupport
                     pattern: "{controller=Home}/{action=Index}/{id?}/{user?}");
                 endpoints.MapRazorPages();
                 endpoints.MapHub<NotificationsHub>("/NotificationsHub");
+                endpoints.MapHub<ChatHub>("/chatHub");
             });
         }
     }
