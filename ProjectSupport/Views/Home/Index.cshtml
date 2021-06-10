@@ -38,9 +38,13 @@
         <br />
         <h4>Here is the project in numbers</h4>
         <br />
-        <i class="fas fa-angle-double-down" style="color:Highlight; font-size:45px"></i>
+        <a href="#section1">
+            <div class="animated bounce">
+                <i class="fas fa-angle-double-down" style="color:Highlight; font-size:45px"></i>
+            </div>
+        </a>
     </div>
-
+    <div id="section1"></div>
     <div class="container">
         <div class="row">
             <div class="col">
@@ -54,16 +58,22 @@
             <div id="columnchart_material" style="width: 1000px; height: 400px; padding-left:110px"></div>
         </div>
     </div>
-
+    <br />
+    <a href="#section2" class="text-center">
+        <div class="animated bounce">
+            <i class="fas fa-angle-double-down" style="color:Highlight; font-size:45px"></i>
+        </div>
+    </a>
+    
     <div class="container">
         <div class="text-center">
-            <br />
             <br />
             <h2>
                 Build the perfect workflow for every project
             </h2>
             <br />
             <br />
+            <div id="section2"></div>
         </div>
         <div class="row align-items-center">
             <div class="col-6">
@@ -107,6 +117,11 @@
 
 @section Scripts
 {
+
+<script src="https://cdn.jsdelivr.net/gh/cferdinandi/smooth-scroll@15.0.0/dist/smooth-scroll.polyfills.min.js"></script>
+<script>
+    var scroll = new SmoothScroll('a[href*="#"]');
+</script>
 <script type="text/javascript">
     google.charts.load('current', { 'packages': ['bar'] });
     google.charts.load('current', { 'packages': ['corechart'] });
@@ -227,6 +242,6 @@
 
         var chart3 = new google.visualization.PieChart(document.getElementById('donutchart'));
         chart3.draw(data3, options3);
-    }
+    } 
 </script>
 }

@@ -20,7 +20,7 @@
                 <div class="card-header text-center" style="background-color: #3F0E40">
                     <h1 class="text-white">Chat</h1>
                 </div>
-                <div class="card-body">
+                <div class="card-body" style="background-color: floralwhite">
                     <div class="chat-body" style="height: 500px">
                         <div>
                             @if (Model.Messages.Count > 0)
@@ -50,7 +50,10 @@
                     <input type="hidden" name="roomName" value="@Model.Id">
                     <input type="hidden" name="userId" value="@UserManager.GetUserId(User)">
                     <input type="text" name="mess" id="message-input">
-                    <button type="submit" class="btn btn-light">Send</button>
+                    <button type="submit" class="btn btn-light">
+                        Send
+                        <i class="fa fa-paper-plane fa-fw"></i>
+                    </button>
                     <a class="btn btn-light"
                        asp-action="SeeUsers" asp-controller="Chat" asp-route-id="@UserManager.GetUserId(User)">
                         Back
