@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Project>
+﻿@model List<ProjectSupport.ViewModels.AddManagerViewModel>
 
 @{
     ViewBag.Title = "Add Manager";
@@ -38,6 +38,7 @@
                                     @Html.ActionLink("Last Name", "AddManager", new { sortOrder = ViewBag.NameSortParm, currentFilter = ViewBag.CurrentFilter })
                                 </th>
                                 <th>Description</th>
+                                <th>Has Manager</th>
                                 <th>Add Manager</th>
                             </tr>
                         </thead>
@@ -45,11 +46,19 @@
                             @foreach (var project in Model)
                             {
                                 <tr>
-                                    <td>@project.Name</td>
-                                    <td>@project.Description</td>
+                                    <td>@project.Project.Name</td>
+                                    <td>@project.Project.Description</td>
+                                    @if(project.HasManager == true)
+                                    {
+                                        <td>Yes</td>
+                                    }
+                                    else
+                                    {
+                                        <td>No</td>
+                                    }
                                     <td style="padding-left: 40px">
                                         <a class="btn"
-                                           asp-action="SelectManager" asp-controller="Admin" asp-route-id="@project.Id">
+                                           asp-action="SelectManager" asp-controller="Admin" asp-route-id="@project.Project.Id">
                                             <i class="fas fa-plus" style="font-size:24px;color:blue"></i>
                                         </a>
                                     </td>

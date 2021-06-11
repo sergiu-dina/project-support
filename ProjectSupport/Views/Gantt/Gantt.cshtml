@@ -14,7 +14,7 @@
             @if (Model.HasTasks == true)
             {
                 <div style="text-align:right">
-                    <a class="btn btn-primary" asp-area="" asp-controller="Gantt" asp-action="Index" asp-route-id=@UserManager.GetUserId(User)>
+                    <a class="btn btn-primary" asp-area="" asp-controller="Gantt" asp-action="Index" asp-route-id=@UserManager.GetUserId(User) asp-route-pg="@ViewBag.Page">
                         <i class="fas fa-arrow-left" style="font-size:25px; color:white" aria-hidden="true"></i>
                     </a>
                 </div>
@@ -95,7 +95,7 @@
             new Date(row["endYear"], row["endMonth"], row["endDay"]), daysToMilliseconds(row["duration"]), row["progress"], row["dependencies"]]);
         });
      var options = {
-            height: 275
+            height: 1075
         };
 
         var chart = new google.visualization.Gantt(document.getElementById('chart_div'));

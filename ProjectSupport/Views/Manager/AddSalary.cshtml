@@ -58,7 +58,7 @@
                         <div class="card-footer">
                             <input type="submit" value="Save" class="btn btn-primary" />
                             <a class="btn btn-primary"
-                               asp-action="SeeDevelopers" asp-controller="Manager" asp-route-id="@UserManager.GetUserId(User)">
+                               asp-action="SeeDevelopers" asp-controller="Manager" asp-route-id="@UserManager.GetUserId(User)" asp-route-pg="@ViewBag.Page">
                                 Back to List
                             </a>
                         </div>

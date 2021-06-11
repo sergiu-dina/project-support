@@ -22,11 +22,11 @@ namespace ProjectSupport.Models.Services
             db.SaveChanges();
         }
 
-        public void Delete(int id)
+        public async Task Delete(int id)
         {
             var notification = db.Notifications.Find(id);
             db.Notifications.Remove(notification);
-            db.SaveChanges();
+            await db.SaveChangesAsync();
         }
 
         public Notification Get(int id)

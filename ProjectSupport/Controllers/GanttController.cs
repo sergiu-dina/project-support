@@ -50,7 +50,7 @@ namespace ProjectSupport.Controllers
             this.userConnectionManager = userConnectionManager;
             this.notificationsHubContext = notificationsHubContext;
         }
-        public async Task<IActionResult> Index(string id, string sortOrder, int pg = 1, string SearchText = "")
+        public async Task<IActionResult> Index(string id, string sortOrder, int pg, string SearchText = "")
         {
             ViewBag.CurrentSort = sortOrder;
             ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
@@ -121,7 +121,9 @@ namespace ProjectSupport.Controllers
                 default:
                     data = data.OrderByDescending(s => s.IsManager).ThenBy(s => s.Project.Name).ToList();
                     break;
-            }  
+            }
+
+            ViewBag.Page = pg;
 
             return View(data);
         }
@@ -315,8 +317,10 @@ namespace ProjectSupport.Controllers
         }
 
         [HttpGet]
-        public IActionResult Gantt(int id)
+        public IActionResult Gantt(int id, int pg)
         {
+            ViewBag.Page = pg;
+
             var model = new GanttIndexViewModel();
             var tasks = ganttTaskData.GetAll();
             var hasTasks = false;
@@ -540,6 +544,16 @@ namespace ProjectSupport.Controllers
                 model = model.OrderBy(p => p.Name).ToList();
             }
 
+            switch (sortOrder)
+            {
+                case "date_desc":
+                    model = model.OrderByDescending(s => s.StartDate).ToList();
+                    break;
+                default:
+                    model = model.OrderBy(s => s.StartDate).ThenBy(s => s.EndDate).ToList();
+                    break;
+            }
+
             const int pageSize = 5;
             if (pg < 1)
             {
@@ -555,16 +569,6 @@ namespace ProjectSupport.Controllers
             var data = model.Skip(recSkip).Take(pager.PageSize).ToList();
 
             this.ViewBag.Pager = pager;
-
-            switch (sortOrder)
-            {
-                case "date_desc":
-                    data = data.OrderByDescending(s => s.StartDate).ToList();
-                    break;
-                default:
-                    data = data.OrderBy(s => s.StartDate).ThenBy(s => s.EndDate).ToList();
-                    break;
-            }
 
             ViewBag.id = id;
 
@@ -734,6 +738,16 @@ namespace ProjectSupport.Controllers
                 model = model.OrderBy(p => p.Task.Name).ToList();
             }
 
+            switch (sortOrder)
+            {
+                case "date_desc":
+                    model = model.OrderByDescending(s => s.Task.StartDate).ToList();
+                    break;
+                default:
+                    model = model.OrderBy(s => s.Task.StartDate).ThenBy(s => s.Task.EndDate).ToList();
+                    break;
+            } 
+
             const int pageSize = 5;
             if (pg < 1)
             {
@@ -749,16 +763,6 @@ namespace ProjectSupport.Controllers
             var data = model.Skip(recSkip).Take(pager.PageSize).ToList();
 
             this.ViewBag.Pager = pager;
-
-            switch (sortOrder)
-            {
-                case "date_desc":
-                    data = data.OrderByDescending(s => s.Task.StartDate).ToList();
-                    break;
-                default:
-                    data = data.OrderBy(s => s.Task.StartDate).ThenBy(s => s.Task.EndDate).ToList();
-                    break;
-            }
 
             ViewBag.id = id;
 
@@ -803,6 +807,15 @@ namespace ProjectSupport.Controllers
                 }
             }
 
+            if (SearchText != "" && SearchText != null)
+            {
+                users = users.OrderBy(p => p.UserName).Where(m => m.UserName.Contains(SearchText)).ToList();
+            }
+            else
+            {
+                users = users.OrderBy(p => p.UserName).ToList();
+            }
+
             const int pageSize = 5;
             if (pg < 1)
             {
@@ -840,15 +853,6 @@ namespace ProjectSupport.Controllers
                         resourceViewModel.IsSelected = false;
                     }
                 model.Add(resourceViewModel);
-            }
-
-            if (SearchText != "" && SearchText != null)
-            {
-                model = model.OrderBy(p => p.UserName).Where(m => m.UserName.Contains(SearchText)).ToList();
-            }
-            else
-            {
-                model = model.OrderBy(p => p.UserName).ToList();
             }
 
             ViewBag.id = project.Id;
@@ -953,6 +957,16 @@ namespace ProjectSupport.Controllers
                 model = model.OrderBy(p => p.Name).ToList();
             }
 
+            switch (sortOrder)
+            {
+                case "date_desc":
+                    model = model.OrderByDescending(s => s.StartDate).ToList();
+                    break;
+                default:
+                    model = model.OrderBy(s => s.StartDate).ThenBy(s => s.EndDate).ToList();
+                    break;
+            }
+
             const int pageSize = 5;
             if (pg < 1)
             {
@@ -968,16 +982,6 @@ namespace ProjectSupport.Controllers
             var data = model.Skip(recSkip).Take(pager.PageSize).ToList();
 
             this.ViewBag.Pager = pager;
-
-            switch (sortOrder)
-            {
-                case "date_desc":
-                    data = data.OrderByDescending(s => s.StartDate).ToList();
-                    break;
-                default:
-                    data = data.OrderBy(s => s.StartDate).ThenBy(s => s.EndDate).ToList();
-                    break;
-            }
 
             ViewBag.id = id;
 
@@ -1015,6 +1019,17 @@ namespace ProjectSupport.Controllers
                 pg = 1;
             }
 
+            projectTasks = projectTasks.OrderBy(t => t.StartDate).ThenBy(t => t.EndDate).ToList();
+
+            if (SearchText != "" && SearchText != null)
+            {
+                projectTasks = projectTasks.OrderBy(p => p.Name).Where(m => m.Name.Contains(SearchText)).ToList();
+            }
+            else
+            {
+                projectTasks = projectTasks.OrderBy(t => t.StartDate).ThenBy(t => t.EndDate).ToList();
+            }
+
             int recsCount = projectTasks.Count();
 
             var pager = new Pager(recsCount, pg, pageSize);
@@ -1046,15 +1061,6 @@ namespace ProjectSupport.Controllers
                         dependencyViewModel.IsSelected = false;
                     }
                 model.Add(dependencyViewModel);
-            }
-
-            if (SearchText != "" && SearchText != null)
-            {
-                model = model.OrderBy(p => p.RelatedTaskName).Where(m => m.RelatedTaskName.Contains(SearchText)).ToList();
-            }
-            else
-            {
-                model = model.OrderBy(p => p.RelatedTaskName).ToList();
             }
 
             ViewBag.id = project.Id;
@@ -1165,6 +1171,15 @@ namespace ProjectSupport.Controllers
                 }
             }
 
+            switch (sortOrder)
+            {
+                case "date_desc":
+                    model = model.OrderByDescending(s => s.Task.StartDate).ThenBy(s => s.IsAssigned).ToList();
+                    break;
+                default:
+                    model = model.OrderBy(s => s.Task.StartDate).ThenBy(s => s.Task.EndDate).ThenBy(s => s.IsAssigned).ToList();
+                    break;
+            }
 
             if (SearchText != "" && SearchText != null)
             {
@@ -1172,7 +1187,7 @@ namespace ProjectSupport.Controllers
             }
             else
             {
-                model = model.OrderByDescending(s => s.IsAssigned).ThenBy(p => p.Task.Name).ToList();
+                model = model.OrderBy(s => s.Task.StartDate).ThenBy(s => s.Task.EndDate).ThenBy(s => s.IsAssigned).ToList();
             }
 
             const int pageSize = 5;
@@ -1190,16 +1205,6 @@ namespace ProjectSupport.Controllers
             var data = model.Skip(recSkip).Take(pager.PageSize).ToList();
 
             this.ViewBag.Pager = pager;
-
-            switch (sortOrder)
-            {
-                case "date_desc":
-                    data = data.OrderByDescending(s => s.Task.StartDate).ThenBy(s => s.IsAssigned).ToList();
-                    break;
-                default:
-                    data = data.OrderBy(s => s.Task.StartDate).ThenBy(s => s.Task.EndDate).ThenBy(s => s.IsAssigned).ToList();
-                    break;
-            }
 
             ViewBag.id = id;
 

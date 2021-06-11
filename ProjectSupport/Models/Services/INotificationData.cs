@@ -11,6 +11,6 @@ namespace ProjectSupport.Models.Services
         Notification Get(int id);
         void Add(Notification task);
         void Update(Notification task);
-        void Delete(int id);
+        Task Delete(int id);
     }
 }

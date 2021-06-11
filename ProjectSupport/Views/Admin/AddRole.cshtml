@@ -1,6 +1,7 @@
 ﻿@model List<ProjectSupport.ViewModels.AddRoleViewModel>
 @{
     ViewBag.Title = "Add Role to User";
+    int page = ViewBag.Page;
 }
 
 <div class="container child2">
@@ -64,7 +65,7 @@
                     <div class="card-footer text-center">
                         <input type="submit" value="Update" class="btn btn-primary"
                                style="width:auto" />
-                        <a asp-action="EditUsers" asp-route-id="@ViewBag.userId"
+                        <a asp-action="EditUsers" asp-route-pg="@ViewBag.Page"
                            class="btn btn-primary" style="width:auto">Cancel</a>
                     </div>
                 </div>

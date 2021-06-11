@@ -25,6 +25,9 @@
                         <div>
                             @if (Model.Messages.Count > 0)
                             {
+                                <div class="text-center">
+                                    <img class="text-center" src="~/img/noMessages.svg" style="height: 450px">
+                                </div>
                                 @foreach (var message in Model.Messages)
                                 {
                                     <div class="message">

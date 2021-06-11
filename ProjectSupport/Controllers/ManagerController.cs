@@ -295,6 +295,15 @@ namespace ProjectSupport.Controllers
                 }
             }
 
+            if (SearchText != "" && SearchText != null)
+            {
+                users = users.OrderBy(p => p.UserName).Where(m => m.UserName.Contains(SearchText)).ToList();
+            }
+            else
+            {
+                users = users.OrderBy(p => p.UserName).ToList();
+            }
+
             const int pageSize = 5;
             if (pg < 1)
             {
@@ -332,15 +341,6 @@ namespace ProjectSupport.Controllers
                         userProjectViewModel.IsSelected = false;
                     }
                 model.Add(userProjectViewModel);
-            }
-
-            if (SearchText != "" && SearchText != null)
-            {
-                model = model.OrderBy(p => p.UserName).Where(m => m.UserName.Contains(SearchText)).ToList();
-            }
-            else
-            {
-                model = model.OrderBy(p => p.UserName).ToList();
             }
 
             return View(model);
@@ -442,7 +442,7 @@ namespace ProjectSupport.Controllers
         }
         
         [HttpGet]
-        public async Task<IActionResult> SeeDevelopers(string id, string sortOrder, int pg = 1, string SearchText = "")
+        public async Task<IActionResult> SeeDevelopers(string id, string sortOrder, int pg, string SearchText = "")
         {
             ViewBag.CurrentSort = sortOrder;
             ViewBag.EmailSortParm = String.IsNullOrEmpty(sortOrder) ? "email_desc" : "";
@@ -496,11 +496,13 @@ namespace ProjectSupport.Controllers
                     break;
             }
 
+            ViewBag.Page = pg;
+
             return View(data);
         }
 
         [HttpGet]
-        public async Task<IActionResult> AddSalary(string id)
+        public async Task<IActionResult> AddSalary(string id, int pg)
         {
             var appUser = await userManager.FindByIdAsync(id);
 
@@ -511,12 +513,15 @@ namespace ProjectSupport.Controllers
             {
                 return View("NotFound");
             }
+
+            ViewBag.Page = pg;
+
             return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddSalary(EditUserViewModel model)
+        public async Task<IActionResult> AddSalary(EditUserViewModel model, int pg)
         {
             if (ModelState.IsValid)
             {
@@ -536,7 +541,7 @@ namespace ProjectSupport.Controllers
                 db.SaveChanges();
 
                 userData.Update(model.AppUser);
-                return RedirectToAction("SeeDevelopers", new { id = model.UserId });
+                return RedirectToAction("SeeDevelopers", new { id = model.UserId, pg = pg });
             }
             return View();
         }

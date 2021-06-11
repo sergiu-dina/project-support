@@ -24,8 +24,9 @@
                     @using (Html.BeginForm())
                     {
                         @Html.AntiForgeryToken()
-
-                        <input type="submit" value="DeleteUser" class="btn btn-primary" />
+                        @Html.HiddenFor(model => model.Id)
+                        @Html.HiddenFor(model => model.UserName)
+                        <input type="submit" value="Delete User" class="btn btn-primary" />
                         <a class="btn btn-primary"
                            asp-action="EditUsers" asp-controller="Admin">
                             Back to List
