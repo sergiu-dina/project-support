@@ -63,7 +63,7 @@ namespace ProjectSupport.Controllers
                             if(resource.TaskId== task.Id)
                             {
                                 var user = await userManager.FindByIdAsync(resource.UserId);
-                                temp.Cost = user.HourlyRate * task.Duration * 8;
+                                temp.Cost += user.HourlyRate * task.Duration * 8;
                             }
                         }
                     }
@@ -113,8 +113,8 @@ namespace ProjectSupport.Controllers
                 model.Add(temp);
             }
 
-            var data = model.OrderByDescending(m => m.Tasks).Take(5).ToList();
-
+            var data = model.OrderByDescending(m => m.Tasks).Take(9).ToList();
+           
             return Json(data);
         }
 

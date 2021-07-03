@@ -54,9 +54,150 @@ namespace ProjectSupport.Controllers
             this.chatData = chatData;
             this.chatUserData = chatUserData;
         }
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            var cost = 0;
+            var projects = projectData.GetAll();
+            var tasks = ganttTaskData.GetAll();
+            var resources = resourcesData.GetAll();
+
+            foreach (var project in projects)
+            {
+                foreach (var task in tasks)
+                {
+                    if (task.ProjectId == project.Id)
+                    {
+                        foreach (var resource in resources)
+                        {
+                            if (resource.TaskId == task.Id)
+                            {
+                                var user = await userManager.FindByIdAsync(resource.UserId);
+                                cost += user.HourlyRate * task.Duration * 8;
+                            }
+                        }
+                    }
+                }
+            }
+            return View(cost);
+        }
+
+        [HttpGet]
+        public JsonResult GetDonutJsonData()
+        {
+            var model = new List<DonutChartViewModel>();
+
+            var tasks = ganttTaskData.GetAll();
+            var completed = 0;
+            var inprogress = 0;
+            var notstarted = 0;
+
+            foreach (var task in tasks)
+            {
+                if (task.Progress == 0)
+                {
+                    notstarted++;
+                }
+                else if(task.Progress == 100)
+                {
+                    completed++;
+                }
+                else
+                {
+                    inprogress++;
+                }
+            }
+
+            var temp1 = new DonutChartViewModel
+            {
+                ProjectName = "Completed",
+                Duration = completed
+            };
+            var temp2 = new DonutChartViewModel
+            {
+                ProjectName = "In Progress",
+                Duration = inprogress
+            };
+            var temp3 = new DonutChartViewModel
+            {
+                ProjectName = "Not Started",
+                Duration = notstarted
+            };
+
+            model.Add(temp1);
+            model.Add(temp2);
+            model.Add(temp3);
+
+            return Json(model);
+        }
+
+        [HttpGet]
+        public JsonResult GetDonut2JsonData()
+        {
+            var model = new List<DonutChartViewModel>();
+            var projects = projectData.GetAll();
+            var tasks = ganttTaskData.GetAll();
+            var resources = resourcesData.GetAll();
+
+            foreach (var project in projects)
+            {
+                var temp = new DonutChartViewModel();
+                temp.ProjectName = project.Name;
+                var time = 0;
+                foreach (var task in tasks)
+                {
+                    if (task.ProjectId == project.Id)
+                    {
+                        var duration = (task.EndDate - task.StartDate).Days * 8;
+                        int percentComplete = (int)Math.Round((double)(task.Progress/100) * duration);
+                        time += percentComplete;
+                    }
+                }
+                temp.Duration = time;
+
+                model.Add(temp);
+            }
+
+            var data = model.OrderByDescending(m => m.Duration).Take(6).ToList();
+
+            return Json(data);
+        }
+
+        [HttpGet]
+        public JsonResult GetColumnJsonData()
+        {
+            var model = new List<StackedChartViewModel>();
+            var projects = projectData.GetAll();
+            var tasks = ganttTaskData.GetAll();
+
+            foreach (var project in projects)
+            {
+                var temp = new StackedChartViewModel();
+                temp.ProjectName = project.Name;
+                foreach (var task in tasks)
+                {
+                    if (task.ProjectId == project.Id)
+                    {
+                        if (task.Progress == 0)
+                        {
+                            temp.Notstarted++;
+                        }
+                        else if (task.Progress == 100)
+                        {
+                            temp.Completed++;
+                        }
+                        else
+                        {
+                            temp.Inprogress++;
+                        }
+                        temp.Tasks++;
+                    }
+                }
+                model.Add(temp);
+            }
+
+            var data = model.OrderByDescending(m => m.Tasks).Take(10).ToList();
+
+            return Json(data);
         }
 
         [HttpGet]

@@ -111,7 +111,7 @@
 
 <footer class="bg-light text-center text-lg-start">
     <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
-        © 2021 Project made by Sergiu Dina
+        2021 - Project made by Sergiu Dina
     </div>
 </footer>
 
@@ -199,7 +199,10 @@
         });
 
         var options2 = {
-            title: 'Projects by Cost'
+            title: 'Projects by Cost',
+            titleTextStyle: {
+                fontSize: 20
+            }
         };
 
         var chart2 = new google.visualization.PieChart(document.getElementById('piechart'));
@@ -238,6 +241,9 @@
         var options3 = {
             title: 'Projects by Days',
             pieHole: 0.4,
+            titleTextStyle: {
+                fontSize: 20
+            }
         };
 
         var chart3 = new google.visualization.PieChart(document.getElementById('donutchart'));

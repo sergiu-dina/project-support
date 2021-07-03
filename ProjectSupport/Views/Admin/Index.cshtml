@@ -1,4 +1,6 @@
-﻿@using Microsoft.AspNetCore.Identity
+﻿@model int 
+
+@using Microsoft.AspNetCore.Identity
 @using ProjectSupport.Areas.Identity.Data
 
 @inject SignInManager<AppUser> SignInManager
@@ -6,12 +8,13 @@
 
 @{
     ViewBag.Title = "Dashboard";
+    string cost = Model.ToString("###,###");
 }
 
-<div class="container child">
+<div class="container child4">
     <div class="content-container">
         <div class="container-fluid">
-            @if (SignInManager.IsSignedIn(User) && User.IsInRole("Admin")) 
+            @if (SignInManager.IsSignedIn(User) && User.IsInRole("Admin"))
             {
                 <div class="text-center">
                     <img class="text-center" src="~/img/Dashboard.svg">
@@ -73,7 +76,214 @@
                         </div>
                     </div>
                 </div>
+
+                <br />
+                <div style="padding-left:90px">
+                    <a href="#section2" class="text-center">
+                        <div class="animated bounce">
+                            <i class="fas fa-angle-double-down" style="color:Highlight; font-size:45px"></i>
+                        </div>
+                    </a>
+                    <br />
+                    <div class="text-center">
+                        <h1>Admin Dashboard</h1>
+                    </div>
+                    <br />
+                </div>
+                <br />
+                <div id="section2"></div>
+                <div style="width:1500px; padding-right:450px">
+                    <div class="container text-center">
+                        <div class="row">
+                            <div class="col-md">
+                                <div class="card" style="height:350px">
+                                    <div class="card-header">
+                                        <h4>Tasks Status</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="donutchart"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md">
+                                <div class="card" style="height:350px">
+                                    <div class="card-header">
+                                        <h4>Total Cost</h4>
+                                    </div>
+                                    <div class="card-body" style="padding-top:100px">
+                                        <h1>@cost $</h1>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md">
+                                <div class="card" style="height:350px">
+                                    <div class="card-header">
+                                        <h4>Hours Spent on Projects</h4>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="donutchart2"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <br />
+                        <div class="row">
+                            <div class="col-lg">
+                                <div class="card" style="height:380px">
+                                    <div class="card-header">
+                                        <h4>Workload</h4>
+                                    </div>
+                                    <div class="card-body" style="overflow: hidden;">
+                                        <div id="columnchart_material"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br />
             }
         </div>
     </div>
 </div>
+
+@section Scripts
+{
+
+    <script src="https://cdn.jsdelivr.net/gh/cferdinandi/smooth-scroll@15.0.0/dist/smooth-scroll.polyfills.min.js"></script>
+    <script>
+        var scroll = new SmoothScroll('a[href*="#"]');
+    </script>
+
+    <script>
+        google.charts.load('current', { 'packages': ['bar'] });
+        google.charts.load('current', { 'packages': ['corechart'] });
+        google.charts.setOnLoadCallback(getColumnJsonData);
+        google.charts.setOnLoadCallback(getDonutJsonData);
+        google.charts.setOnLoadCallback(getDonut2JsonData);
+
+        function getColumnJsonData() {
+            $.ajax({
+
+                url: '/Admin/GetColumnJsonData',
+                dataType: "json",
+                type: "GET",
+                error: function (xhr, status, error) {
+                    //var err = eval("(" + xhr.responseText + ")");
+                    console.log(error.message);
+                    //toastr.error(err.message);
+                },
+                success: function (data) {
+                    console.log(data);
+                    drawChart(data);
+                    return false;
+                }
+            });
+            return false;
+        }
+
+        function drawChart(jsonData) {
+            var data = new google.visualization.DataTable();
+            data.addColumn('string', 'Project');
+            data.addColumn('number', 'Completed');
+            data.addColumn('number', 'In Progress');
+            data.addColumn('number', 'Not Started');
+            jsonData.forEach(row => {
+                data.addRow([row["projectName"], row["completed"], row["inprogress"], row["notstarted"]]);
+            });
+
+            var options = {
+                isStacked: true,
+                width: 1120,
+                height: 315,
+                fontSize: 18,
+            };
+
+            var chart = new google.charts.Bar(document.getElementById('columnchart_material'));
+
+            chart.draw(data, google.charts.Bar.convertOptions(options));
+        }
+
+        function getDonutJsonData() {
+            $.ajax({
+
+                url: '/Admin/GetDonutJsonData',
+                dataType: "json",
+                type: "GET",
+                error: function (xhr, status, error) {
+                    //var err = eval("(" + xhr.responseText + ")");
+                    console.log(error.message);
+                    //toastr.error(err.message);
+                },
+                success: function (data3) {
+                    console.log(data3);
+                    drawChart3(data3);
+                    return false;
+                }
+            });
+            return false;
+        }
+
+        function drawChart3(jsonData3) {
+            var data3 = new google.visualization.DataTable();
+            data3.addColumn('string', 'Task Status');
+            data3.addColumn('number', 'Number');
+            jsonData3.forEach(row => {
+                data3.addRow([row["projectName"], row["duration"]]);
+            });
+
+            var options3 = {
+                pieHole: 0.4,
+                chartArea: { 'width': '100%', 'height': '100%' },
+                legend: 'none',
+                width: 275,
+                height: 250,
+                fontSize: 18,
+            };
+
+            var chart3 = new google.visualization.PieChart(document.getElementById('donutchart'));
+            chart3.draw(data3, options3);
+        }
+
+        function getDonut2JsonData() {
+            $.ajax({
+
+                url: '/Admin/GetDonut2JsonData',
+                dataType: "json",
+                type: "GET",
+                error: function (xhr, status, error) {
+                    //var err = eval("(" + xhr.responseText + ")");
+                    console.log(error.message);
+                    //toastr.error(err.message);
+                },
+                success: function (data2) {
+                    console.log(data2);
+                    drawChart2(data2);
+                    return false;
+                }
+            });
+            return false;
+        }
+
+        function drawChart2(jsonData2) {
+            var data2 = new google.visualization.DataTable();
+            data2.addColumn('string', 'Task Status');
+            data2.addColumn('number', 'Number');
+            jsonData2.forEach(row => {
+                data2.addRow([row["projectName"], row["duration"]]);
+            });
+
+            var options2 = {
+                pieHole: 0.9,
+                chartArea: { 'width': '100%', 'height': '100%' },
+                legend: 'none',
+                width: 275,
+                height: 250,
+                fontSize: 18,
+            };
+
+            var chart2 = new google.visualization.PieChart(document.getElementById('donutchart2'));
+            chart2.draw(data2, options2);
+        }
+    </script>
+}

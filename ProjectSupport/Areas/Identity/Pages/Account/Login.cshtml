@@ -50,30 +50,46 @@
                     <div>
                         <p>
                             <div class="row">
-                                @foreach (var provider in Model.ExternalLogins)
+                                @if(Model.ExternalLogins.Count > 0)
                                 {
-
-                                    if (provider.Name == "Google")
+                                    @foreach (var provider in Model.ExternalLogins)
                                     {
-                                        <div class="col-md-6">
-                                            <button type="submit" class="btn btn-block btn-google" value="@provider.Name"
-                                                    title="Log in using your @provider.DisplayName account" name="provider">
 
-                                                <i class="fab fa-google-plus fa-align-left social-icon" style=""></i>
-                                            </button>
-                                        </div>
+                                        if (provider.Name == "Google")
+                                        {
+                                            <div class="col-md-6">
+                                                <button type="submit" class="btn btn-block btn-google" value="@provider.Name"
+                                                        title="Log in using your @provider.DisplayName account" name="provider">
+
+                                                    <i class="fab fa-google-plus fa-align-left social-icon" style=""></i>
+                                                </button>
+                                            </div>
+                                        }
+                                        else if (provider.Name == "Facebook")
+                                        {
+                                            <div class="col-md-6">
+                                                <button class="btn-block btn btn-facebook" type="submit" value="@provider.Name"
+                                                        title="Log in using your @provider.DisplayName account" name="provider">
+
+                                                    <i class="fab fa-facebook fa-align-left social-icon"></i>
+                                                </button>
+                                            </div>
+                                        }
+
                                     }
-                                    else if (provider.Name == "Facebook")
-                                    {
-                                        <div class="col-md-6">
-                                            <button class="btn-block btn btn-facebook" type="submit" value="@provider.Name"
-                                                    title="Log in using your @provider.DisplayName account" name="provider">
-
-                                                <i class="fab fa-facebook fa-align-left social-icon"></i>
-                                            </button>
-                                        </div>
-                                    }
-
+                                }
+                                else
+                                {
+                                    <div class="col-md-6">
+                                        <a href="/.auth/login/google" class="btn btn-block btn-google"> 
+                                            <i class="fab fa-google-plus fa-align-left social-icon" style=""></i>
+                                        </a>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <a href="/.auth/login/facebook" class="btn-block btn btn-facebook">
+                                            <i class="fab fa-facebook fa-align-left social-icon"></i>
+                                        </a>
+                                    </div>
                                 }
                             </div>
                         </p>

@@ -1,0 +1,45 @@
+{
+  "dependencies": {
+    "signalr1": {
+      "restored": true,
+      "restoreTime": "2021-06-12T10:27:21.689054Z"
+    }
+  },
+  "parameters": {
+    "projectsupport-dinasergiu.resourceName": {
+      "Name": "projectsupport-dinasergiu.resourceName",
+      "Type": null,
+      "Value": "projectsupport-dinasergiu"
+    },
+    "projectsupport-dinasergiu.subscriptionId": {
+      "Name": "projectsupport-dinasergiu.subscriptionId",
+      "Type": "subscription",
+      "Value": "941115a0-e8bd-4f8f-a5e4-103a0e850ebc"
+    },
+    "signalr1.resourceGroupName": {
+      "Name": "signalr1.resourceGroupName",
+      "Type": "resourceGroup",
+      "Value": "ProjectSupport"
+    },
+    "projectsupport-dinasergiu.resourceGroupLocation": {
+      "Name": "projectsupport-dinasergiu.resourceGroupLocation",
+      "Type": null,
+      "Value": "germanywestcentral"
+    },
+    "signalr1.subscriptionId": {
+      "Name": "signalr1.subscriptionId",
+      "Type": "subscription",
+      "Value": "941115a0-e8bd-4f8f-a5e4-103a0e850ebc"
+    },
+    "subscriptionId": {
+      "Name": "subscriptionId",
+      "Type": "subscription",
+      "Value": "941115a0-e8bd-4f8f-a5e4-103a0e850ebc"
+    },
+    "projectsupport-dinasergiu.resourceGroupName": {
+      "Name": "projectsupport-dinasergiu.resourceGroupName",
+      "Type": "resourceGroup",
+      "Value": "ProjectSupport"
+    }
+  }
+}
