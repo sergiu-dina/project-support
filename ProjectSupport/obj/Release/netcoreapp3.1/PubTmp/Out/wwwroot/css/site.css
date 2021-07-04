@@ -124,6 +124,13 @@ div.login-form-icon {
     padding: 50px;
 }
 
+.child4 {
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    transform: translate(-50%);
+}
+
 .child3 {
     position: absolute;
     top: 50px;

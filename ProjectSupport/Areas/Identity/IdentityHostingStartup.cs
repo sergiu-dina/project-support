@@ -19,7 +19,7 @@ namespace ProjectSupport.Areas.Identity
             builder.ConfigureServices((context, services) => {
                 services.AddDbContext<AppDbContext>(options =>
                     options.UseSqlServer(
-                        context.Configuration.GetConnectionString("AppDbContextConnection")));
+                        context.Configuration.GetConnectionString("ProjectSupportContextConnection")));
 
                 services.AddIdentity<AppUser, IdentityRole>(options =>
                 {
