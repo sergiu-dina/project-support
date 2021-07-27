@@ -1,12 +1,12 @@
 # Project Support App
 
-This application is a project management web application, similar to MSProject. The main entities used for managing projects are: tasks, resources, dependencies and costs. For every project, this informations can be seen in a Gantt Diagram, that provides a quick overview of the project.
+This application is a project management web application, similar to MSProject. The main components used for managing projects are: tasks, resources, dependencies and costs. For every project, this informations can be seen in a Gantt Diagram, that provides a quick overview of the project.
 
 In order to access the application, users need to create an account. They can do this either by registering or by connecting with a Google or Facebook account.
 
-In order to improve the management process and in order to increase the communication between the users in a project, real time communication was introduced to the app. The chats are of two types: Private and Room. Each project has a Room chat and every user can create a Private chat with any other user. In order to alert the users when they have been added or removed from a task or project, a real time notification system was also implemented.
+In order to improve the management process and in order to increase the communication between the users of a project, real time communication was introduced to the app. The chats are of two types: Private and Room. Each project has a Room chat and every user can create a Private chat with any other user. In order to alert the users when they have been added or removed from a task or project, a real time notification system was also implemented.
 
-When you check out the app, in the Login page I recommend choosing the option to Log In with a Demo Account in order to have access to all the features of the application.
+When you check out the app, in the Log In page I recommend choosing the option to Log In with a Demo Account in order to have access to all the features of the application.
 
 Please visit the site and try it out: https://projectsupport-dinasergiu.azurewebsites.net
 
@@ -14,7 +14,12 @@ The documentation in Romanian for the project can be read here: https://pdfhost.
 
 ## Used Technologies
 
-In order to create the app I used the programming language C# together with different frameworks from the .NET Core ecosystem, such as: ASP.NET Core, Entity Framework Core, ASP.NET Core Identity and SignalR. For implementing client-side functionalities I used HTML, CSS, Bootstrap, JavaScript and TypeScript, together with Razor Pages. The Database management system used during development was SQL Server and for publishing the App in Azure I switched to Azure SQL.
+In order to create the app I used the C# programming language together with different frameworks from the .NET Core ecosystem, such as: ASP.NET Core, Entity Framework Core, ASP.NET Core Identity and SignalR. For implementing client-side functionalities I used HTML, CSS, Bootstrap, JavaScript and TypeScript, together with Razor Pages. The Database management system used during development was SQL Server and for publishing the App in Azure I switched to Azure SQL.
+
+Here is the database diagram:
+
+![DbDiagram](https://user-images.githubusercontent.com/70022000/127138967-ed918353-d890-4354-af68-3c358657526a.jpg)
+
 
 ## Demo Accounts
 
